@@ -157,7 +157,7 @@ svg text{font-family:var(--f-body)}
     <div class="row"><div class="lab">Корпус</div><select id="selSec" class="sel" aria-label="Корпус"></select></div>
     <div class="row"><div class="lab">Подсветка корпусов</div><div class="chips" id="rLayer"></div></div>
     <div class="row"><div class="lab" id="aptLab">Квартира на этаже</div><div class="chips" id="rApt"></div></div>
-    <div class="legend"><span><i class="st" style="background:#3ddc97"></i>свободна</span><span><i class="st" style="background:#f2b04a"></i>бронь</span><span><i class="st" style="background:#6b7780"></i>продана</span><span>примерные данные</span></div>
+    <div class="legend"><span><i class="st" style="background:#3ddc97"></i>свободна</span><span><i class="st" style="background:#f2b04a"></i>бронь</span><span><i class="st" style="background:#6b7780"></i>продана</span><span id="dataLab">примерные данные</span></div>
     <div class="row"><div class="lab">Ракурс</div><div class="chips" id="rExtView"></div></div>
     <div class="row"><div class="lab">Дом</div><div class="chips" id="rHouse"></div></div>
     <div class="row" id="rowInner"><div class="lab">Квартира</div><div class="chips" id="rInner"></div></div>
@@ -183,7 +183,9 @@ svg text{font-family:var(--f-body)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
-(function () {
+// sales data comes from data/apartments.json (later: a CRM adapter writes the same format); the scene starts once it is loaded.
+// Without the file (opened from disk, offline) the demo falls back to statuses and prices generated in code.
+fetch('../data/apartments.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null).then(function (DATA) {
   'use strict';
   const $ = (id) => document.getElementById(id);
   const stageEl = $('stage'), cv = $('cv');
@@ -719,7 +721,8 @@ svg text{font-family:var(--f-body)}
     updateExtMarker(); buildNeighbors();
   }
 
-  /* ---------- sample sales data: statuses and prices are placeholders until a CRM is connected ---------- */
+  /* ---------- sales data: data/apartments.json ({quarter, section, floor, number, type, rooms, area, price, status: free|reserved|sold}),
+     keyed by quarter-section:floor+type; generated placeholders when the file is missing ---------- */
   const LETTERS = ['a', 'b', 'c', 'd'];
   const TYPES = {
     a: { n: 'А', short: '3-комн.', area: 72.6, D: 6.6, face: 1 }, b: { n: 'Б', short: '1-комн.', area: 42.2, D: 6.6, face: 1 },
@@ -728,13 +731,23 @@ svg text{font-family:var(--f-body)}
   const ST = { free: { t: 'Свободна', c: '#3ddc97' }, res: { t: 'Бронь', c: '#f2b04a' }, sold: { t: 'Продана', c: '#6b7780' } };
   function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
   const towerSec = SECTIONS.find((x) => x.own); S.sec = towerSec.i;
+  const DATA_OK = !!(DATA && Array.isArray(DATA.apartments)), SAMPLE = !DATA_OK || DATA.sample !== false;
+  const ST_CODE = { free: 'free', reserved: 'res', sold: 'sold' }, APTS = {};
+  if (DATA_OK) DATA.apartments.forEach((a) => { if (a && TYPES[a.type]) APTS[a.quarter + '-' + a.section + ':' + a.floor + a.type] = a; });
+  const rec = (si, f, l) => (DATA_OK ? APTS[SECTIONS[si].q + '-' + SECTIONS[si].n + ':' + f + l] : null);
   function status(si, f, l) {
+    if (DATA_OK) { const a = rec(si, f, l); return (a && ST_CODE[a.status]) || 'sold'; }   // not in the export = not on sale
     if (si === towerSec.i && f === 8 && l === 'a') return 'free';
     const r = hash(si + ':' + f + l); return r < 0.52 ? 'sold' : (r < 0.62 ? 'res' : 'free');
   }
-  const price = (f, l) => { const t = TYPES[l], rate = 292000 + f * 2200 + (t.face === 1 ? 7000 : 0); return Math.round(t.area * rate / 10000) * 10000; };
-  const money = (n) => (n / 1e6).toFixed(1).replace('.', ',') + ' млн ₽';
-  const aptNum = (f, l) => (f - 2) * 4 + LETTERS.indexOf(l) + 1;
+  function price(si, f, l) {
+    const a = rec(si, f, l); if (a) return a.price > 0 ? a.price : null;
+    const t = TYPES[l], rate = 292000 + f * 2200 + (t.face === 1 ? 7000 : 0); return Math.round(t.area * rate / 10000) * 10000;
+  }
+  const area = (si, f, l) => { const a = rec(si, f, l); return a && a.area > 0 ? a.area : TYPES[l].area; };
+  const money = (n) => (n == null ? 'по запросу' : (n / 1e6).toFixed(1).replace('.', ',') + ' млн ₽');
+  const aptNum = (si, f, l) => { const a = rec(si, f, l); return a && a.number != null ? a.number : (f - 2) * 4 + LETTERS.indexOf(l) + 1; };
+  if (!SAMPLE) $('dataLab').textContent = 'данные на ' + String(DATA.updated || '').split('-').reverse().join('.');
   SECTIONS.forEach((sec) => {
     for (let f = 2; f <= sec.floors; f++) LETTERS.forEach((l) => { sec.total++; if (status(sec.i, f, l) === 'free') sec.free++; });
   });
@@ -1255,8 +1268,8 @@ svg text{font-family:var(--f-body)}
     const left = el('div'), right = el('div');
     if (S.mode === 'ext') {
       const sec = SECTIONS[S.sec], t = TYPES[S.apt], st = status(S.sec, S.floor, S.apt);
-      left.appendChild(el('h2', '', 'Кв. ' + t.n + ' · ' + t.short + ', ' + fmt(t.area) + ' м²'));
-      left.appendChild(metaRow([['Статус', ST[st].t], ['Цена', money(price(S.floor, S.apt))], ['Этаж', S.floor + ' из ' + sec.floors], ['Номер', '№ ' + aptNum(S.floor, S.apt)]]));
+      left.appendChild(el('h2', '', 'Кв. ' + t.n + ' · ' + t.short + ', ' + fmt(area(S.sec, S.floor, S.apt)) + ' м²'));
+      left.appendChild(metaRow([['Статус', ST[st].t], ['Цена', st === 'sold' ? '—' : money(price(S.sec, S.floor, S.apt))], ['Этаж', S.floor + ' из ' + sec.floors], ['Номер', '№ ' + aptNum(S.sec, S.floor, S.apt)]]));
       const ul = el('ul');
       [secName(sec) + (sec.own ? ' — подготовленная для показа секция' : ''), 'В этом корпусе свободно ' + sec.free + ' из ' + sec.total + ' квартир', 'Окна выходят ' + (t.face === 1 ? 'во двор, на юг' : 'на улицу, на север'),
        sec.own && S.apt === 'a' ? 'Для этой квартиры есть 3D-интерьер и вид из окна' : 'Для этой планировки доступна схема; 3D-интерьер пока только у квартиры А секции 2 квартала 2'].forEach((x) => ul.appendChild(el('li', '', x)));
@@ -1298,7 +1311,7 @@ svg text{font-family:var(--f-body)}
   function renderNote() {
     const n = $('note'); n.textContent = '';
     if (S.mode === 'ext') {
-      n.textContent = 'Статусы и цены в этом режиме — примерные данные для демонстрации, не реальные продажи. Положение домов схематично. Из названий улиц взято только «ул. Мира» (адрес комплекса), остальные условны. Соседние жилые районы показаны контурами, их положение условно. Тундра, озёра и рельеф за кварталом — схематичная местность вокруг Нового Уренгоя (плоская, с буграми и озёрами), а не топосъёмка.';
+      n.textContent = (SAMPLE ? 'Статусы и цены в этом режиме — примерные данные для демонстрации, не реальные продажи.' : 'Статусы и цены — из выгрузки отдела продаж' + (DATA.updated ? ' на ' + String(DATA.updated).split('-').reverse().join('.') : '') + ', наличие уточняйте в офисе продаж.') + ' Положение домов схематично. Из названий улиц взято только «ул. Мира» (адрес комплекса), остальные условны. Соседние жилые районы показаны контурами, их положение условно. Тундра, озёра и рельеф за кварталом — схематичная местность вокруг Нового Уренгоя (плоская, с буграми и озёрами), а не топосъёмка.';
     } else if (S.mode === 'win') {
       n.textContent = 'Вид собран по схеме застройки «Новеллы»: пять кварталов, лицей и детский сад. Положение соседних зданий схематично. Дальше пределов модели рельеф и застройка не изучены, там показана ровная земля. Это не фотография.';
     } else if (S.finish === 'bare') {
@@ -1577,8 +1590,8 @@ svg text{font-family:var(--f-body)}
   resize(); const c0 = camFor('overview'); camera.position.set(...c0.pos); controls.target.set(...c0.tgt); limits();
   resize(); refresh();
   requestAnimationFrame(frame);
-  window.__nv = { S: S, walk: walk, startWalk: startWalk, enterWindow: enterWindow, enterInterior: enterInterior, refresh: refresh, camera: camera, describe: describe };
-})();
+  window.__nv = { S: S, walk: walk, startWalk: startWalk, enterWindow: enterWindow, enterInterior: enterInterior, refresh: refresh, camera: camera, describe: describe, data: DATA_OK ? 'json' : 'generated' };
+});
 </script>
 
 </body>
