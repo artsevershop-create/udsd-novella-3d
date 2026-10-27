@@ -806,7 +806,7 @@ svg text{font-family:var(--f-body)}
 
   /* ---------- neighbours on the floor of our apartment (shown in the plan view) ---------- */
   const nbG = new THREE.Group(); nbG.visible = false; root.add(nbG);
-  const NB = [{ l: 'b', x0: 15, x1: 22.5, z0: 0, z1: 6.6 }, { l: 'c', x0: 0, x1: 11, z0: 7.6, z1: 14 }, { l: 'd', x0: 15, x1: 22.5, z0: 8, z1: 14 }, { l: 'core', x0: 11, x1: 15, z0: 0, z1: 14 }, { l: 'corr', x0: 0, x1: 11, z0: 6.6, z1: 7.6 }];
+  const NB = [{ l: 'b', x0: 15, x1: 22.5, z0: 0, z1: 6.6 }, { l: 'c', x0: 0, x1: 11, z0: 7.6, z1: 14 }, { l: 'd', x0: 15, x1: 22.5, z0: 8, z1: 14 }];
   function labelTex(l1, l2) {
     const c = document.createElement('canvas'); c.width = 256; c.height = 128; const g = c.getContext('2d');
     g.fillStyle = 'rgba(255,255,255,0.88)'; g.beginPath(); g.moveTo(14, 4); g.lineTo(242, 4); g.quadraticCurveTo(252, 4, 252, 14); g.lineTo(252, 114); g.quadraticCurveTo(252, 124, 242, 124); g.lineTo(14, 124); g.quadraticCurveTo(4, 124, 4, 114); g.lineTo(4, 14); g.quadraticCurveTo(4, 4, 14, 4); g.fill();
@@ -818,18 +818,80 @@ svg text{font-family:var(--f-body)}
     const key = String(S.floor); if (key === nbKey) return; nbKey = key;
     while (nbG.children.length) { const c = nbG.children.pop(); c.geometry.dispose(); if (c.material.map) c.material.map.dispose(); c.material.dispose(); }
     NB.forEach((nb) => {
-      const w = nb.x1 - nb.x0, d = nb.z1 - nb.z0, cx = (nb.x0 + nb.x1) / 2, cz = (nb.z0 + nb.z1) / 2, core = nb.l === 'core' || nb.l === 'corr';
-      const st = core ? null : status(towerSec.i, S.floor, nb.l), col = core ? '#8a949a' : ST[st].c;
+      const w = nb.x1 - nb.x0, d = nb.z1 - nb.z0, cx = (nb.x0 + nb.x1) / 2, cz = (nb.z0 + nb.z1) / 2;
+      const st = status(towerSec.i, S.floor, nb.l), col = ST[st].c;
       const f = new THREE.Mesh(new THREE.PlaneGeometry(w, d).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.3, depthWrite: false }));
       f.position.set(cx, 0.03, cz); nbG.add(f);
       const pts = [new THREE.Vector3(nb.x0, 0.05, nb.z0), new THREE.Vector3(nb.x1, 0.05, nb.z0), new THREE.Vector3(nb.x1, 0.05, nb.z1), new THREE.Vector3(nb.x0, 0.05, nb.z1)];
       nbG.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: col })));
-      if (nb.l === 'corr') return;
-      const t = core ? null : TYPES[nb.l], lw = Math.min(w - 0.4, 5.2);
-      const lab = new THREE.Mesh(new THREE.PlaneGeometry(lw, lw / 2).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: labelTex(core ? 'Лифт, лестница' : 'Кв. ' + t.n + ' · ' + t.short, core ? '← вход в кв. А' : (fmt(t.area) + ' м² · ' + ST[st].t.toLowerCase())), transparent: true, depthWrite: false }));
-      lab.position.set(cx, 0.06, core ? 5.4 : cz); nbG.add(lab);
+      const t = TYPES[nb.l], lw = Math.min(w - 0.4, 5.2);
+      const lab = new THREE.Mesh(new THREE.PlaneGeometry(lw, lw / 2).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: labelTex('Кв. ' + t.n + ' · ' + t.short, fmt(t.area) + ' м² · ' + ST[st].t.toLowerCase()), transparent: true, depthWrite: false }));
+      lab.position.set(cx, 0.06, cz); nbG.add(lab);
     });
   }
+
+  /* ---------- typical lift core (x 11..15 of the floor, plan coords): stair, 2 lifts, lift hall, tambour, corridors, entrance doors.
+     A typical solution until the developer's floor plans arrive; drawn once into one canvas laid flat under the plan view ---------- */
+  const coreM = (function buildCore() {
+    const k = 64, CW = 22.5, CD = 17.6, c = document.createElement('canvas'); c.width = CW * k; c.height = CD * k;
+    const g = c.getContext('2d'), P = (m) => m * k;
+    const HALL = '#e3e8e7', STAIR = '#d5dcdd', SHAFT = '#c3cccf', WALL = '#4b585c', ACC = '#1f5f66', INK = '#1d2427', MUT = '#4b585c';
+    const rect = (x0, z0, x1, z1, fill) => { g.fillStyle = fill; g.fillRect(P(x0), P(z0), P(x1 - x0), P(z1 - z0)); };
+    const seg = (x0, z0, x1, z1, w, col) => { g.strokeStyle = col; g.lineWidth = P(w); g.lineCap = 'butt'; g.beginPath(); g.moveTo(P(x0), P(z0)); g.lineTo(P(x1), P(z1)); g.stroke(); };
+    // a wall from a to b along x (at z) or along z (at x), with door/passage gaps [[a,b],..]
+    const wall = (alongX, at, a, b, gaps, t) => {
+      let cur = a; (gaps || []).concat([[b, b]]).forEach((gp) => { if (gp[0] > cur) { if (alongX) seg(cur, at, gp[0], at, t || 0.18, WALL); else seg(at, cur, at, gp[0], t || 0.18, WALL); } cur = gp[1]; });
+    };
+    const door = (alongX, at, a, b, w) => { if (alongX) seg(a, at, b, at, w || 0.12, ACC); else seg(at, a, at, b, w || 0.12, ACC); };
+    const text = (s, x, z, size, col, weight, maxW) => {
+      g.font = (weight || 600) + ' ' + P(size).toFixed(0) + 'px sans-serif';
+      const sc = maxW ? Math.min(1, P(maxW) / g.measureText(s).width) : 1;
+      g.save(); g.translate(P(x), P(z)); g.scale(sc, sc); g.fillStyle = col; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(s, 0, 0); g.restore();
+    };
+    const pill = (lines, x, z, maxW) => {
+      const h = lines.length * 0.44 + 0.2, w = maxW; g.fillStyle = 'rgba(255,255,255,0.86)';
+      g.beginPath(); g.rect(P(x - w / 2), P(z - h / 2), P(w), P(h)); g.fill();
+      lines.forEach((ln, i) => text(ln[0], x, z - h / 2 + 0.32 + i * 0.44, ln[1] || 0.36, i ? MUT : INK, i ? 500 : 600, w - 0.2));
+    };
+    // floors: lift hall, corridors to В (west) and Г (east), tambour, stair, lift shafts, utility shafts at the yard facade
+    rect(11, 4.4, 15, 8, HALL); rect(0, 6.6, 11, 7.6, HALL); rect(15, 6.6, 22.5, 8, HALL); rect(11, 8, 15, 9.4, HALL);
+    rect(11, 9.4, 15, 14, STAIR); rect(11, 1.8, 15, 4.4, SHAFT); rect(11, 0, 15, 1.8, STAIR);
+    g.save(); g.beginPath(); g.rect(P(11), P(0), P(4), P(1.8)); g.clip(); g.strokeStyle = 'rgba(75,88,92,0.35)'; g.lineWidth = P(0.03);
+    for (let i = -2; i < 7; i += 0.35) { g.beginPath(); g.moveTo(P(11 + i), P(1.8)); g.lineTo(P(11 + i + 1.8), P(0)); g.stroke(); }
+    g.restore();
+    // lift shafts: cross = shaft, inner rect = car; doors open into the lift hall
+    [[11, 12.8, 1.4], [12.8, 15, 2.1]].forEach((s) => {
+      const cx = (s[0] + s[1]) / 2; seg(s[0] + 0.1, 1.9, s[1] - 0.1, 4.3, 0.03, MUT); seg(s[1] - 0.1, 1.9, s[0] + 0.1, 4.3, 0.03, MUT);
+      g.strokeStyle = MUT; g.lineWidth = P(0.04); g.strokeRect(P(cx - 0.55), P(4.2 - s[2]), P(1.1), P(s[2] - 0.05));
+    });
+    // stair: lower landing, two flights (treads every 0.3 m), upper landing, middle wall, rise arrow
+    for (let z = 10.6; z <= 13.01; z += 0.3) { seg(11.1, z, 12.92, z, 0.025, MUT); seg(13.08, z, 14.9, z, 0.025, MUT); }
+    seg(13, 10.6, 13, 13, 0.1, WALL);
+    seg(12, 10.8, 12, 12.7, 0.035, ACC); g.fillStyle = ACC; g.beginPath(); g.moveTo(P(11.8), P(12.6)); g.lineTo(P(12.2), P(12.6)); g.lineTo(P(12), P(12.95)); g.fill();
+    // walls: core perimeter with door / corridor openings, inner partitions
+    wall(false, 11, 0, 14, [[4.95, 5.85], [6.6, 7.6]], 0.2); wall(false, 15, 0, 14, [[4.75, 5.65], [6.6, 8]], 0.2);
+    wall(true, 0, 11, 15, null, 0.2); wall(true, 14, 11, 15, [[12, 14]], 0.2); seg(12, 14, 14, 14, 0.12, '#6f9fa6');
+    wall(true, 1.8, 11, 15, null, 0.14); wall(false, 12.8, 1.8, 4.4, null, 0.14);
+    wall(true, 4.4, 11, 15, [[11.45, 12.35], [13.45, 14.35]], 0.18); wall(true, 8, 11, 15, [[12.55, 13.45]], 0.12); wall(true, 9.4, 11, 15, [[11.4, 12.3]], 0.18);
+    wall(true, 6.6, 0, 11, [[0, 0]], 0.08); wall(true, 7.6, 0, 11, [[9.4, 10.3]], 0.08); wall(true, 8, 15, 22.5, [[16, 16.9]], 0.08);
+    // doors: lifts, tambour, stair (thin) and apartment entrances А, Б, В, Г (accent, as in the plan scheme)
+    [[true, 4.4, 11.45, 12.35], [true, 4.4, 13.45, 14.35], [true, 8, 12.55, 13.45], [true, 9.4, 11.4, 12.3]].forEach((d) => door(d[0], d[1], d[2], d[3], 0.06));
+    door(false, 11, 4.95, 5.85); door(false, 15, 4.75, 5.65); door(true, 7.6, 9.4, 10.3); door(true, 8, 16, 16.9);
+    // labels (readable when zoomed in) + the callout under the section (readable at the default zoom)
+    text('Лифт', 11.9, 2.75, 0.34, INK, 600, 1.5); text('Лифт', 13.9, 2.75, 0.34, INK, 600, 1.9); text('для пожарных', 13.9, 3.2, 0.24, MUT, 500, 1.9);
+    text('шахты сетей', 13, 0.9, 0.3, MUT, 500, 3.6);
+    text('Лифтовый холл', 13, 6.15, 0.36, INK, 600, 3.7); text('Тамбур', 13, 8.7, 0.34, INK, 600, 3.6);
+    pill([['Лестница'], ['незадымляемая', 0.28]], 13.95, 11.9, 1.75);
+    text('коридор', 5.5, 7.1, 0.32, MUT, 500, 4); text('коридор', 19, 7.3, 0.32, MUT, 500, 4);
+    text('вход', 11.55, 4.65, 0.24, ACC, 600, 1); text('вход', 14.45, 4.5, 0.24, ACC, 600, 1); text('вход', 9.85, 7.95, 0.24, ACC, 600, 1); text('вход', 16.45, 8.35, 0.24, ACC, 600, 1);
+    g.fillStyle = 'rgba(255,255,255,0.9)'; g.beginPath(); g.rect(P(5.25), P(14.6), P(15.5), P(2.8)); g.fill(); seg(13, 14.1, 13, 14.6, 0.05, ACC);
+    text('Лифтовый узел — типовое решение', 13, 15.15, 0.62, INK, 600, 15);
+    text('лестница, 2 лифта (один для пожарных), холл, тамбур', 13, 15.95, 0.44, MUT, 500, 15);
+    text('условно: уточним по поэтажным планам УДС-Д', 13, 16.7, 0.44, MUT, 500, 15);
+    const tex = new THREE.CanvasTexture(c); tex.anisotropy = 4;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(CW, CD).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, alphaTest: 0.02 }));
+    m.position.set(CW / 2, 0.04, CD / 2); m.visible = false; root.add(m); return m;
+  })();
 
   /* ---------- light ---------- */
   const hemi = new THREE.HemisphereLight('#ffffff', '#a8aeb0', 0.55); scene.add(hemi);
@@ -919,7 +981,7 @@ svg text{font-family:var(--f-body)}
     labelsEl.hidden = !(S.mode === 'int' && S.cam === 'top' && VIEWS[S.view].out); labelsEl.classList.toggle('sm', S.view === 'top');
     $('mini').hidden = !(S.mode === 'int' && S.cam === 'walk');
     stageEl.classList.toggle('walk', S.mode === 'int' && S.cam === 'walk');
-    nbG.visible = S.mode === 'int' && S.cam === 'top' && S.view === 'top';
+    nbG.visible = coreM.visible = S.mode === 'int' && S.cam === 'top' && S.view === 'top';
     syncSections(); updateExtMarker();
     stageColor(true);
   }
