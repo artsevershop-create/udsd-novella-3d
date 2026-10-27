@@ -67,10 +67,20 @@ h1{font-family:var(--f-display);font-weight:500;font-size:clamp(26px,6vw,38px);l
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--chip)}
 .tabs button{border:0;background:transparent;color:var(--fg);font:500 15px var(--f-body);padding:11px 8px;cursor:pointer}
 .tabs button[aria-pressed="true"]{background:var(--acc);color:var(--accfg)}
-.stage{position:relative;height:clamp(340px,58vh,600px);background:var(--stage);border:1px solid var(--line);border-radius:10px;overflow:hidden;touch-action:none}
-.stage canvas{display:block;width:100%;height:100%}
-.hint{position:absolute;left:10px;bottom:8px;font-size:12px;color:var(--mut);background:color-mix(in srgb,var(--surf) 82%,transparent);padding:3px 8px;border-radius:6px;pointer-events:none;max-width:calc(100% - 20px)}
-.badge{position:absolute;left:10px;top:10px;font-size:13px;font-weight:500;background:color-mix(in srgb,var(--surf) 88%,transparent);padding:5px 10px;border-radius:6px;pointer-events:none;font-variant-numeric:tabular-nums}
+.stage{position:relative;height:clamp(400px,66vh,660px);background:var(--stage);border:1px solid var(--line);border-radius:10px;overflow:hidden;--dockh:0px}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none}
+/* controls on the stage: a dock of chip rows along the bottom edge, day/evening under the plan button */
+.dock{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:6px;padding:22px 8px 8px;background:linear-gradient(to top,color-mix(in srgb,var(--stage) 92%,transparent) 55%,transparent);touch-action:pan-x;pointer-events:none}
+.dock .chips{position:relative;pointer-events:auto;padding-bottom:0;scrollbar-width:none;align-items:center;gap:6px}
+.dock .chips::-webkit-scrollbar{display:none}
+.dock .chip,.tchips .chip{min-height:40px;padding:7px 12px;font-size:13.5px;background:color-mix(in srgb,var(--surf) 94%,transparent);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.dock .chip[aria-pressed="true"],.tchips .chip[aria-pressed="true"]{background:var(--acc)}
+.dock .chip.fl{min-width:40px;padding:7px 8px}
+.dlab{flex:none;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:0 2px 0 4px}
+.tchips{position:absolute;right:10px;top:54px;gap:4px;overflow:visible;padding:0}
+.tchips .chip{min-height:36px;padding:6px 10px;font-size:13px}
+.hint{position:absolute;left:10px;bottom:calc(var(--dockh) + 4px);font-size:12px;color:var(--mut);background:color-mix(in srgb,var(--surf) 82%,transparent);padding:3px 8px;border-radius:6px;pointer-events:none;max-width:calc(100% - 120px)}
+.badge{position:absolute;left:10px;top:10px;max-width:calc(100% - 160px);font-size:13px;font-weight:500;background:color-mix(in srgb,var(--surf) 88%,transparent);padding:5px 10px;border-radius:6px;pointer-events:none;font-variant-numeric:tabular-nums}
 .rl{position:absolute;left:0;top:0;border:1px solid var(--line);background:color-mix(in srgb,var(--surf) 90%,transparent);color:var(--fg);font:500 12px/1.25 var(--f-body);padding:4px 8px;border-radius:6px;cursor:pointer;white-space:nowrap;text-align:center;pointer-events:auto}
 .sm .rl{font-size:10px;padding:2px 5px}.sm .rl small{font-size:9px}
 .rl small{display:block;color:var(--mut);font-weight:400;font-size:11px}
@@ -97,7 +107,7 @@ h1{font-family:var(--f-display);font-weight:500;font-size:clamp(26px,6vw,38px);l
 .note{font-size:12.5px;color:var(--mut);margin:0}
 .note a{color:inherit}
 @media(min-width:720px){.card{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:start}}
-.logo{position:absolute;right:14px;bottom:52px;pointer-events:none;opacity:.5;display:flex;align-items:baseline;gap:1px;font:600 17px/1 var(--f-body);letter-spacing:.06em;color:var(--fg);text-shadow:0 0 6px color-mix(in srgb,var(--surf) 70%,transparent)}
+.logo{position:absolute;right:14px;bottom:calc(var(--dockh) + 30px);pointer-events:none;opacity:.5;display:flex;align-items:baseline;gap:1px;font:600 17px/1 var(--f-body);letter-spacing:.06em;color:var(--fg);text-shadow:0 0 6px color-mix(in srgb,var(--surf) 70%,transparent)}
 .logo i{font-style:normal;display:inline-block;width:5px;height:2px;background:currentColor;margin:0 1px;transform:translateY(-4px)}
 .logo small{display:block;position:absolute;right:0;top:20px;font:500 8px/1 var(--f-body);letter-spacing:.14em;white-space:nowrap;opacity:.8}
 #geo{position:absolute;inset:0;pointer-events:none;overflow:hidden}
@@ -105,13 +115,16 @@ h1{font-family:var(--f-display);font-weight:500;font-size:clamp(26px,6vw,38px);l
 .gl.street{font-style:italic;background:transparent;text-shadow:0 0 3px var(--surf),0 0 3px var(--surf),0 0 5px var(--surf)}
 .gl.own{border:1px solid #f2a23a;font-weight:600}
 .gl.sec{pointer-events:auto;cursor:pointer;border:1px solid #3ddc97;font-variant-numeric:tabular-nums}
+.gl.dist{font-size:10px;padding:1px 5px;color:var(--mut);background:color-mix(in srgb,var(--surf) 70%,transparent)}
+.gl.part{font:600 12px/1.2 var(--f-display);color:var(--acc);background:color-mix(in srgb,var(--surf) 88%,transparent);border:1px solid var(--acc)}
+.gl.novella{font-weight:600;border:1px solid #f2a23a;background:color-mix(in srgb,var(--surf) 92%,transparent)}
 .sel{width:100%;max-width:100%;min-height:42px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 14px var(--f-body);padding:8px 10px;border-radius:8px}
 .st{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mut)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .planbtn{position:absolute;right:10px;top:10px;border:1px solid var(--line);background:color-mix(in srgb,var(--surf) 92%,transparent);color:var(--fg);font:500 13px var(--f-body);padding:7px 11px;border-radius:8px;cursor:pointer}
 .planbtn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.mini{position:absolute;right:10px;bottom:10px;width:min(46%,190px);background:color-mix(in srgb,var(--surf) 92%,transparent);border:1px solid var(--line);border-radius:8px;padding:4px;cursor:pointer}
+.mini{position:absolute;right:10px;bottom:calc(var(--dockh) + 6px);width:min(46%,190px);background:color-mix(in srgb,var(--surf) 92%,transparent);border:1px solid var(--line);border-radius:8px;padding:4px;cursor:pointer}
 .mini svg{display:block;width:100%;height:auto}
 .stage.walk .hint{max-width:calc(100% - min(46%,190px) - 30px)}
 .pr-room{fill:var(--chip)}
@@ -168,31 +181,32 @@ svg text{font-family:var(--f-body)}
     <button type="button" class="planbtn" id="planBtn">Схема квартиры</button>
     <div class="mini" id="mini" hidden></div>
     <div class="hint" id="hint"></div>
+    <div class="chips tchips" id="rTime" role="group" aria-label="Освещение"></div>
+    <!-- the main controls of each mode sit on the stage itself, so the 3D view stays in sight while switching -->
+    <div class="dock" id="dock">
+      <div class="chips" id="rView" data-m="int" role="group" aria-label="Комната"></div>
+      <div class="chips" id="rFinish" data-m="int" role="group" aria-label="Отделка"></div>
+      <div class="chips" id="rWin" data-m="win" role="group" aria-label="Окно"></div>
+      <div class="chips" id="rApt" data-m="ext" role="group" aria-label="Квартира на этаже"></div>
+      <div class="chips" id="rFloor" data-m="win ext" role="group" aria-label="Этаж"><span class="dlab">Этаж</span></div>
+    </div>
     <div class="fallback" id="fb"><div>Не удалось запустить 3D в этом браузере.<br>Обновите страницу (Ctrl+F5) или откройте её в Chrome, Яндекс Браузере или Edge. Если не помогло — включите в настройках браузера аппаратное ускорение.<small></small></div></div>
   </div>
 
   <div class="panel" id="pInt">
-    <div class="row"><div class="lab">Отделка</div><div class="chips" id="rFinish"></div></div>
-    <div class="row"><div class="lab">Комната</div><div class="chips" id="rView"></div></div>
     <div class="row"><div class="lab">Камера</div><div class="chips" id="rCam"></div></div>
     <div class="row" id="rowSee"><div class="lab">Перегородки</div><div class="chips" id="rSee"></div></div>
     <div class="row" id="rowStyle"><div class="lab">Стиль дизайн-проекта</div><div class="chips" id="rStyle"></div></div>
   </div>
-  <div class="panel" id="pWin" hidden>
-    <div class="row"><div class="lab">Окно</div><div class="chips" id="rWin"></div></div>
-  </div>
   <div class="panel" id="pExt" hidden>
     <div class="row"><div class="lab">Корпус</div><select id="selSec" class="sel" aria-label="Корпус"></select></div>
     <div class="row"><div class="lab">Подсветка корпусов</div><div class="chips" id="rLayer"></div></div>
-    <div class="row"><div class="lab" id="aptLab">Квартира на этаже</div><div class="chips" id="rApt"></div></div>
     <div class="legend"><span><i class="st" style="background:#3ddc97"></i>свободна</span><span><i class="st" style="background:#f2b04a"></i>бронь</span><span><i class="st" style="background:#6b7780"></i>продана</span><span id="dataLab">примерные данные</span></div>
     <div class="row"><div class="lab">Ракурс</div><div class="chips" id="rExtView"></div></div>
     <div class="row"><div class="lab">Дом</div><div class="chips" id="rHouse"></div></div>
     <div class="row" id="rowInner"><div class="lab">Квартира</div><div class="chips" id="rInner"></div></div>
     <div class="row"><div class="lab">Подробнее</div><div class="chips" id="rAct"></div></div>
   </div>
-  <div class="row" id="rowFloor" hidden><div class="lab">Этаж</div><div class="chips" id="rFloor"></div></div>
-  <div class="row"><div class="lab">Освещение</div><div class="chips" id="rTime"></div></div>
 
   <div class="row" id="rowRecent" hidden><div class="lab">Недавно смотрели</div><div class="chips" id="rRecent"></div></div>
 
@@ -211,13 +225,15 @@ svg text{font-family:var(--f-body)}
 <!-- three.js r128 + OrbitControls served from this site (vendor/), not from foreign CDNs: fewer connections on a phone, works where a CDN is slow -->
 <script src="vendor/three.min.js"></script>
 <script src="vendor/OrbitControls.js"></script>
+<!-- outlines of Novy Urengoy from OpenStreetMap (tools/gen-city.js); without the file the quarter is shown alone -->
+<script src="city.js"></script>
 <script>
 // sales data comes from data/apartments.json (later: a CRM adapter writes the same format); the scene starts once it is loaded.
 // Without the file (opened from disk, offline) the demo falls back to statuses and prices generated in code.
 (window.__apts || Promise.resolve(null)).then(function (DATA) {
   'use strict';
   const $ = (id) => document.getElementById(id);
-  const stageEl = $('stage'), cv = $('cv');
+  const stageEl = $('stage'), cv = $('cv'), dockEl = $('dock');
 
   /* ---------- plan (metres; plan x -> world x, plan y -> world z; facade at z = 0, windows look to -z) ---------- */
   const W = 11.0, D = 6.6, H = 2.7, CUT = 1.1;
@@ -536,12 +552,19 @@ svg text{font-family:var(--f-body)}
     outside.add(m); blockers.push(m); return m;
   }
   slab(-100, 0, 900, 440, 0.02, mGround).position.y = -0.01;
-  // neighbouring residential districts, drawn as light outlines in the distance (schematic)
-  const DISTRICTS = [{ x: 350, z: -1350, hx: 260, hz: 180 }, { x: -950, z: -1150, hx: 220, hz: 200 }];
+  // real districts of Novy Urengoy from OpenStreetMap (demo/city.js, tools/gen-city.js): flat ground under them, no made-up lakes or forest there
+  const CITY = window.CITY || null;
+  const ring2 = (f) => { const p = []; for (let i = 0; i < f.length; i += 2) p.push([f[i], f[i + 1]]); return p; };
+  const DISTRICTS = CITY ? CITY.districts.map((d) => {
+    const p = ring2(d[2]), xs = p.map((q) => q[0]), zs = p.map((q) => q[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
+    return { n: d[0], kind: d[1], p: p, x: (x0 + x1) / 2, z: (z0 + z1) / 2, hx: (x1 - x0) / 2, hz: (z1 - z0) / 2, c: [xs.reduce((a, b) => a + b, 0) / xs.length, zs.reduce((a, b) => a + b, 0) / zs.length] };
+  }) : [];
   const FLAT = [{ x: -100, z: 0, hx: 450, hz: 230 }].concat(DISTRICTS);
   const flatDist = (x, z) => FLAT.reduce((m, r) => Math.min(m, Math.hypot(Math.max(Math.abs(x - r.x) - r.hx, 0), Math.max(Math.abs(z - r.z) - r.hz, 0))), 1e9);
-  const LAKES = [[-800, -620, 170], [620, 520, 200], [-1100, 380, 230], [380, -900, 190], [1000, -280, 110], [-300, 700, 130]];
+  const LAKES = [[-800, -620, 170], [620, 520, 200], [-1100, 380, 230], [380, -900, 190], [1000, -280, 110], [-300, 700, 130]]
+    .filter((L) => FLAT.every((r) => Math.max(Math.abs(L[0] - r.x) - r.hx, 0) ** 2 + Math.max(Math.abs(L[1] - r.z) - r.hz, 0) ** 2 > (L[2] + 60) ** 2));   // schematic lakes, never inside a real district
   const mTerrain = new THREE.MeshLambertMaterial({ vertexColors: true }), mWater = new THREE.MeshLambertMaterial({ color: '#5f8ea6', transparent: true, opacity: 0.88 });
+  const reliefG = new THREE.Group(); outside.add(reliefG);   // schematic relief, lakes and forest: hidden on the city map, which shows only real data
   { // tundra: gentle hummocky relief, bog and lichen colours, lakes. Schematic, not survey data.
     const hh = (i, j) => { let h = Math.imul(i * 374761393 + j * 668265263, 1274126177); h = Math.imul(h ^ (h >>> 13), 1103515245); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
     const vn = (x, y) => { const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j, ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
@@ -564,8 +587,8 @@ svg text{font-family:var(--f-body)}
       const sh = 0.9 + m2 * 0.2; col[i * 3] = tmpc.r * sh; col[i * 3 + 1] = tmpc.g * sh; col[i * 3 + 2] = tmpc.b * sh;
     }
     g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.computeVertexNormals();
-    const tm = new THREE.Mesh(g, mTerrain); tm.position.y = -0.05; outside.add(tm);
-    LAKES.forEach((L) => { const w = new THREE.Mesh(new THREE.CircleGeometry(L[2] * 1.02, 40).rotateX(-Math.PI / 2), mWater); w.position.set(L[0], -0.55, L[1]); outside.add(w); });
+    const tm = new THREE.Mesh(g, mTerrain); tm.position.y = -0.05; reliefG.add(tm);
+    LAKES.forEach((L) => { const w = new THREE.Mesh(new THREE.CircleGeometry(L[2] * 1.02, 40).rotateX(-Math.PI / 2), mWater); w.position.set(L[0], -0.55, L[1]); reliefG.add(w); });
     // sparse forest-tundra: low larches and dwarf shrubs outside the built area
     const spots = [], r = rngMake(77);
     while (spots.length < 2200) {
@@ -581,7 +604,7 @@ svg text{font-family:var(--f-body)}
     const shr = new THREE.InstancedMesh(new THREE.SphereGeometry(0.9, 6, 5).translate(0, 0.5, 0), new THREE.MeshLambertMaterial({ color: '#7d7a4a' }), n);
     spots.forEach((t, i) => { dm.position.set(t[0], t[1], t[2]); dm.rotation.set(0, i, 0); dm.scale.setScalar(t[3] * (i % 3 === 0 ? 1 : 0.0001)); dm.updateMatrix(); cone.setMatrixAt(i, dm.matrix);
       dm.scale.set(t[3] * 1.6, t[3] * 0.8, t[3] * 1.6); dm.updateMatrix(); shr.setMatrixAt(i, dm.matrix); });
-    outside.add(cone, shr);
+    reliefG.add(cone, shr);
   }
   [[0, 0, 440, 24], [0, -104, 440, 24], [0, 104, 440, 24], [-62, -52, 24, 80], [62, -52, 24, 80], [0, 52, 24, 80], [-124, 52, 24, 80], [124, 52, 24, 80]]
     .forEach((s) => slab(s[0], s[1], s[2], s[3], 0.1, mRoad));
@@ -713,17 +736,41 @@ svg text{font-family:var(--f-body)}
       dm.scale.setScalar(t[2]); dm.updateMatrix(); trk.setMatrixAt(i, dm.matrix);
     });
     outside.add(conifer, birch, trk);
-    // neighbouring districts: light boxes with outlines, streets between blocks
+    // the city around: district outlines with a light fill, the northern and southern parts of the city (dashed), rivers and main roads.
+    // OpenStreetMap data, turned with ул. Мира so it lines up with the quarters; buildings inside districts are not modelled.
     const boxes = [];
-    DISTRICTS.forEach((D) => {
-      slab(D.x, D.z, D.hx * 2, D.hz * 2, 0.05, mPlot);
-      for (let bx = D.x - D.hx + 10; bx < D.x + D.hx - 60; bx += 115) for (let bz = D.z - D.hz + 10; bz < D.z + D.hz - 50; bz += 95) {
-        const cx = bx + 50, cz = bz + 40;
-        [[cx, cz - 32, 80, 13], [cx, cz + 32, 80, 13], [cx - 40, cz, 13, 40], [cx + 40, cz, 13, 40]].forEach((b, i) => { if (r() < 0.85) boxes.push([b[0], b[1], b[2], b[3], (5 + Math.floor(r() * 8)) * 3]); });
-      }
-      for (let x = D.x - D.hx; x <= D.x + D.hx; x += 115) slab(x, D.z, 9, D.hz * 2, 0.08, mRoad);
-      for (let z = D.z - D.hz; z <= D.z + D.hz; z += 95) slab(D.x, z, D.hx * 2, 9, 0.08, mRoad);
-    });
+    if (CITY) {
+      const cityG = new THREE.Group(); outside.add(cityG);
+      const shapeOf = (p) => new THREE.Shape(p.map((q) => new THREE.Vector2(q[0], -q[1])));   // after rotateX(-90°) shape y -> world -z
+      const fillRes = new THREE.MeshLambertMaterial({ color: '#cfc8b8', transparent: true, opacity: 0.7, depthWrite: false });
+      const fillZone = new THREE.MeshLambertMaterial({ color: '#b6bcc0', transparent: true, opacity: 0.55, depthWrite: false });
+      const lineRes = new THREE.LineBasicMaterial({ color: '#6f6a5e' }), lineZone = new THREE.LineBasicMaterial({ color: '#7d878c' });
+      DISTRICTS.forEach((D) => {
+        const f = new THREE.Mesh(new THREE.ShapeGeometry(shapeOf(D.p)).rotateX(-Math.PI / 2), D.kind === 'zone' ? fillZone : fillRes);
+        f.position.y = 0.2; f.renderOrder = 1; cityG.add(f);
+        cityG.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(D.p.map((q) => new THREE.Vector3(q[0], 0.6, q[1]))), D.kind === 'zone' ? lineZone : lineRes));
+      });
+      const dash = new THREE.LineDashedMaterial({ color: '#1f5f66', dashSize: 60, gapSize: 40 });
+      CITY.parts.forEach((pt) => { const l = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ring2(pt[1]).map((q) => new THREE.Vector3(q[0], 1.5, q[1]))), dash); l.computeLineDistances(); cityG.add(l); });
+      // rivers and roads as flat ribbons (a 1-pixel line disappears from the city view); roads inside the modelled quarters are skipped
+      const ribbon = (lines, w, y) => {
+        const pos = [];
+        lines.forEach((p) => { for (let i = 1; i < p.length; i++) {
+          const a = p[i - 1], b = p[i], dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1, nx = -dz / L * w / 2, nz = dx / L * w / 2;
+          pos.push(a[0] + nx, y, a[1] + nz, b[0] + nx, y, b[1] + nz, b[0] - nx, y, b[1] - nz, a[0] + nx, y, a[1] + nz, b[0] - nx, y, b[1] - nz, a[0] - nx, y, a[1] - nz);
+        } });
+        const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); return g;
+      };
+      const own = FLAT[0], inOwn = (q) => Math.abs(q[0] - own.x) < own.hx + 40 && Math.abs(q[1] - own.z) < own.hz + 40;
+      const roads = CITY.roads.map(ring2).map((p) => p.filter((q) => !inOwn(q))).filter((p) => p.length > 1);
+      const mCityRoad = new THREE.MeshBasicMaterial({ color: '#8d9093', side: THREE.DoubleSide });
+      cityG.add(new THREE.Mesh(ribbon(roads, 12, 0.4), mCityRoad));
+      const rivers = CITY.rivers.flatMap((rv) => rv[1].map(ring2));
+      cityG.add(new THREE.Mesh(ribbon(rivers, 45, -0.1), new THREE.MeshBasicMaterial({ color: '#5f8ea6', side: THREE.DoubleSide })));
+      // flat tundra beyond the 5 km relief, so the far parts of the city lie on ground
+      const far = new THREE.Mesh(new THREE.PlaneGeometry(26000, 26000).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ color: '#8a9a6a' }));
+      far.position.set(500, -0.9, 2500); outside.add(far);
+    }
     const dMat = new THREE.MeshLambertMaterial({ color: '#dfe5e8', transparent: true, opacity: 0.6 });
     const dBox = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0), dMat, boxes.length);
     const ep = [], E = [[0, 0, 0, 1, 0, 0], [1, 0, 0, 1, 0, 1], [1, 0, 1, 0, 0, 1], [0, 0, 1, 0, 0, 0]];
@@ -1016,6 +1063,7 @@ svg text{font-family:var(--f-body)}
     const inWin = S.mode === 'win', inExt = S.mode === 'ext';
     const eye = inWin || (S.mode === 'int' && S.cam === 'walk');
     wallsTall.visible = eye; ceilings.visible = eye; outside.visible = eye || inExt;
+    reliefG.visible = !(inExt && S.extView === 'city');
     wallsRender.visible = !eye;
     root.visible = !inExt || (S.inner && isOwn());
     extG.visible = inExt;
@@ -1028,7 +1076,7 @@ svg text{font-family:var(--f-body)}
     stageColor(true);
   }
   function limits() {
-    if (S.mode === 'ext') { controls.minDistance = 6; controls.maxDistance = 2200; controls.enablePan = true; controls.maxPolarAngle = Math.PI / 2 - 0.02; return; }
+    if (S.mode === 'ext') { controls.minDistance = 6; controls.maxDistance = S.extView === 'city' ? 30000 : 2200; controls.enablePan = true; controls.maxPolarAngle = Math.PI / 2 - 0.02; return; }
     if (S.mode === 'win' || S.cam === 'walk') return;
     controls.minDistance = 2; controls.maxDistance = 30; controls.enablePan = true; controls.maxPolarAngle = Math.PI / 2 - 0.03;
   }
@@ -1059,7 +1107,7 @@ svg text{font-family:var(--f-body)}
     setRange(0.1, 3000);
     describe();
   }
-  const EXTV = { yard: { label: 'Со стороны окон' }, top: { label: 'Сверху' }, back: { label: 'С противоположной стороны' }, all: { label: 'Все корпуса' }, area: { label: 'Окрестности, тундра' } };
+  const EXTV = { yard: { label: 'Со стороны окон' }, top: { label: 'Сверху' }, back: { label: 'С противоположной стороны' }, all: { label: 'Все корпуса' }, area: { label: 'Окрестности' }, city: { label: 'Весь город' } };
   function extTarget() {
     const sec = SECTIONS[S.sec], ci = cellInfo(sec, S.apt, S.floor);
     return [ci.c.x - ci.n.x * 3, ci.y + 1.5, ci.c.z - ci.n.z * 3, ci.n];
@@ -1067,7 +1115,11 @@ svg text{font-family:var(--f-body)}
   function flyExt(instant) {
     const t = extTarget(), n = t[3], tx = [t[0], t[1], t[2]];
     let pos;
-    if (S.extView === 'area') { flyTo([-100, 520, 900], [-150, 0, -700], instant); return; }
+    setRange(S.extView === 'city' ? 20 : 1, S.extView === 'city' ? 60000 : 6000);   // the city map is ~7 km across; close views need the fine depth range
+    // the whole city from the south, north at the top of the screen (the map is turned ~19° with ул. Мира)
+    if (S.extView === 'city') { flyTo([1000, 11000, 9600], [1000, 0, 3000], instant); return; }
+    // the neighbourhood: over the quarters towards the nearest districts of the northern part of the city (south-east)
+    if (S.extView === 'area') { flyTo([-800, 620, -950], [650, 0, 550], instant); return; }
     if (S.extView === 'all') { flyTo([0, 420, 270], [0, 0, 0], instant); return; }
     if (S.extView === 'top') pos = [tx[0] - 2, tx[1] + 95, tx[2] + 24];
     else if (S.extView === 'back') pos = [tx[0] - n.x * 76 + (n.z ? 10 : 0), tx[1] + 12, tx[2] - n.z * 76 + (n.x ? 10 : 0)];
@@ -1199,35 +1251,49 @@ svg text{font-family:var(--f-body)}
     { t: 'Поперечный проезд', k: 'street', x: -62, z: -52 }, { t: 'Поперечный проезд', k: 'street', x: 62, z: -52 },
     { t: 'Арктический лицей', k: 'place', x: -330, z: -30, y: 17 }, { t: 'Детский сад', k: 'place', x: -310, z: 80, y: 9 },
     { t: 'Детский сад «Новеллы» (в проекте)', k: 'place', x: 178, z: 52, y: 4 },
-    { t: 'Тундра', k: 'street', x: 0, z: 330 }, { t: 'Жилой район (схематично)', k: 'place', x: 350, z: -1350, y: 45 }, { t: 'Жилой район (схематично)', k: 'place', x: -950, z: -1150, y: 45 }, { t: 'Парковка', k: 'street', x: 0, z: -135 }, { t: 'Стадион лицея', k: 'street', x: -330, z: 32 }, { t: 'Тундра', k: 'street', x: -650, z: 150 }, { t: 'Лесотундра', k: 'street', x: 700, z: -330 }, { t: 'Озеро', k: 'street', x: 620, z: 520 }, { t: 'Озеро', k: 'street', x: -800, z: -620 }
+    { t: 'Парковка', k: 'street', x: 0, z: -135 }, { t: 'Стадион лицея', k: 'street', x: -330, z: 32 }, { t: 'Тундра', k: 'street', x: -650, z: 150 }, { t: 'Лесотундра', k: 'street', x: -700, z: -330 }
   ];
   QUARTERS.forEach((q, i) => GEO.push({ t: 'Квартал ' + (i + 1), k: 'place', x: q.cx, z: q.cz, y: 4 }));
   SECTIONS.forEach((sec) => GEO.push({ t: '', k: 'sec', sec: sec, x: sec.cx, z: sec.cz, y: sec.floors * FLOOR_H + 2 }));
+  LAKES.slice(0, 3).forEach((L) => GEO.push({ t: 'Озеро', k: 'street', x: L[0], z: L[1] }));
+  // the city: district names (OpenStreetMap), the two parts of the city, our complex as a landmark on the city map
+  DISTRICTS.forEach((D) => GEO.push({ t: D.n.replace(/^микрорайон /, 'мкр ').replace(/^квартал /, 'кв-л '), k: 'dist', x: D.c[0], z: D.c[1], y: 8 }));
+  if (CITY) CITY.parts.forEach((pt, i) => {   // part names outside their outlines: the northern part above it, the southern part below
+    const p = ring2(pt[1]), zs = p.map((q) => q[1]);
+    GEO.push({ t: pt[0], k: 'part', x: p.reduce((a, q) => a + q[0], 0) / p.length, z: i === 0 ? Math.min(...zs) - 350 : Math.max(...zs) + 350, y: 20 });
+  });
+  GEO.push({ t: 'ЖК «Новелла»', k: 'novella', x: 0, z: -40, y: 40 });
   const geoDom = [], gv = new THREE.Vector3();
   function updateGeo() {
     const on = S.mode === 'ext'; geoEl.hidden = !on; if (!on) return;
-    const w = stageEl.clientWidth, h = stageEl.clientHeight, cp = camera.position, items = [];
+    const w = stageEl.clientWidth, h = stageEl.clientHeight, cp = camera.position, items = [], city = S.extView === 'city', wide = city || S.extView === 'area' || S.extView === 'all';
     GEO.forEach((g) => {
+      if (city ? !/^(dist|part|novella)$/.test(g.k) : g.k === 'part' || g.k === 'novella') return;   // the city map shows only the city's names
+      if (g.k === 'dist' && !wide) return;
       if (g.k === 'sec' && (S.layer !== 'free' || g.sec.i === S.sec || !g.sec.free || S.extView === 'area')) return;
       if (S.extView === 'area' && g.k === 'street' && !/Тундра|Озеро|ул\. Мира/.test(g.t)) return;
       if (S.extView === 'area' && /Квартал [1345]|Детский|Стадион/.test(g.t)) return;
       gv.set(g.x, g.y || 0.6, g.z).project(camera); if (gv.z > 1 || Math.abs(gv.x) > 1.05 || Math.abs(gv.y) > 1.05) return;
-      const d = Math.hypot(g.x - cp.x, (g.y || 0) - cp.y, g.z - cp.z);
+      const d = g.k === 'part' || g.k === 'novella' ? -2 : Math.hypot(g.x - cp.x, (g.y || 0) - cp.y, g.z - cp.z);
       items.push({ g: g, d: d, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h });
     });
-    if (isOwn() && S.extView !== 'area') {   // name the apartment we built, so it is not confused with the others
+    if (isOwn() && S.extView !== 'area' && !city) {   // name the apartment we built, so it is not confused with the others
       gv.copy(aptBox.position); gv.y += 2.2; gv.project(camera);
       if (gv.z < 1) items.push({ g: { k: 'own', t: 'Наша кв. А · 3D-интерьер' }, d: -1, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h - 14 });
     }
     items.sort((a, b) => a.d - b.d);
-    const max = 26; let ns = 0; const shown = items.filter((it) => it.g.k !== 'sec' || ++ns <= (S.extView === 'all' ? 12 : 8)).slice(0, max);
+    const max = city ? 44 : 26; let ns = 0; const shown = items.filter((it) => it.g.k !== 'sec' || ++ns <= (S.extView === 'all' ? 12 : 8)).slice(0, max);
     while (geoDom.length < max) { const d = document.createElement('div'); d.className = 'gl'; geoEl.appendChild(d); geoDom.push(d); }
+    const placed = [];   // in the wide views a label that would cover one already placed is skipped (nearest and city names go first)
     geoDom.forEach((d, i) => {
       const it = shown[i]; if (!it) { d.style.display = 'none'; return; }
-      const g = it.g, txt = g.k === 'sec' ? g.sec.free + ' своб.' : g.t, cls = 'gl ' + (g.k === 'sec' ? 'sec' : g.k === 'street' ? 'street' : g.k === 'own' ? 'own' : '');
+      const g = it.g, txt = g.k === 'sec' ? g.sec.free + ' своб.' : g.t, cls = 'gl ' + (/^(sec|street|own|dist|part|novella)$/.test(g.k) ? g.k : '');
       d.style.display = ''; if (d.className !== cls) d.className = cls; if (d.textContent !== txt) d.textContent = txt;
+      const bw = d.offsetWidth, bh = d.offsetHeight, x = it.sx - bw / 2, y = it.sy - bh / 2;
+      if (wide && placed.some((p) => x < p[0] + p[2] + 2 && x + bw + 2 > p[0] && y < p[1] + p[3] + 1 && y + bh + 1 > p[1])) { d.style.display = 'none'; return; }
+      placed.push([x, y, bw, bh]);
       d.dataset.sec = g.k === 'sec' ? g.sec.i : '';
-      d.style.transform = 'translate(' + (it.sx - d.offsetWidth / 2).toFixed(0) + 'px,' + (it.sy - d.offsetHeight / 2).toFixed(0) + 'px)';
+      d.style.transform = 'translate(' + x.toFixed(0) + 'px,' + y.toFixed(0) + 'px)';
     });
   }
   geoEl.addEventListener('click', (e) => { const t = e.target.closest('.sec'); if (t && t.dataset.sec !== '') selectSection(+t.dataset.sec); });
@@ -1250,7 +1316,6 @@ svg text{font-family:var(--f-body)}
   });
   function fillApts() {
     LETTERS.forEach((l) => { const st = status(S.sec, S.floor, l), t = TYPES[l]; aptBtns[l].dot.style.background = ST[st].c; aptBtns[l].tx.nodeValue = ' ' + t.n + ' · ' + t.short + ' ' + fmt(t.area); });
-    $('aptLab').textContent = 'Квартира на этаже ' + S.floor;
   }
   const actPlan = chip($('rAct'), 'Схема планировки', () => false, () => openPlan());
   const act3d = chip($('rAct'), 'Интерьер 3D', () => false, () => { S.mode = 'ext'; enterInterior(true); refresh(true); });
@@ -1340,7 +1405,7 @@ svg text{font-family:var(--f-body)}
   function renderNote() {
     const n = $('note'); n.textContent = '';
     if (S.mode === 'ext') {
-      n.textContent = (SAMPLE ? 'Статусы и цены в этом режиме — примерные данные для демонстрации, не реальные продажи.' : 'Статусы и цены — из выгрузки отдела продаж' + (DATA.updated ? ' на ' + String(DATA.updated).split('-').reverse().join('.') : '') + ', наличие уточняйте в офисе продаж.') + ' Положение домов схематично. Из названий улиц взято только «ул. Мира» (адрес комплекса), остальные условны. Соседние жилые районы показаны контурами, их положение условно. Тундра, озёра и рельеф за кварталом — схематичная местность вокруг Нового Уренгоя (плоская, с буграми и озёрами), а не топосъёмка.';
+      n.textContent = (SAMPLE ? 'Статусы и цены в этом режиме — примерные данные для демонстрации, не реальные продажи.' : 'Статусы и цены — из выгрузки отдела продаж' + (DATA.updated ? ' на ' + String(DATA.updated).split('-').reverse().join('.') : '') + ', наличие уточняйте в офисе продаж.') + ' Положение домов схематично. Из названий улиц взято только «ул. Мира» (адрес комплекса), остальные условны. Микрорайоны, части города, реки и главные дороги — контуры по OpenStreetMap (© участники OpenStreetMap), без зданий; карта повёрнута примерно на 19°, чтобы ул. Мира шла вдоль кварталов, как в модели. Тундра, озёра и рельеф за кварталом — схематичная местность, а не топосъёмка.';
     } else if (S.mode === 'win') {
       n.textContent = 'Вид собран по схеме застройки «Новеллы»: пять кварталов, лицей и детский сад. Положение соседних зданий схематично. Дальше пределов модели рельеф и застройка не изучены, там показана ровная земля. Это не фотография.';
     } else if (S.finish === 'bare') {
@@ -1384,7 +1449,9 @@ svg text{font-family:var(--f-body)}
     refresh(true);
   }
   function refresh(keepMaterials) {
-    $('pInt').hidden = S.mode !== 'int'; $('pWin').hidden = S.mode !== 'win'; $('pExt').hidden = S.mode !== 'ext'; $('rowFloor').hidden = S.mode === 'int';
+    $('pInt').hidden = S.mode !== 'int'; $('pExt').hidden = S.mode !== 'ext';
+    dockEl.querySelectorAll('[data-m]').forEach((r) => { r.hidden = r.dataset.m.split(' ').indexOf(S.mode) < 0; });
+    stageEl.style.setProperty('--dockh', dockEl.offsetHeight + 'px'); updateFov();
     $('rowStyle').hidden = S.finish !== 'design';
     $('rowSee').hidden = !(S.mode === 'int' && S.cam === 'walk');
     $('tInt').setAttribute('aria-pressed', S.mode === 'int' ? 'true' : 'false'); $('tWin').setAttribute('aria-pressed', S.mode === 'win' ? 'true' : 'false'); $('tExt').setAttribute('aria-pressed', S.mode === 'ext' ? 'true' : 'false');
@@ -1393,6 +1460,9 @@ svg text{font-family:var(--f-body)}
     $('h1').textContent = S.mode === 'ext' ? 'Квартира ' + TYPES[S.apt].n + ', ' + fmt(TYPES[S.apt].area) + ' м²' : 'Трёхкомнатная квартира, 72,6 м²';
     if (S.mode === 'ext') fillExtPanel();
     trackRecent(); sync.forEach((f) => f()); renderCard(); renderNote(); hintText();
+    dockEl.querySelectorAll('.chip[aria-pressed="true"]').forEach((b) => {   // keep the chosen chip of each dock row in sight (floor 8 sits past the edge on a phone)
+      const r = b.parentNode; if (b.offsetLeft < r.scrollLeft || b.offsetLeft + b.offsetWidth > r.scrollLeft + r.clientWidth) r.scrollLeft = b.offsetLeft - (r.clientWidth - b.offsetWidth) / 2;
+    });
     if (S.mode === 'win') describe();
     if (S.mode !== 'win' && !anim) updateFov();
   }
@@ -1569,18 +1639,22 @@ svg text{font-family:var(--f-body)}
   function stageColor(force) {
     const outsideOn = outside.visible;
     const c = outsideOn ? skyColor() : (getComputedStyle(document.documentElement).getPropertyValue('--stage').trim() || '#e2e8e8');
-    const key = c + S.time + outsideOn; if (!force && key === stageCol) return; stageCol = key;
+    const city = outsideOn && S.mode === 'ext' && S.extView === 'city', key = c + S.time + outsideOn + city; if (!force && key === stageCol) return; stageCol = key;
     scene.background.set(c); if (!outsideOn && S.time === 'eve') scene.background.multiplyScalar(0.55);
-    scene.fog.color.set(c); scene.fog.near = outsideOn ? 1100 : 1e6; scene.fog.far = outsideOn ? 5200 : 2e6;
+    scene.fog.color.set(c); scene.fog.near = city ? 25000 : outsideOn ? 1100 : 1e6; scene.fog.far = city ? 70000 : outsideOn ? 5200 : 2e6;
   }
   function updateFov() {
     const w = stageEl.clientWidth, h = stageEl.clientHeight; if (!w || !h) return;
-    const asp = w / h;
+    const asp = w / h, d = dockEl.offsetHeight;
     camera.fov = S.mode === 'ext' ? (asp < 0.9 ? 50 : 38) : S.mode === 'win' ? (asp < 0.9 ? 78 : 62) : (S.cam === 'walk' ? (asp < 0.9 ? 72 : 62) : (asp < 0.9 ? 60 : 42));
-    camera.aspect = asp; camera.updateProjectionMatrix();
+    // the dock covers the bottom d px: render the top part of a taller virtual frame, so what the camera aims at sits mid-way in the free area
+    camera.aspect = w / (h + d);
+    if (d) camera.setViewOffset(w, h + d, 0, d, w, h); else camera.clearViewOffset();
+    camera.updateProjectionMatrix();
   }
   function resize() {
     const w = stageEl.clientWidth, h = stageEl.clientHeight; if (!w || !h) return;
+    stageEl.style.setProperty('--dockh', dockEl.offsetHeight + 'px');
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(w, h, false); updateFov();
   }
   new ResizeObserver(resize).observe(stageEl);

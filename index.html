@@ -5,20 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3D-выбор квартир для УДС-Д · 3dryad.ru</title>
 <meta name="description" content="Коммерческое предложение 3dryad.ru для УДС-Д: 3D-выбор квартир, интерьеры и вид из окна для ЖК «Новелла». Демо и калькулятор стоимости.">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Golos+Text:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Golos+Text:wght@400;500;600&display=swap"></noscript>
 <style>
+/* The proposal is a document for the developer: always on white, in light colours (also when the phone is in dark mode). */
 :root{
-  --bg:#eef0f0; --surf:#ffffff; --fg:#1d2427; --mut:#5a676b; --line:#d3dbdc;
-  --acc:#1f5f66; --accfg:#ffffff; --soft:#e3eeee; --chip:#f5f7f7;
+  --bg:#ffffff; --surf:#ffffff; --fg:#1d2427; --mut:#5a676b; --line:#dfe5e6;
+  --acc:#1f5f66; --accfg:#ffffff; --soft:#e8f1f1; --chip:#f4f7f7; --acc2:#3ddc97;
   --f-display:'Jost','Segoe UI',system-ui,sans-serif;
   --f-body:'Golos Text','Segoe UI',system-ui,sans-serif;
-}
-@media (prefers-color-scheme: dark){
-  :root{ --bg:#111617; --surf:#192022; --fg:#e6ecec; --mut:#93a3a7; --line:#2b373a;
-    --acc:#6cc3c9; --accfg:#0b1b1d; --soft:#1d2b2e; --chip:#1f292c; color-scheme:dark; }
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -39,19 +38,48 @@ h2{font:600 clamp(22px,3vw,30px)/1.2 var(--f-display);margin:0 0 14px}
 .btns{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 6px}
 .btn{display:inline-flex;align-items:center;min-height:44px;padding:10px 18px;border-radius:10px;font:500 15px var(--f-body);text-decoration:none;border:1px solid var(--line);color:var(--fg);background:var(--surf)}
 .btn.pri{background:var(--acc);color:var(--accfg);border-color:var(--acc)}
-section{padding:36px 0;border-top:1px solid var(--line)}
-.demo-frame{margin-top:22px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surf)}
-.demo-frame iframe{display:block;width:100%;height:760px;border:0}
+section{padding:40px 0;border-top:1px solid var(--line)}
+.ico{width:28px;height:28px;flex:none;stroke:var(--acc);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* infographic: key numbers */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:26px 0 4px}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--soft);border-radius:14px;padding:16px}
+.stat .v{font:600 clamp(24px,4vw,34px)/1.05 var(--f-display);color:var(--acc);font-variant-numeric:tabular-nums}
+.stat .k{font-size:13.5px;color:var(--fg);margin-top:6px}
+
+.demo-frame{margin-top:26px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surf)}
+.demo-frame iframe{display:block;width:100%;height:800px;border:0}
 .demo-cap{font-size:13px;color:var(--mut);padding:10px 14px;border-top:1px solid var(--line)}
 @media (max-width:640px){.demo-frame{display:none}}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
-.card{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:16px}
-.card b{display:block;font:600 16px var(--f-display);margin-bottom:4px}
-.card p{margin:0;color:var(--mut);font-size:14px}
-.why li{margin-bottom:8px}
+
+/* infographic: the buyer's path, five steps with arrows */
+.path{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;counter-reset:st}
+.path li{position:relative;background:var(--chip);border:1px solid var(--line);border-radius:14px;padding:16px 14px 14px}
+.path li::before{counter-increment:st;content:counter(st);position:absolute;right:12px;top:10px;font:600 28px/1 var(--f-display);color:color-mix(in srgb,var(--acc) 22%,transparent)}
+.path li:not(:last-child)::after{content:"";position:absolute;right:-9px;top:50%;width:8px;height:14px;transform:translateY(-50%);background:var(--acc);clip-path:polygon(0 0,100% 50%,0 100%);z-index:1}
+.path b{display:block;font:600 16px/1.2 var(--f-display);margin:10px 0 4px}
+.path p{margin:0;font-size:13.5px;color:var(--mut)}
+@media (max-width:860px){
+  .path{grid-template-columns:1fr;gap:12px}
+  .path li{display:grid;grid-template-columns:28px 1fr;column-gap:12px;align-items:start}
+  .path li .ico{grid-row:span 2;margin-top:2px}
+  .path b{margin:0 0 2px}
+  .path li:not(:last-child)::after{right:auto;left:26px;top:auto;bottom:-11px;width:14px;height:8px;transform:none;clip-path:polygon(0 0,100% 0,50% 100%)}
+}
+.extra{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.extra span{font-size:13px;background:var(--soft);color:var(--acc);border-radius:999px;padding:5px 12px}
+
+/* infographic: benefits */
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.why div{border:1px solid var(--line);border-radius:14px;padding:16px}
+.why b{display:block;font:600 16px/1.25 var(--f-display);margin:10px 0 4px}
+.why p{margin:0;font-size:14px;color:var(--mut)}
+
 /* calculator */
 .calc{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;align-items:start}
 @media (max-width:820px){.calc{grid-template-columns:1fr}}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:16px}
 .field{margin-bottom:18px}
 .field label,.flab{display:block;font-weight:500;margin-bottom:6px}
 .hint{font-size:13px;color:var(--mut)}
@@ -70,21 +98,42 @@ input[type=range]{flex:1;accent-color:var(--acc)}
 .total{margin-top:14px;padding:14px;border-radius:10px;background:var(--soft)}
 .total .big{font:600 26px/1.15 var(--f-display);font-variant-numeric:tabular-nums}
 .total .sub{font-size:14px;color:var(--mut);margin-top:4px}
-.plans{width:100%;border-collapse:collapse;font-size:14px;background:var(--surf);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.plans th,.plans td{padding:12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-.plans th{font-weight:600;background:var(--chip)}
-.plans td.r{white-space:nowrap;font-variant-numeric:tabular-nums}
-.tbl-wrap{overflow-x:auto}
-@media (max-width:640px){
-  .plans tr:first-child{display:none}
-  .plans,.plans tbody,.plans tr,.plans td{display:block;width:100%}
-  .plans tr{border-bottom:1px solid var(--line);padding:10px 0}
-  .plans td{border:0;padding:3px 14px}
-  .plans td:nth-child(3)::before{content:"Срок: ";color:var(--mut)}
-  .plans td:nth-child(4)::before{content:"Стоимость: ";color:var(--mut)}
-  .plans td.r br{display:none}
-}
-ol.steps li{margin-bottom:8px}
+
+/* infographic: tariffs */
+.tariffs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:820px){.tariffs{grid-template-columns:1fr}}
+.tariff{border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.tariff.rec{border:2px solid var(--acc)}
+.tariff .tag{align-self:flex-start;font-size:12px;font-weight:600;color:var(--accfg);background:var(--acc);border-radius:999px;padding:3px 10px}
+.tariff h3{font:600 20px/1.2 var(--f-display);margin:0}
+.tariff .price{font:600 24px/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.tariff .price small{display:block;font:400 13px var(--f-body);color:var(--mut);margin-top:3px}
+.tariff .term{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--acc)}
+.tariff .term .ico{width:20px;height:20px}
+.tariff ul{margin:0;padding-left:18px;font-size:14px;color:var(--mut)}
+.tariff li{margin-bottom:4px}
+
+/* infographic: timeline (weeks after the materials arrive) */
+.gantt{border:1px solid var(--line);border-radius:14px;padding:16px 16px 10px;overflow:hidden}
+.g-head,.g-row{display:grid;grid-template-columns:minmax(120px,1.1fr) 3fr;gap:12px;align-items:center}
+.g-head{font-size:12px;color:var(--mut);margin-bottom:6px}
+.g-weeks{display:grid;grid-template-columns:repeat(4,1fr);text-align:center}
+.g-weeks span{border-left:1px dashed var(--line)}
+.g-group{font:600 15px var(--f-display);margin:14px 0 6px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.g-group em{font:500 13px var(--f-body);font-style:normal;color:var(--acc);background:var(--soft);border-radius:999px;padding:2px 10px}
+.g-row{min-height:34px;font-size:13.5px}
+.g-track{position:relative;height:22px;background:repeating-linear-gradient(to right,transparent 0,transparent calc(25% - 1px),var(--line) calc(25% - 1px),var(--line) 25%)}
+.g-bar{position:absolute;top:3px;bottom:3px;border-radius:6px;background:var(--acc)}
+.g-bar.opt{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--acc) 45%,#fff) 0 6px,color-mix(in srgb,var(--acc) 25%,#fff) 6px 12px)}
+.g-legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--mut);margin-top:12px}
+.g-legend i{display:inline-block;width:18px;height:10px;border-radius:3px;background:var(--acc);margin-right:6px;vertical-align:middle}
+.g-legend i.opt{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--acc) 45%,#fff) 0 4px,color-mix(in srgb,var(--acc) 25%,#fff) 4px 8px)}
+@media (max-width:560px){.g-head,.g-row{grid-template-columns:1fr;gap:4px}.g-head>span:first-child{display:none}.g-row{margin-bottom:8px}}
+
+/* materials checklist */
+.mats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px 16px}
+.mats li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px}
+.mats .ico{width:20px;height:20px;margin-top:2px}
 .note{font-size:14px;color:var(--mut);max-width:70ch}
 footer{border-top:1px solid var(--line);padding:32px 0 40px;margin-top:20px}
 .contacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
@@ -93,19 +142,39 @@ footer{border-top:1px solid var(--line);padding:32px 0 40px;margin-top:20px}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-city" viewBox="0 0 24 24"><path d="M3 21h18M5 21V9l5-3v15M10 21V4l6 3v14M16 21v-9l4 2v7"/><path d="M7 12h1M7 15h1M12.5 9h1M12.5 12h1M12.5 15h1"/></symbol>
+  <symbol id="i-floor" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 12.5l9 5 9-5M3 17l9 5 9-5"/></symbol>
+  <symbol id="i-flat" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M3 12h9V3M12 12v9M16 12h5"/></symbol>
+  <symbol id="i-sofa" viewBox="0 0 24 24"><path d="M4 11V8a2 2 0 012-2h12a2 2 0 012 2v3"/><path d="M2 13a2 2 0 014 0v2h12v-2a2 2 0 014 0v5H2v-5zM5 18v2M19 18v2"/></symbol>
+  <symbol id="i-window" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M12 3v18M4 12h16"/><path d="M7 9l2-2 2 2" /></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-12a7 7 0 10-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5z"/><path d="M8 9h8M8 12h5"/></symbol>
+  <symbol id="i-browser" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8h18M6 6h.01M8.5 6h.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+</svg>
 <div class="wrap">
   <header class="top">
     <a class="brand" href="https://3dryad.ru" target="_blank" rel="noopener">3d<span>ryad</span>.ru</a>
-    <nav><a href="#demo">Демо</a><a href="#calc">Калькулятор</a><a href="#price">Стоимость</a><a href="#contacts">Контакты</a></nav>
+    <nav><a href="#demo">Демо</a><a href="#path">Возможности</a><a href="#price">Тарифы</a><a href="#calc">Калькулятор</a><a href="#contacts">Контакты</a></nav>
   </header>
 
   <div class="hero" id="demo">
     <div class="eyebrow">Предложение для УДС-Д · ЖК «Новелла», Новый Уренгой</div>
     <h1>3D-выбор квартир для ваших покупателей</h1>
-    <p class="lead">Покупатель на сайте выбирает свободную квартиру в 3D, заходит внутрь, смотрит отделку «как продаем» и вид из окна с нужного этажа. Пилот на одну секцию стоит от 250 тыс. ₽, весь комплекс — 0,7–1,1 млн ₽.</p>
+    <p class="lead">Покупатель на сайте выбирает свободную квартиру в 3D, заходит внутрь, смотрит отделку «как продаем» и вид из окна с нужного этажа. Пилот на одну секцию — от 250 тыс. ₽ и 1–2 недели, весь комплекс — 0,7–1,1 млн ₽ и 2–4 недели.</p>
     <div class="btns">
       <a class="btn pri" href="demo/">Открыть демо «Новеллы»</a>
       <a class="btn" href="#calc">Рассчитать стоимость</a>
+    </div>
+    <div class="stats" role="list">
+      <div class="stat" role="listitem"><div class="v">1–2 нед.</div><div class="k">пилот на одну секцию</div></div>
+      <div class="stat" role="listitem"><div class="v">2–4 нед.</div><div class="k">весь ЖК «Новелла»</div></div>
+      <div class="stat" role="listitem"><div class="v">3 режима</div><div class="k">квартал, интерьер, вид из окна</div></div>
+      <div class="stat" role="listitem"><div class="v">0 установок</div><div class="k">работает в браузере телефона и ПК</div></div>
     </div>
     <div class="demo-frame">
       <iframe src="demo/" title="3D-демо ЖК «Новелла»" loading="lazy"></iframe>
@@ -113,26 +182,79 @@ footer{border-top:1px solid var(--line);padding:32px 0 40px;margin-top:20px}
     </div>
   </div>
 
-  <section>
-    <h2>Что увидит покупатель</h2>
-    <div class="grid">
-      <div class="card"><b>Квартал в 3D</b><p>Корпуса, улицы, дворы, лицей и детские сады. Зелёным подсвечены дома, где есть свободные квартиры.</p></div>
-      <div class="card"><b>Выбор квартиры</b><p>Касанием по дому или из списка: корпус, этаж, квартира. Статус, цена и площадь в карточке.</p></div>
-      <div class="card"><b>Квартира в доме</b><p>Дом становится прозрачным, выбранная квартира выделена цветом или показана с интерьером.</p></div>
-      <div class="card"><b>Интерьер</b><p>Отделка «как продаем» и дизайн-проект в трёх стилях. Прогулка по квартире касанием по полу.</p></div>
-      <div class="card"><b>Вид из окна</b><p>С любого этажа и из каждой комнаты, днём и вечером, с описанием того, что видно.</p></div>
-      <div class="card"><b>Схема и соседи</b><p>Планировка с площадями комнат, соседние квартиры на этаже, «недавно смотрели».</p></div>
-    </div>
+  <section id="path">
+    <h2>Путь покупателя: от квартала до вида из окна</h2>
+    <ol class="path">
+      <li><svg class="ico"><use href="#i-city"/></svg><b>Квартал в 3D</b><p>Корпуса, улицы, дворы, лицей и детсады. Дома со свободными квартирами подсвечены.</p></li>
+      <li><svg class="ico"><use href="#i-floor"/></svg><b>Корпус и этаж</b><p>Касанием по дому или из списка. Дом становится прозрачным.</p></li>
+      <li><svg class="ico"><use href="#i-flat"/></svg><b>Квартира</b><p>Статус, цена, площадь и схема планировки с соседями по этажу.</p></li>
+      <li><svg class="ico"><use href="#i-sofa"/></svg><b>Интерьер</b><p>Отделка «как продаем» и дизайн-проект. Прогулка касанием по полу.</p></li>
+      <li><svg class="ico"><use href="#i-window"/></svg><b>Вид из окна</b><p>С выбранного этажа, из каждой комнаты, днём и вечером.</p></li>
+    </ol>
+    <div class="extra"><span>Вечерний режим</span><span>«Недавно смотрели»</span><span>Ссылка на квартиру в мессенджер</span><span>Статусы и цены из базы продаж</span></div>
   </section>
 
   <section>
     <h2>Зачем это застройщику</h2>
-    <ul class="why">
-      <li><b>Продаёт свободное.</b> Покупатель сразу видит, где есть свободные квартиры, и не тратит время на проданные.</li>
-      <li><b>Снимает страх «предчистовой».</b> Видно, что покупатель получит при передаче ключей и как квартира может выглядеть после ремонта.</li>
-      <li><b>Продаёт на расстоянии.</b> Вахтовики и покупатели из других городов смотрят квартиру и вид из окна без поездки.</li>
-      <li><b>Помогает менеджерам.</b> Ссылку можно показать в офисе на экране или отправить клиенту в мессенджер.</li>
-      <li><b>Без установки.</b> Работает в браузере, встраивается на сайт застройщика кнопкой или ссылкой.</li>
+    <div class="why">
+      <div><svg class="ico"><use href="#i-target"/></svg><b>Продаёт свободное</b><p>Покупатель сразу видит, где есть свободные квартиры, и не тратит время на проданные.</p></div>
+      <div><svg class="ico"><use href="#i-key"/></svg><b>Снимает страх «предчистовой»</b><p>Видно, что покупатель получит при передаче ключей и как квартира выглядит после ремонта.</p></div>
+      <div><svg class="ico"><use href="#i-pin"/></svg><b>Продаёт на расстоянии</b><p>Вахтовики и покупатели из других городов смотрят квартиру и вид из окна без поездки.</p></div>
+      <div><svg class="ico"><use href="#i-chat"/></svg><b>Помогает менеджерам</b><p>Показать в офисе на экране или отправить клиенту ссылку в мессенджер.</p></div>
+      <div><svg class="ico"><use href="#i-browser"/></svg><b>Без установки</b><p>Работает в браузере, встраивается на сайт кнопкой или ссылкой.</p></div>
+    </div>
+  </section>
+
+  <section id="price">
+    <h2>Тарифы и сроки</h2>
+    <div class="tariffs">
+      <div class="tariff rec">
+        <span class="tag">Рекомендуем начать</span>
+        <h3>Пилот: одна секция</h3>
+        <div class="price">250–350 тыс. ₽<small>засчитывается при расширении на весь ЖК</small></div>
+        <div class="term"><svg class="ico"><use href="#i-clock"/></svg>1–2 недели</div>
+        <ul><li>Секция по реальным планам</li><li>Все её планировки с интерьерами</li><li>Выбор квартир и статусы</li><li>Квартал вокруг</li></ul>
+      </div>
+      <div class="tariff">
+        <h3>Весь ЖК «Новелла»</h3>
+        <div class="price">700 тыс. – 1,1 млн ₽<small>при ≈25 уникальных планировках</small></div>
+        <div class="term"><svg class="ico"><use href="#i-clock"/></svg>2–4 недели</div>
+        <ul><li>3D-квартал по генплану</li><li>Интерьеры всех планировок</li><li>Связь с базой продаж</li><li>Вид из окна для каждой квартиры</li></ul>
+      </div>
+      <div class="tariff">
+        <h3>Поддержка</h3>
+        <div class="price">20–30 тыс. ₽<small>в месяц</small></div>
+        <div class="term"><svg class="ico"><use href="#i-clock"/></svg>ежемесячно</div>
+        <ul><li>Хостинг</li><li>Обновление статусов и цен</li><li>Правки и новые планировки</li></ul>
+      </div>
+    </div>
+    <p class="note">Для сравнения: шахматки и виджеты выбора квартир на рынке стоят от 300 тыс. ₽ без 3D-интерьеров, 3D-туры по одному проекту — 250–600 тыс. ₽ без выбора квартир.</p>
+  </section>
+
+  <section id="plan">
+    <h2>Как идёт работа</h2>
+    <p class="note" style="margin-top:-6px">Недели считаются с момента, когда получены планы и данные. Точный срок зависит от числа планировок.</p>
+    <div class="gantt" role="img" aria-label="График работ: пилот за 1–2 недели, весь ЖК за 2–4 недели">
+      <div class="g-head"><span>Этап</span><div class="g-weeks"><span>1 нед.</span><span>2 нед.</span><span>3 нед.</span><span>4 нед.</span></div></div>
+      <div class="g-group">Пилот: одна секция <em>1–2 недели</em></div>
+      <div class="g-row"><span>Секция и квартал по планам</span><div class="g-track"><i class="g-bar" style="left:0;width:15%"></i></div></div>
+      <div class="g-row"><span>Интерьеры планировок секции</span><div class="g-track"><i class="g-bar" style="left:6%;width:19%"></i><i class="g-bar opt" style="left:25%;width:15%"></i></div></div>
+      <div class="g-row"><span>Статусы, проверка, запуск</span><div class="g-track"><i class="g-bar" style="left:18%;width:7%"></i><i class="g-bar opt" style="left:25%;width:25%"></i></div></div>
+      <div class="g-group">Весь ЖК «Новелла» <em>2–4 недели</em></div>
+      <div class="g-row"><span>3D-квартал по генплану</span><div class="g-track"><i class="g-bar" style="left:0;width:25%"></i></div></div>
+      <div class="g-row"><span>Интерьеры всех планировок</span><div class="g-track"><i class="g-bar" style="left:10%;width:30%"></i><i class="g-bar opt" style="left:40%;width:45%"></i></div></div>
+      <div class="g-row"><span>Связь с базой продаж</span><div class="g-track"><i class="g-bar" style="left:25%;width:15%"></i><i class="g-bar opt" style="left:40%;width:15%"></i></div></div>
+      <div class="g-row"><span>Проверка с отделом продаж, запуск</span><div class="g-track"><i class="g-bar" style="left:40%;width:10%"></i><i class="g-bar opt" style="left:50%;width:50%"></i></div></div>
+      <div class="g-legend"><span><i></i>минимальный срок</span><span><i class="opt"></i>запас, если планировок больше</span></div>
+    </div>
+    <h2 style="margin-top:28px;font-size:20px">Что нужно от УДС-Д</h2>
+    <ul class="mats">
+      <li><svg class="ico"><use href="#i-check"/></svg>Поэтажные планы секций и планировки с размерами (PDF или DWG)</li>
+      <li><svg class="ico"><use href="#i-check"/></svg>Генплан и схема благоустройства</li>
+      <li><svg class="ico"><use href="#i-check"/></svg>Рендеры или цвета фасадов</li>
+      <li><svg class="ico"><use href="#i-check"/></svg>Состав предчистовой отделки</li>
+      <li><svg class="ico"><use href="#i-check"/></svg>Список квартир со статусами и ценами</li>
+      <li><svg class="ico"><use href="#i-check"/></svg>Логотип и контакт в отделе продаж</li>
     </ul>
   </section>
 
@@ -159,13 +281,6 @@ footer{border-top:1px solid var(--line);padding:32px 0 40px;margin-top:20px}
           <label class="chk"><input type="checkbox" id="styles" checked><span>Дизайн-проект в трёх стилях (без него — только отделка «как продаем»)</span></label>
         </div>
         <div class="field">
-          <span class="flab">Оплата</span>
-          <div class="seg" id="pay">
-            <button type="button" data-v="once" aria-pressed="true">Разово</button>
-            <button type="button" data-v="share" aria-pressed="false">Меньше вход + доля с продаж</button>
-          </div>
-        </div>
-        <div class="field">
           <label for="mon">Поддержка, месяцев</label>
           <div class="rangebox"><input type="range" id="mon" min="0" max="24" value="12"><span class="num" id="monN">12</span></div>
           <div class="hint">Хостинг, обновление статусов и цен, правки: 20–30 тыс. ₽ в месяц.</div>
@@ -174,7 +289,7 @@ footer{border-top:1px solid var(--line);padding:32px 0 40px;margin-top:20px}
       <div class="card res" aria-live="polite">
         <table id="lines"></table>
         <div class="total">
-          <div class="hint" id="totLab">Разработка, разово</div>
+          <div class="hint">Разработка, разово</div>
           <div class="big" id="tot"></div>
           <div class="sub" id="totSub"></div>
         </div>
@@ -183,34 +298,9 @@ footer{border-top:1px solid var(--line);padding:32px 0 40px;margin-top:20px}
     </div>
   </section>
 
-  <section id="price">
-    <h2>Варианты и стоимость</h2>
-    <p class="note">Рекомендуем начать с пилота на одну секцию. Его стоимость засчитывается при расширении на весь комплекс.</p>
-    <div class="tbl-wrap">
-      <table class="plans">
-        <tr><th>Вариант</th><th>Что входит</th><th>Срок</th><th>Стоимость, ₽</th></tr>
-        <tr><td><b>Пилот: одна секция</b></td><td>Секция по реальным планам, все её планировки с интерьерами, выбор квартир и статусы, квартал вокруг</td><td>3–4 недели</td><td class="r">250 000–350 000</td></tr>
-        <tr><td><b>Весь ЖК «Новелла»</b></td><td>3D-квартал по генплану, выбор квартир и связь с базой продаж, интерьеры всех планировок, вид из окна для каждой квартиры</td><td>8–10 недель</td><td class="r">700 000–1 100 000</td></tr>
-        <tr><td><b>С долей от продаж</b></td><td>То же, что «весь ЖК»: ниже вход и вознаграждение с каждой проданной квартиры</td><td>8–10 недель</td><td class="r">400 000–500 000<br>+ 3 000–5 000 за продажу</td></tr>
-        <tr><td><b>Поддержка</b></td><td>Хостинг, обновление статусов и цен, правки</td><td>ежемесячно</td><td class="r">20 000–30 000 в месяц</td></tr>
-      </table>
-    </div>
-    <p class="note">Для сравнения: шахматки и виджеты выбора квартир на рынке стоят от 300 тыс. ₽ без 3D-интерьеров, 3D-туры по одному проекту — 250–600 тыс. ₽ без выбора квартир.</p>
-  </section>
-
-  <section>
-    <h2>Сроки пилота и что нужно от вас</h2>
-    <ol class="steps">
-      <li><b>Неделя 1.</b> Получаем материалы, строим секцию и квартал по реальным планам.</li>
-      <li><b>Недели 2–3.</b> Интерьеры всех планировок секции, вид из окон, подключение статусов.</li>
-      <li><b>Неделя 4.</b> Проверка с отделом продаж, правки, размещение на сайте.</li>
-    </ol>
-    <p><b>Материалы от УДС-Д:</b> поэтажные планы секций и планировки квартир с размерами (PDF или DWG), генплан и схема благоустройства, рендеры или цвета фасадов, состав предчистовой отделки, список квартир со статусами и ценами, контакт в отделе продаж.</p>
-  </section>
-
   <section>
     <h2>О демо</h2>
-    <p class="note">Демо собрано без проектной документации застройщика, по открытым данным о ЖК. Условно: планировка квартиры, место лифта и лестницы, двери и окна; положение и этажность корпусов, благоустройство; статусы и цены квартир (примерные, для демонстрации); названия улиц, кроме «ул. Мира», соседние районы и рельеф. В пилоте всё это строится по планам и данным продаж застройщика.</p>
+    <p class="note">Демо собрано без проектной документации застройщика, по открытым данным о ЖК. Условно: планировка квартиры, место лифта и лестницы, двери и окна; положение и этажность корпусов, благоустройство; статусы и цены квартир (примерные, для демонстрации); названия улиц, кроме «ул. Мира», рельеф и озёра. Контуры микрорайонов, частей города, рек и дорог взяты из OpenStreetMap (© участники OpenStreetMap). В пилоте квартал и секции строятся по планам и данным продаж застройщика.</p>
     <p><b>Следующий шаг:</b> встреча на 30 минут с отделом продаж или маркетинга — покажем демо, выберем секцию для пилота и согласуем список материалов.</p>
   </section>
 
@@ -228,19 +318,17 @@ footer{border-top:1px solid var(--line);padding:32px 0 40px;margin-top:20px}
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
-  const st = { scope: 'full', pay: 'once' };
+  const st = { scope: 'full' };
   const fmt = (n) => Math.round(n / 1000) * 1000;
-  const rub = (n) => fmt(n).toLocaleString('ru-RU').replace(/ /g, ' ');
+  const rub = (n) => fmt(n).toLocaleString('ru-RU').replace(/ /g, ' ');
   const rng = (a, b) => rub(a) + '–' + rub(b) + ' ₽';
-  function seg(id, key) {
-    $(id).addEventListener('click', (e) => {
-      const b = e.target.closest('button'); if (!b) return;
-      st[key] = b.dataset.v;
-      $(id).querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
-      if (key === 'scope') { $('lay').value = st.scope === 'pilot' ? 6 : 25; }
-      calc();
-    });
-  }
+  $('scope').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    st.scope = b.dataset.v;
+    $('scope').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    $('lay').value = st.scope === 'pilot' ? 6 : 25;
+    calc();
+  });
   function calc() {
     const L = +$('lay').value, M = +$('mon').value, pilot = st.scope === 'pilot';
     $('layN').textContent = L; $('monN').textContent = M;
@@ -254,18 +342,11 @@ footer{border-top:1px solid var(--line);padding:32px 0 40px;margin-top:20px}
     lines.push(['Вечерний режим, «недавно смотрели»', [0, 0]]);
     let a = 0, b = 0; lines.forEach((l) => { a += l[1][0]; b += l[1][1]; });
     $('lines').innerHTML = lines.map((l) => '<tr><td>' + l[0] + '</td><td>' + (l[1][1] ? rng(l[1][0], l[1][1]) : 'входит') + '</td></tr>').join('')
+      + '<tr><td>Срок</td><td>' + (pilot ? '1–2 недели' : '2–4 недели') + '</td></tr>'
       + (M ? '<tr><td>Поддержка, ' + M + ' мес.</td><td>' + rng(M * 20000, M * 30000) + '</td></tr>' : '');
-    if (st.pay === 'share') {
-      $('totLab').textContent = 'Вход, разово';
-      $('tot').textContent = rng(a * 0.55, b * 0.45 > a * 0.55 ? b * 0.45 : a * 0.6);
-      $('totSub').textContent = '+ 3 000–5 000 ₽ с каждой проданной квартиры' + (M ? '; поддержка ' + rng(20000, 30000).replace(' ₽', '') + ' ₽ в месяц' : '');
-    } else {
-      $('totLab').textContent = 'Разработка, разово';
-      $('tot').textContent = rng(a, b);
-      $('totSub').textContent = M ? 'Плюс поддержка ' + rng(M * 20000, M * 30000) + ' за ' + M + ' мес.' : 'Без поддержки';
-    }
+    $('tot').textContent = rng(a, b);
+    $('totSub').textContent = M ? 'Плюс поддержка ' + rng(M * 20000, M * 30000) + ' за ' + M + ' мес.' : 'Без поддержки';
   }
-  seg('scope', 'scope'); seg('pay', 'pay');
   ['lay', 'mon', 'crm', 'styles'].forEach((id) => $(id).addEventListener('input', calc));
   calc();
 })();
