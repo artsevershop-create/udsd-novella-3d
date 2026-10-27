@@ -28,25 +28,18 @@ window.addEventListener('unhandledrejection', (e) => window.__fail(e.reason && e
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- fonts must not block the first paint on a slow mobile connection: system font first, Jost / Golos Text swap in -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Golos+Text:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Golos+Text:wght@400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap"></noscript>
 <style>
-/* Layout: tabs (interior / window view), one 3D stage, chip rows for the active tab, a facts card. */
+/* Layout: tabs (interior / window view), one 3D stage, chip rows for the active tab, a facts card.
+   Visual style follows the developer's site uds-d.ru: white page, Noto Sans with bold headings, brand blue, light blue-grey
+   panels, pill-shaped buttons. Light only, like the site. */
 :root{
-  --bg:#eef0f0; --surf:#ffffff; --fg:#1d2427; --mut:#5a676b; --line:#d3dbdc;
-  --acc:#1f5f66; --accfg:#ffffff; --stage:#e2e8e8; --chip:#f5f7f7;
-  --f-display:'Jost','Segoe UI',system-ui,sans-serif;
-  --f-body:'Golos Text','Segoe UI',system-ui,sans-serif;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#111617; --surf:#192022; --fg:#e6ecec; --mut:#93a3a7; --line:#2b373a;
-    --acc:#6cc3c9; --accfg:#0b1b1d; --stage:#1b2427; --chip:#1f292c; color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#111617; --surf:#192022; --fg:#e6ecec; --mut:#93a3a7; --line:#2b373a;
-  --acc:#6cc3c9; --accfg:#0b1b1d; --stage:#1b2427; --chip:#1f292c; color-scheme:dark;
+  --bg:#ffffff; --surf:#ffffff; --fg:#0c0c0c; --mut:#5b6770; --line:#dbe5eb;
+  --acc:#007db6; --acc2:#009ddc; --green:#86af2c; --accfg:#ffffff; --stage:#f0f6f9; --chip:#f0f6f9;
+  --f-display:'Noto Sans','Segoe UI',system-ui,sans-serif;
+  --f-body:'Noto Sans','Segoe UI',system-ui,sans-serif;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -63,11 +56,11 @@ header{display:flex;flex-direction:column;gap:2px}
 .loader i{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--acc);animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.loader i{animation:none}}
-h1{font-family:var(--f-display);font-weight:500;font-size:clamp(26px,6vw,38px);line-height:1.1;margin:0;text-wrap:balance}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--chip)}
-.tabs button{border:0;background:transparent;color:var(--fg);font:500 15px var(--f-body);padding:11px 8px;cursor:pointer}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,6vw,38px);line-height:1.1;margin:0;text-wrap:balance}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border:0;border-radius:44px;background:var(--chip)}
+.tabs button{border:0;background:transparent;color:var(--acc);font:500 14px var(--f-body);padding:10px 4px;border-radius:40px;cursor:pointer;white-space:nowrap}
 .tabs button[aria-pressed="true"]{background:var(--acc);color:var(--accfg)}
-.stage{position:relative;height:clamp(400px,66vh,660px);background:var(--stage);border:1px solid var(--line);border-radius:10px;overflow:hidden;--dockh:0px}
+.stage{position:relative;height:clamp(400px,66vh,660px);background:var(--stage);border:1px solid var(--line);border-radius:16px;overflow:hidden;--dockh:0px}
 .stage canvas{display:block;width:100%;height:100%;touch-action:none}
 /* controls on the stage: a dock of chip rows along the bottom edge, day/evening under the plan button */
 .dock{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:6px;padding:22px 8px 8px;background:linear-gradient(to top,color-mix(in srgb,var(--stage) 92%,transparent) 55%,transparent);touch-action:pan-x;pointer-events:none}
@@ -79,8 +72,8 @@ h1{font-family:var(--f-display);font-weight:500;font-size:clamp(26px,6vw,38px);l
 .dlab{flex:none;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:0 2px 0 4px}
 .tchips{position:absolute;right:10px;top:54px;gap:4px;overflow:visible;padding:0}
 .tchips .chip{min-height:36px;padding:6px 10px;font-size:13px}
-.hint{position:absolute;left:10px;bottom:calc(var(--dockh) + 4px);font-size:12px;color:var(--mut);background:color-mix(in srgb,var(--surf) 82%,transparent);padding:3px 8px;border-radius:6px;pointer-events:none;max-width:calc(100% - 120px)}
-.badge{position:absolute;left:10px;top:10px;max-width:calc(100% - 160px);font-size:13px;font-weight:500;background:color-mix(in srgb,var(--surf) 88%,transparent);padding:5px 10px;border-radius:6px;pointer-events:none;font-variant-numeric:tabular-nums}
+.hint{position:absolute;left:10px;bottom:calc(var(--dockh) + 4px);font-size:12px;color:var(--mut);background:color-mix(in srgb,var(--surf) 82%,transparent);padding:3px 8px;border-radius:10px;pointer-events:none;max-width:calc(100% - 120px)}
+.badge{position:absolute;left:10px;top:10px;max-width:calc(100% - 160px);font-size:13px;font-weight:500;background:color-mix(in srgb,var(--surf) 88%,transparent);padding:5px 10px;border-radius:10px;pointer-events:none;font-variant-numeric:tabular-nums}
 .rl{position:absolute;left:0;top:0;border:1px solid var(--line);background:color-mix(in srgb,var(--surf) 90%,transparent);color:var(--fg);font:500 12px/1.25 var(--f-body);padding:4px 8px;border-radius:6px;cursor:pointer;white-space:nowrap;text-align:center;pointer-events:auto}
 .sm .rl{font-size:10px;padding:2px 5px}.sm .rl small{font-size:9px}
 .rl small{display:block;color:var(--mut);font-weight:400;font-size:11px}
@@ -92,14 +85,14 @@ h1{font-family:var(--f-display);font-weight:500;font-size:clamp(26px,6vw,38px);l
 .row{display:flex;flex-direction:column;gap:6px}
 .lab{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
-.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 14px var(--f-body);padding:8px 13px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 14px var(--f-body);padding:8px 13px;border-radius:44px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
 .chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--accfg)}
 .chip.fl{min-width:44px;justify-content:center;padding:8px 10px;font-variant-numeric:tabular-nums}
 .chip:focus-visible,.rl:focus-visible,.tabs button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .dots{display:inline-flex;gap:3px}
 .dots i{width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,0,0,.25);display:block}
-.card{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
-.card h2{font-family:var(--f-display);font-weight:500;font-size:22px;margin:0 0 4px}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.card h2{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0 0 4px}
 .card p{margin:8px 0 0}
 .meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--mut);font-size:14px;font-variant-numeric:tabular-nums}
 .meta b{color:var(--fg);font-weight:600}
@@ -107,7 +100,7 @@ h1{font-family:var(--f-display);font-weight:500;font-size:clamp(26px,6vw,38px);l
 .note{font-size:12.5px;color:var(--mut);margin:0}
 .note a{color:inherit}
 @media(min-width:720px){.card{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:start}}
-.logo{position:absolute;right:14px;bottom:calc(var(--dockh) + 30px);pointer-events:none;opacity:.5;display:flex;align-items:baseline;gap:1px;font:600 17px/1 var(--f-body);letter-spacing:.06em;color:var(--fg);text-shadow:0 0 6px color-mix(in srgb,var(--surf) 70%,transparent)}
+.logo{position:absolute;right:14px;bottom:calc(var(--dockh) + 30px);pointer-events:none;opacity:.5;display:flex;align-items:baseline;gap:1px;font:600 17px/1 var(--f-body);letter-spacing:.06em;color:#1f3c6e;text-shadow:0 0 6px color-mix(in srgb,var(--surf) 70%,transparent)}
 .logo i{font-style:normal;display:inline-block;width:5px;height:2px;background:currentColor;margin:0 1px;transform:translateY(-4px)}
 .logo small{display:block;position:absolute;right:0;top:20px;font:500 8px/1 var(--f-body);letter-spacing:.14em;white-space:nowrap;opacity:.8}
 #geo{position:absolute;inset:0;pointer-events:none;overflow:hidden}
@@ -118,13 +111,13 @@ h1{font-family:var(--f-display);font-weight:500;font-size:clamp(26px,6vw,38px);l
 .gl.dist{font-size:10px;padding:1px 5px;color:var(--mut);background:color-mix(in srgb,var(--surf) 70%,transparent)}
 .gl.part{font:600 12px/1.2 var(--f-display);color:var(--acc);background:color-mix(in srgb,var(--surf) 88%,transparent);border:1px solid var(--acc)}
 .gl.novella{font-weight:600;border:1px solid #f2a23a;background:color-mix(in srgb,var(--surf) 92%,transparent)}
-.sel{width:100%;max-width:100%;min-height:42px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 14px var(--f-body);padding:8px 10px;border-radius:8px}
+.sel{width:100%;max-width:100%;min-height:42px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 14px var(--f-body);padding:8px 10px;border-radius:12px}
 .st{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mut)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
-.planbtn{position:absolute;right:10px;top:10px;border:1px solid var(--line);background:color-mix(in srgb,var(--surf) 92%,transparent);color:var(--fg);font:500 13px var(--f-body);padding:7px 11px;border-radius:8px;cursor:pointer}
+.planbtn{position:absolute;right:10px;top:10px;border:1px solid var(--line);background:color-mix(in srgb,var(--surf) 92%,transparent);color:var(--fg);font:500 13px var(--f-body);padding:7px 11px;border-radius:44px;cursor:pointer}
 .planbtn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.mini{position:absolute;right:10px;bottom:calc(var(--dockh) + 6px);width:min(46%,190px);background:color-mix(in srgb,var(--surf) 92%,transparent);border:1px solid var(--line);border-radius:8px;padding:4px;cursor:pointer}
+.mini{position:absolute;right:10px;bottom:calc(var(--dockh) + 6px);width:min(46%,190px);background:color-mix(in srgb,var(--surf) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:4px;cursor:pointer}
 .mini svg{display:block;width:100%;height:auto}
 .stage.walk .hint{max-width:calc(100% - min(46%,190px) - 30px)}
 .pr-room{fill:var(--chip)}
@@ -142,16 +135,16 @@ svg text{font-family:var(--f-body)}
 .sheet{position:fixed;inset:0;z-index:50;background:var(--bg);overflow:auto;padding-block:max(16px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .sheet-in{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 .sh-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.sh-head h2{font-family:var(--f-display);font-weight:500;font-size:26px;margin:0}
-.plan{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:8px}
+.sh-head h2{font-family:var(--f-display);font-weight:700;font-size:26px;margin:0}
+.plan{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:8px}
 .plan svg{display:block;width:100%;height:auto}
-.rooms{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surf)}
+.rooms{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surf)}
 .rooms button{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--fg);font:500 14px var(--f-body);padding:12px 14px;cursor:pointer;text-align:left}
 .rooms button:last-child{border-bottom:0}
 .rooms small{color:var(--mut);font-weight:400;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .rooms button:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
-.demo-bar{font-size:12px;color:var(--mut);border:1px dashed var(--line);border-radius:8px;padding:6px 10px;margin-bottom:12px}
+.demo-bar{font-size:12.5px;color:var(--mut);background:var(--chip);border-left:4px solid var(--green);border-radius:12px;padding:8px 12px;margin-bottom:12px}
 .demo-bar a{color:var(--acc)}
 </style>
 </head>
@@ -159,7 +152,7 @@ svg text{font-family:var(--f-body)}
 
 
 <div class="wrap">
-<div class="demo-bar">Демо-концепт <a href="https://3dryad.ru" target="_blank" rel="noopener">3dryad.ru</a> для УДС-Д · не официальный сайт застройщика · <a href="../">Коммерческое предложение</a></div>
+<div class="demo-bar">Демо-концепт <a href="https://3dryad.ru" target="_blank" rel="noopener">3dryad.ru</a> для УДСД · не официальный сайт застройщика · <a href="../">Коммерческое предложение</a></div>
   <header>
     <div class="eyebrow">ЖК «Новелла» · квартал 2, секция 2</div>
     <h1 id="h1">Трёхкомнатная квартира, 72,6 м²</h1>
@@ -174,7 +167,7 @@ svg text{font-family:var(--f-body)}
   <div class="stage" id="stage">
     <canvas id="cv" aria-label="3D-модель квартиры"></canvas>
     <div class="loader" id="loader" role="status"><i></i>Загружаем 3D-квартал…</div>
-    <div class="logo" aria-label="УДС-Д">УДС<i></i>Д<small>ЗАСТРОЙЩИК</small></div>
+    <div class="logo" aria-label="УДСД">УДСД<small>ЗАСТРОЙЩИК</small></div>
     <div id="labels"></div>
     <div id="geo" hidden></div>
     <div class="badge" id="badge" hidden></div>
@@ -328,18 +321,30 @@ svg text{font-family:var(--f-body)}
     for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) if (r() < 0.32) { g.fillStyle = '#ffcf7a'; g.fillRect(i * 32 + 7, j * 32 + 6, 18, 20); }
     glowCanvasTex = new THREE.CanvasTexture(c); glowCanvasTex.wrapS = glowCanvasTex.wrapT = THREE.RepeatWrapping; return glowCanvasTex;
   }
+  // facades after the developer's renders of «Новелла»: brick (red, graphite, light) or sand cladding, light window surrounds,
+  // a wood-textured loggia column with balcony slabs. One texture tile = 4 window columns x 4 floors.
   const facadeCache = {};
   function facadeMat(hex) {
     if (facadeCache[hex]) return facadeCache[hex];
-    const c = document.createElement('canvas'); c.width = c.height = 128;
-    const g = c.getContext('2d');
-    g.fillStyle = hex; g.fillRect(0, 0, 128, 128);
-    for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
-      g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(i * 32 + 6, j * 32 + 5, 20, 22);
-      g.fillStyle = '#5d7488'; g.fillRect(i * 32 + 7, j * 32 + 6, 18, 20);
-      g.fillStyle = 'rgba(255,255,255,0.22)'; g.fillRect(i * 32 + 7, j * 32 + 6, 18, 6);
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d'), r = rngMake(parseInt(hex.slice(1), 16) % 9973 + 3), base = new THREE.Color(hex), tc = new THREE.Color();
+    const light = base.getHSL({}).l > 0.6, frame = light ? '#b9a688' : '#ddd0b8', wood = '#c7a982';
+    g.fillStyle = hex; g.fillRect(0, 0, 256, 256);
+    for (let y = 0; y < 256; y += 3) for (let x = -(y % 6) * 1.5; x < 256; x += 8) {   // brick courses with a jittered tone, light mortar
+      tc.copy(base).offsetHSL(0, (r() - 0.5) * 0.06, (r() - 0.5) * 0.09); g.fillStyle = '#' + tc.getHexString(); g.fillRect(x, y, 7, 2);
     }
-    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    g.fillStyle = light ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.07)'; for (let y = 2; y < 256; y += 3) g.fillRect(0, y, 256, 1);
+    g.fillStyle = wood; g.fillRect(128, 0, 64, 256);                                           // loggia column, wood-textured panels
+    g.fillStyle = 'rgba(90,60,30,0.18)'; for (let x = 130; x < 192; x += 5) g.fillRect(x, 0, 1, 256);
+    for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+      const x = i * 64 + 14, y = j * 64 + 12, loggia = i === 2;
+      if (!loggia) { g.fillStyle = frame; g.fillRect(x - 4, y - 4, 44, 48); }               // window surround
+      g.fillStyle = '#3f505c'; g.fillRect(x, y, 36, loggia ? 46 : 40);
+      g.fillStyle = 'rgba(255,255,255,0.2)'; g.fillRect(x, y, 36, 10);
+      g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(x + 17, y, 2, loggia ? 46 : 40);
+      if (loggia) { g.fillStyle = '#e4ddd0'; g.fillRect(128, y + 46, 64, 6); g.fillStyle = 'rgba(228,221,208,0.75)'; g.fillRect(132, y + 34, 56, 12); }   // slab + rail
+    }
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4;
     return (facadeCache[hex] = new THREE.MeshLambertMaterial({ map: t, emissive: '#ffffff', emissiveMap: glowTexture(), emissiveIntensity: 0 }));
   }
 
@@ -513,7 +518,7 @@ svg text{font-family:var(--f-body)}
   B('wood', 10.35, 6.0, 0.55, 0.5, 0.42);
   B('rug', 7.2, 4.8, 3.2, 0.9, 0.012);
 
-  /* ---------- what is in the apartment as sold (typical pre-finish; the developer does not publish the exact list) ---------- */
+  /* ---------- what is in the apartment as sold (pre-finish per uds-d.ru; positions of radiators, meters, bulbs are approximate) ---------- */
   [[1.15, 0.9], [8.9, 0.9]].forEach((p) => B('white', p[0], 0.1, 1.0, 0.08, 0.55, 0.2, bareG));      // radiators under bedroom windows
   B('white', 3.45, 0.1, 0.8, 0.08, 0.55, 0.2, bareG);                                                // radiator in the living room
   B('white', 7.0, 0.1, 0.6, 0.08, 0.55, 0.2, bareG);
@@ -527,13 +532,14 @@ svg text{font-family:var(--f-body)}
 
   /* ---------- outside: quarters of the project, built from the same layout as the 3D model ---------- */
   const QW = 100, QD = 80, WD = 14, GAP = 10;
-  const PAL = ['#D6DAD6', '#B7C3C0', '#E1DED6', '#8E9C9E', '#C7B99F'];
+  // «Новелла» palette from the developer's renders: red brick, graphite brick, light brick, sand, warm white
+  const PAL = ['#b2604a', '#4b4f55', '#dcd8d0', '#c9b18d', '#ebe7df'];
   const QUARTERS = [
     { cx: -124, cz: -52, n: [12, 12, 9, 9], s: [6, 6, 5, 5], e: [8, 8], w: [7, 9], pal: [0, 1] },
-    { cx: 0,    cz: -52, n: [9, 12, 12, 9], s: [5, 6, 6, 5], e: [9, 7], w: [7, 9], pal: [2, 3] },
-    { cx: 124,  cz: -52, n: [12, 10, 9, 8], s: [7, 6, 5, 5], e: [6, 8], w: [8, 10], pal: [0, 4] },
+    { cx: 0,    cz: -52, n: [9, 12, 12, 9], s: [5, 6, 6, 5], e: [9, 7], w: [7, 9], pal: [2, 1, 0] },   // our section (k=1) comes out red brick
+    { cx: 124,  cz: -52, n: [12, 10, 9, 8], s: [7, 6, 5, 5], e: [6, 8], w: [8, 10], pal: [3, 4] },
     { cx: -62,  cz: 52,  n: [10, 12, 12, 10], s: [6, 5, 5, 7], e: [7, 6], w: [9, 8], pal: [1, 2] },
-    { cx: 62,   cz: 52,  n: [11, 12, 10, 9], s: [5, 6, 7, 6], e: [8, 9], w: [6, 7], pal: [3, 0] }
+    { cx: 62,   cz: 52,  n: [11, 12, 10, 9], s: [5, 6, 7, 6], e: [8, 9], w: [6, 7], pal: [0, 3] }
   ];
   // our apartment: facade plane z = -78, apartment A spans world x from -16 to -5 (east end of section 2 of quarter 2; its entrance door faces the lift core at x -20..-16)
   const FACE_Z = -78, X0 = -5, FLOOR_H = 3;
@@ -541,7 +547,8 @@ svg text{font-family:var(--f-body)}
   const mPlot = new THREE.MeshLambertMaterial({ color: '#b9bdb7' }), mLawn = new THREE.MeshLambertMaterial({ color: '#8fa583' });
   const mRoad = new THREE.MeshLambertMaterial({ color: '#585d61' }), mPave = new THREE.MeshLambertMaterial({ color: '#c9c7c0' });
   const mGround = new THREE.MeshLambertMaterial({ color: '#9fae8a' }), mTree = new THREE.MeshLambertMaterial({ color: '#4d6f47' });
-  const mStrip = new THREE.MeshLambertMaterial({ color: '#4a5a60' }), mTrunk = new THREE.MeshLambertMaterial({ color: '#5a4636' });
+  // mStrip: glazed ground-floor gallery (shops) along the street side
+  const mStrip = new THREE.MeshLambertMaterial({ color: '#8ea6ae' }), mTrunk = new THREE.MeshLambertMaterial({ color: '#5a4636' });
   const mPole = new THREE.MeshLambertMaterial({ color: '#4a5055' }), mLampHead = new THREE.MeshBasicMaterial({ color: '#d5d9da' });
   const poolTex = (function () {
     const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
@@ -564,6 +571,16 @@ svg text{font-family:var(--f-body)}
     const m = new THREE.Mesh(geo, [fm, fm, mRoof, mRoof, fm, fm]);
     m.position.set(cx, h / 2, cz); m.userData = { title: title, floors: floors, h: h };
     outside.add(m); blockers.push(m); return m;
+  }
+  // jagged roofline of the tall «Новелла» towers: three pitched gables along the section, in the facade colour
+  const gableMats = {};
+  function gables(cx, cz, len, h, hex) {
+    const m = gableMats[hex] || (gableMats[hex] = new THREE.MeshLambertMaterial({ color: hex })), w = len / 3;
+    for (let i = 0; i < 3; i++) {
+      const s = new THREE.Shape(); s.moveTo(-w / 2, 0); s.lineTo(w / 2, 0); s.lineTo(w / 2, i === 1 ? 3 : 4.2); s.lineTo(-w / 2, 0.6); s.closePath();   // asymmetric pitch, like the renders
+      const geo = new THREE.ExtrudeGeometry(s, { depth: WD - 1.2, bevelEnabled: false }).translate(0, 0, -(WD - 1.2) / 2);
+      const g = new THREE.Mesh(geo, m); g.position.set(cx - len / 2 + w * (i + 0.5), h, cz); outside.add(g);
+    }
   }
   slab(-100, 0, 900, 440, 0.02, mGround).position.y = -0.01;
   // real districts of Novy Urengoy from OpenStreetMap (demo/city.js, tools/gen-city.js): flat ground under them, no made-up lakes or forest there
@@ -647,6 +664,7 @@ svg text{font-family:var(--f-body)}
           secMesh = box(xc, zc, ls, WD, fl[k], hex, t); blockers.pop(); secMesh.visible = false;
         } else secMesh = box(xc, zc, ls, WD, fl[k], hex, t);
         reg(secMesh, xc, zc, ls, WD, true, fl[k], qi, own);
+        if (fl[k] >= 11) gables(xc, zc, ls, fl[k] * 3, hex);
         const depth = WD + 0.3, outer = zc + dir * WD / 2;
         const strip = new THREE.Mesh(new THREE.BoxGeometry(ls - 0.1, 3.2, depth), mStrip);
         strip.position.set(xc, 1.6, outer + dir * (0.6 - depth / 2)); outside.add(strip);
@@ -867,7 +885,7 @@ svg text{font-family:var(--f-body)}
   const pickList = SECTIONS.map((x) => x.mesh);
   SECTIONS.forEach((sec) => {   // translucent tint over each building: green where something is still free
     const free = sec.free > 0, sx = sec.alongX ? sec.len : sec.depth, sz = sec.alongX ? sec.depth : sec.len;
-    const ov = new THREE.Mesh(new THREE.BoxGeometry(sx + 1, sec.floors * FLOOR_H + 1, sz + 1), new THREE.MeshBasicMaterial({ color: free ? '#3ddc97' : '#6b7780', transparent: true, opacity: free ? 0.42 : 0.32, depthWrite: false }));
+    const ov = new THREE.Mesh(new THREE.BoxGeometry(sx + 1, sec.floors * FLOOR_H + 1, sz + 1), new THREE.MeshBasicMaterial({ color: free ? '#3ddc97' : '#6b7780', transparent: true, opacity: free ? 0.3 : 0.22, depthWrite: false }));   // light enough that the facades show through
     ov.position.set(sec.cx, sec.floors * FLOOR_H / 2, sec.cz); ov.visible = false; ov.renderOrder = 1; outside.add(ov); sec.ov = ov;
   });
   let cellsKey = '', markKey = '';
@@ -991,7 +1009,7 @@ svg text{font-family:var(--f-body)}
     g.fillStyle = 'rgba(255,255,255,0.9)'; g.beginPath(); g.rect(P(5.25), P(14.6), P(15.5), P(2.8)); g.fill(); seg(13, 14.1, 13, 14.6, 0.05, ACC);
     text('Лифтовый узел — типовое решение', 13, 15.15, 0.62, INK, 600, 15);
     text('лестница, 2 лифта (один для пожарных), холл, тамбур', 13, 15.95, 0.44, MUT, 500, 15);
-    text('условно: уточним по поэтажным планам УДС-Д', 13, 16.7, 0.44, MUT, 500, 15);
+    text('условно: уточним по поэтажным планам УДСД', 13, 16.7, 0.44, MUT, 500, 15);
     const tex = new THREE.CanvasTexture(c); tex.anisotropy = 4;
     const m = new THREE.Mesh(new THREE.PlaneGeometry(CW, CD).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, alphaTest: 0.02 }));
     m.position.set(CW / 2, 0.04, CD / 2); m.visible = false; root.add(m); return m;
@@ -1357,14 +1375,12 @@ svg text{font-family:var(--f-body)}
     labelsEl.appendChild(b);
   });
 
-  const BARE = [
-    'Пол: цементная стяжка',
-    'Стены: штукатурка под отделку, без обоев и покраски',
-    'Потолок: бетон, без светильников',
-    'Окна: стеклопакеты ПВХ с подоконниками',
-    'Радиаторы отопления',
-    'Электрика: проводка и розетки без отделки',
-    'Входная металлическая дверь, межкомнатных дверей нет'
+  const BARE = [   // the developer's own pre-finish standard (uds-d.ru, «Новелла» → Отделка)
+    'Пол: стяжка',
+    'Стены: выровнены под штукатурку и окраску',
+    'Установлены входная дверь и окна',
+    'Приборы учёта воды, тепла и света',
+    'Радиаторы и лампочки в 3D — условно'
   ];
   const BARE_ROOM = {
     bath: 'Санузел без плитки и сантехники: видны только стояки',
@@ -1426,8 +1442,8 @@ svg text{font-family:var(--f-body)}
     } else if (S.mode === 'win') {
       n.textContent = 'Вид собран по схеме застройки «Новеллы»: пять кварталов, лицей и детский сад. Положение соседних зданий схематично. Дальше пределов модели рельеф и застройка не изучены, там показана ровная земля. Это не фотография.';
     } else if (S.finish === 'bare') {
-      n.appendChild(document.createTextNode('Каталог restate.ru указывает отделку «предчистовая», но состав работ не раскрывает. Показан типовой набор для такой отделки. Точный список спросите в офисе продаж УДСД: +7 (3494) 245-245. '));
-      const a = document.createElement('a'); a.href = 'https://novyy-urengoy.restate.ru/novostroy/novella-15572.html'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Источник'; n.appendChild(a);
+      n.appendChild(document.createTextNode('Стандарт предчистовой отделки УДСД, по сайту застройщика: стяжка полов, стены выровнены под штукатурку и окраску, установлены входная дверь и окна, приборы учёта воды, тепла и света. В 3D это показано условно, расположение приборов — примерное. '));
+      const a = document.createElement('a'); a.href = 'https://uds-d.ru/proekty/novella-semeynye-kvartaly/o-proekte/'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Источник: uds-d.ru'; n.appendChild(a);
     } else n.textContent = 'Мебель и отделка показаны как пример дизайн-проекта. Комнаты и площади взяты из планировки в 3D-модели квартала. Двери и окна расставлены условно, их положение нужно сверить с проектом.';
   }
   function hintText() {
