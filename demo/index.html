@@ -165,9 +165,9 @@ svg text{font-family:var(--f-body)}
   <!-- the mode tabs and the 3D stage stay pinned at the top while the controls and the card below scroll under them -->
   <div class="pin" id="pin">
   <div class="tabs" role="group" aria-label="Режим">
-    <button type="button" id="tInt" aria-pressed="true">Интерьер</button>
+    <button type="button" id="tExt" aria-pressed="true">Снаружи</button>
+    <button type="button" id="tInt" aria-pressed="false">3D-интерьер</button>
     <button type="button" id="tWin" aria-pressed="false">Вид из окна</button>
-    <button type="button" id="tExt" aria-pressed="false">Снаружи</button>
   </div>
 
   <div class="stage" id="stage">
@@ -1741,6 +1741,8 @@ svg text{font-family:var(--f-body)}
   refreshMaterials(); applyVisibility();
   resize(); const c0 = camFor('overview'); camera.position.set(...c0.pos); controls.target.set(...c0.tgt); limits();
   resize(); refresh();
+  // the buyer's path starts outside: the demo opens on «Снаружи» at our apartment (the interior above is set up for when they go in)
+  S.sec = towerSec.i; S.apt = 'a'; S.inner = false; S.extView = 'yard'; enterExt(true); refresh(true);
   requestAnimationFrame(frame);
   window.__nv = { S: S, walk: walk, startWalk: startWalk, enterWindow: enterWindow, enterInterior: enterInterior, refresh: refresh, camera: camera, describe: describe, data: DATA_OK ? 'json' : 'generated' };
 });

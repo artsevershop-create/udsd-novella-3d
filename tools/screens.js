@@ -17,6 +17,7 @@ fs.mkdirSync(out, { recursive: true });
   const chip = (sel, text) => page.evaluate(([s, t]) => { [...document.querySelectorAll(s + ' .chip')].find((c) => c.textContent.includes(t)).click(); }, [sel, text]);
 
   await page.goto('file://' + path.join(root, 'demo/index.html'));
+  await page.waitForTimeout(2500); await page.click('#tInt');   // the demo opens on «Снаружи»
   await shot('01-interior');
   await chip('#rView', 'План сверху'); await shot('02-plan-neighbours');
   await chip('#rFinish', 'Как продаем'); await chip('#rTime', 'Вечер'); await shot('03-bare-evening');

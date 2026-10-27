@@ -12,13 +12,14 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const chip = ([sel, text]) => [...document.querySelectorAll(sel + ' .chip')].find((c) => c.textContent.includes(text)).click();
 const SHOTS = [
-  ['mock-free', async (p) => { await p.click('#tExt'); await p.waitForTimeout(1500); await p.evaluate(chip, ['#rExtView', 'Все корпуса']); }],
-  ['mock-facade', async (p) => { await p.click('#tExt'); }],
-  ['mock-design', async () => {}],
-  ['mock-bare', async (p) => { await p.evaluate(chip, ['#rFinish', 'Как продаем']); await p.evaluate(chip, ['#rView', 'Гостиная']); await p.evaluate(chip, ['#rCam', 'Хожу']); }],
-  ['mock-window', async (p) => { await p.click('#tWin'); }],
-  ['mock-plan', async (p) => { await p.evaluate(chip, ['#rView', 'План сверху']); }],
-  ['mock-city', async (p) => { await p.click('#tExt'); await p.waitForTimeout(1500); await p.evaluate(chip, ['#rExtView', 'Весь город']); }]
+  // in the order of the demo's tabs: Снаружи, 3D-интерьер, Вид из окна (the demo opens on Снаружи)
+  ['mock-free', async (p) => { await p.evaluate(chip, ['#rExtView', 'Все корпуса']); }],
+  ['mock-facade', async () => {}],
+  ['mock-city', async (p) => { await p.evaluate(chip, ['#rExtView', 'Весь город']); }],
+  ['mock-design', async (p) => { await p.click('#tInt'); }],
+  ['mock-bare', async (p) => { await p.click('#tInt'); await p.waitForTimeout(800); await p.evaluate(chip, ['#rFinish', 'Как продаем']); await p.evaluate(chip, ['#rView', 'Гостиная']); await p.evaluate(chip, ['#rCam', 'Хожу']); }],
+  ['mock-plan', async (p) => { await p.click('#tInt'); await p.waitForTimeout(800); await p.evaluate(chip, ['#rView', 'План сверху']); }],
+  ['mock-window', async (p) => { await p.click('#tWin'); }]
 ];
 
 (async () => {
