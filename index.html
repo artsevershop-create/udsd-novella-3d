@@ -162,6 +162,17 @@ footer{border-top:1px solid var(--line);padding:32px 0 40px;margin-top:20px}
 .contacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
 .contacts a{font:600 17px var(--f-display);text-decoration:none}
 .small{font-size:12px;color:var(--mut);margin-top:22px}
+/* phones: the two main actions stay at the bottom of the screen; the page gets room for them */
+.mbar{display:none}
+@media (max-width:640px){
+  .mbar{display:flex;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px max(12px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:color-mix(in srgb,#fff 94%,transparent);box-shadow:0 -6px 16px -10px rgba(15,40,55,.35)}
+  .mbar .btn{flex:1;justify-content:center;margin:0}
+  body{padding-bottom:76px}
+  .topbar{font-size:13.5px;padding:8px 12px}
+  h1{font-size:30px}
+  .lead{font-size:16px}
+  section{padding:30px 0}
+}
 </style>
 </head>
 <body>
@@ -362,6 +373,7 @@ footer{border-top:1px solid var(--line);padding:32px 0 40px;margin-top:20px}
     <p class="small">Демо-концепт 3dryad.ru, подготовлен для УДСД. Не является официальным сайтом застройщика.</p>
   </footer>
 </div>
+<nav class="mbar" aria-label="Быстрые действия"><a class="btn pri" href="demo/">Открыть демо</a><a class="btn blue" href="tel:+79120714916">Позвонить</a></nav>
 <script>
 (function () {
   'use strict';
