@@ -276,6 +276,20 @@ svg text{font-family:var(--f-body)}
   const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 6000);
   const controls = new THREE.OrbitControls(camera, cv);
   controls.enableDamping = true; controls.dampingFactor = 0.08;
+  // drawing on demand (see frame()): wake() asks for a couple of frames; shadows are recomputed only when the scene changes,
+  // not on every camera move; nothing is drawn while the stage is off screen (the demo inside the proposal page, scrolled away)
+  let dirty = 2, onScreen = true;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const wake = () => { dirty = Math.max(dirty, 2); };
+  // the camera's damping keeps sending tiny changes for seconds (at city distances); only a visible move asks for a frame
+  const lastPos = new THREE.Vector3(), lastQ = new THREE.Quaternion();
+  controls.addEventListener('change', () => {
+    const d = controls.target.distanceTo(camera.position);
+    if (camera.position.distanceToSquared(lastPos) > (d * 2e-4) ** 2 || 1 - Math.abs(camera.quaternion.dot(lastQ)) > 1e-8) wake();
+  });
+  ['pointerdown', 'pointermove', 'pointerup', 'wheel'].forEach((ev) => cv.addEventListener(ev, wake, { passive: true }));
+  if ('IntersectionObserver' in window) new IntersectionObserver((es) => { onScreen = es[es.length - 1].isIntersecting; if (onScreen) wake(); }).observe(stageEl);
+  renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 
   /* ---------- textures ---------- */
   function rngMake(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
@@ -786,6 +800,7 @@ svg text{font-family:var(--f-body)}
   // world (x, z) -> apartment coordinates: x' = X0 - x, z' = FACE_Z.. -z. Rotation by 180 degrees about Y, so handedness is kept.
   outside.rotation.y = Math.PI; outside.position.set(X0, 0, FACE_Z);
   function placeOutside() {
+    wake(); renderer.shadowMap.needsUpdate = true;
     if (S.mode === 'ext') {
       outside.rotation.y = 0; outside.position.set(0, 0, 0);
       root.rotation.y = Math.PI; root.position.set(X0, (S.floor - 1) * FLOOR_H, FACE_Z);
@@ -1062,6 +1077,7 @@ svg text{font-family:var(--f-body)}
   function applyVisibility() {
     const inWin = S.mode === 'win', inExt = S.mode === 'ext';
     const eye = inWin || (S.mode === 'int' && S.cam === 'walk');
+    wake(); renderer.shadowMap.needsUpdate = true;
     wallsTall.visible = eye; ceilings.visible = eye; outside.visible = eye || inExt;
     reliefG.visible = !(inExt && S.extView === 'city');
     wallsRender.visible = !eye;
@@ -1288,8 +1304,9 @@ svg text{font-family:var(--f-body)}
     geoDom.forEach((d, i) => {
       const it = shown[i]; if (!it) { d.style.display = 'none'; return; }
       const g = it.g, txt = g.k === 'sec' ? g.sec.free + ' своб.' : g.t, cls = 'gl ' + (/^(sec|street|own|dist|part|novella)$/.test(g.k) ? g.k : '');
-      d.style.display = ''; if (d.className !== cls) d.className = cls; if (d.textContent !== txt) d.textContent = txt;
-      const bw = d.offsetWidth, bh = d.offsetHeight, x = it.sx - bw / 2, y = it.sy - bh / 2;
+      d.style.display = ''; let ch = !d._w; if (d.className !== cls) { d.className = cls; ch = true; } if (d.textContent !== txt) { d.textContent = txt; ch = true; }
+      if (ch) { d._w = d.offsetWidth; d._h = d.offsetHeight; }   // size is measured only when the label changes
+      const bw = d._w, bh = d._h, x = it.sx - bw / 2, y = it.sy - bh / 2;
       if (wide && placed.some((p) => x < p[0] + p[2] + 2 && x + bw + 2 > p[0] && y < p[1] + p[3] + 1 && y + bh + 1 > p[1])) { d.style.display = 'none'; return; }
       placed.push([x, y, bw, bh]);
       d.dataset.sec = g.k === 'sec' ? g.sec.i : '';
@@ -1449,6 +1466,7 @@ svg text{font-family:var(--f-body)}
     refresh(true);
   }
   function refresh(keepMaterials) {
+    wake(); renderer.shadowMap.needsUpdate = true;
     $('pInt').hidden = S.mode !== 'int'; $('pExt').hidden = S.mode !== 'ext';
     dockEl.querySelectorAll('[data-m]').forEach((r) => { r.hidden = r.dataset.m.split(' ').indexOf(S.mode) < 0; });
     stageEl.style.setProperty('--dockh', dockEl.offsetHeight + 'px'); updateFov();
@@ -1655,21 +1673,24 @@ svg text{font-family:var(--f-body)}
   function resize() {
     const w = stageEl.clientWidth, h = stageEl.clientHeight; if (!w || !h) return;
     stageEl.style.setProperty('--dockh', dockEl.offsetHeight + 'px');
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(w, h, false); updateFov();
+    // phones keep up to 2x (small screens), computers 1.5x: a full-screen canvas at 2x is 4x the pixels for little visible gain
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 2 : 1.5)); renderer.setSize(w, h, false); updateFov(); wake();
   }
   new ResizeObserver(resize).observe(stageEl);
   const tmp = new THREE.Vector3();
   function updateLabels() {
     if (labelsEl.hidden) return;
-    const w = stageEl.clientWidth, h = stageEl.clientHeight;
+    const w = stageEl.clientWidth, h = stageEl.clientHeight, k = labelsEl.className;
     ROOMS.forEach((r, i) => {
       tmp.set(r.x + r.w / 2, 0.15, r.z + r.d / 2).project(camera);
       const b = labelsEl.children[i];
       if (tmp.z > 1) { b.style.display = 'none'; return; }
-      b.style.display = ''; b.style.transform = 'translate(' + ((tmp.x * 0.5 + 0.5) * w - b.offsetWidth / 2).toFixed(1) + 'px,' + ((-tmp.y * 0.5 + 0.5) * h - b.offsetHeight / 2).toFixed(1) + 'px)';
+      b.style.display = '';
+      if (b._k !== k) { b._k = k; b._w = b.offsetWidth; b._h = b.offsetHeight; }   // measure once per label size, not every frame (forced layout)
+      b.style.transform = 'translate(' + ((tmp.x * 0.5 + 0.5) * w - b._w / 2).toFixed(1) + 'px,' + ((-tmp.y * 0.5 + 0.5) * h - b._h / 2).toFixed(1) + 'px)';
     });
   }
-  let tick = 0, lastT = 0, loaderEl = $('loader');
+  let tick = 0, lastT = 0, loaderEl = $('loader'), lastDraw = 0;
   function frame(now) {
     const dt = Math.min(0.1, (now - (lastT || now)) / 1000); lastT = now;
     if (S.mode === 'int' && S.cam === 'walk') stepWalk(dt);
@@ -1683,8 +1704,12 @@ svg text{font-family:var(--f-body)}
       controls.update();
     }
     if (tick++ % 30 === 0) stageColor(false);
-    renderer.render(scene, camera); updateLabels(); updateGeo();
-    if (loaderEl) { loaderEl.remove(); loaderEl = null; }   // the first frame is on screen
+    // draw only while something changes (camera, flight, walking, a click) and twice a second otherwise; nothing while off screen
+    if (onScreen && (anim || walk.path || walk.turn || dirty > 0 || now - lastDraw > 500)) {
+      renderer.render(scene, camera); updateLabels(); updateGeo(); lastDraw = now; if (dirty > 0) dirty--;
+      lastPos.copy(camera.position); lastQ.copy(camera.quaternion);
+      if (loaderEl) { loaderEl.remove(); loaderEl = null; }   // the first frame is on screen
+    }
     requestAnimationFrame(frame);
   }
 
