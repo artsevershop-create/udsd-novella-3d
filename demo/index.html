@@ -5,9 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>3D-демо ЖК «Новелла» · 3dryad.ru</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<script>
+// start loading sales data right away, in parallel with three.js (the scene waits for both)
+window.__apts = fetch('../data/apartments.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Golos+Text:wght@400;500;600&display=swap">
+<!-- fonts must not block the first paint on a slow mobile connection: system font first, Jost / Golos Text swap in -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Golos+Text:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Golos+Text:wght@400;500;600&display=swap"></noscript>
 <style>
 /* Layout: tabs (interior / window view), one 3D stage, chip rows for the active tab, a facts card. */
 :root{
@@ -37,6 +43,10 @@ body{
 .wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 header{display:flex;flex-direction:column;gap:2px}
 .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;font-size:14px;color:var(--mut);background:var(--stage);pointer-events:none}
+.loader i{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--acc);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.loader i{animation:none}}
 h1{font-family:var(--f-display);font-weight:500;font-size:clamp(26px,6vw,38px);line-height:1.1;margin:0;text-wrap:balance}
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--chip)}
 .tabs button{border:0;background:transparent;color:var(--fg);font:500 15px var(--f-body);padding:11px 8px;cursor:pointer}
@@ -133,6 +143,7 @@ svg text{font-family:var(--f-body)}
 
   <div class="stage" id="stage">
     <canvas id="cv" aria-label="3D-модель квартиры"></canvas>
+    <div class="loader" id="loader" role="status"><i></i>Загружаем 3D-квартал…</div>
     <div class="logo" aria-label="УДС-Д">УДС<i></i>Д<small>ЗАСТРОЙЩИК</small></div>
     <div id="labels"></div>
     <div id="geo" hidden></div>
@@ -180,12 +191,13 @@ svg text{font-family:var(--f-body)}
     <p class="note">Схема построена по планировке из 3D-модели квартала. Проектный чертёж застройщика я не получал, поэтому двери и окна показаны условно. Размеры и расположение нужно сверить с проектом в офисе продаж УДСД: +7 (3494) 245-245.</p>
   </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<!-- three.js r128 + OrbitControls served from this site (vendor/), not from foreign CDNs: fewer connections on a phone, works where a CDN is slow -->
+<script src="vendor/three.min.js"></script>
+<script src="vendor/OrbitControls.js"></script>
 <script>
 // sales data comes from data/apartments.json (later: a CRM adapter writes the same format); the scene starts once it is loaded.
 // Without the file (opened from disk, offline) the demo falls back to statuses and prices generated in code.
-fetch('../data/apartments.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null).then(function (DATA) {
+(window.__apts || Promise.resolve(null)).then(function (DATA) {
   'use strict';
   const $ = (id) => document.getElementById(id);
   const stageEl = $('stage'), cv = $('cv');
@@ -222,7 +234,7 @@ fetch('../data/apartments.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.js
   /* ---------- renderer ---------- */
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true }); }
-  catch (e) { $('fb').style.display = 'flex'; return; }
+  catch (e) { $('loader').remove(); $('fb').style.display = 'flex'; return; }
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
@@ -1566,7 +1578,7 @@ fetch('../data/apartments.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.js
       b.style.display = ''; b.style.transform = 'translate(' + ((tmp.x * 0.5 + 0.5) * w - b.offsetWidth / 2).toFixed(1) + 'px,' + ((-tmp.y * 0.5 + 0.5) * h - b.offsetHeight / 2).toFixed(1) + 'px)';
     });
   }
-  let tick = 0, lastT = 0;
+  let tick = 0, lastT = 0, loaderEl = $('loader');
   function frame(now) {
     const dt = Math.min(0.1, (now - (lastT || now)) / 1000); lastT = now;
     if (S.mode === 'int' && S.cam === 'walk') stepWalk(dt);
@@ -1581,6 +1593,7 @@ fetch('../data/apartments.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.js
     }
     if (tick++ % 30 === 0) stageColor(false);
     renderer.render(scene, camera); updateLabels(); updateGeo();
+    if (loaderEl) { loaderEl.remove(); loaderEl = null; }   // the first frame is on screen
     requestAnimationFrame(frame);
   }
 
