@@ -63,8 +63,8 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,6vw,38px);l
 /* pinned block: tabs + stage stick to the top of the screen; the rest of the page scrolls under it.
    Phones get a shorter stage so there is room to scroll the controls; short landscape screens do not pin at all. */
 .pin{position:sticky;top:0;z-index:5;display:flex;flex-direction:column;gap:10px;background:var(--bg);margin:0 -4px;padding:max(6px,env(safe-area-inset-top,0px)) 4px 8px;box-shadow:0 10px 12px -12px rgba(15,40,55,.35)}
-@media (max-height:560px){.pin{position:static;box-shadow:none}}
-.stage{position:relative;height:clamp(340px,58vh,640px);background:var(--stage);border:1px solid var(--line);border-radius:16px;overflow:hidden;--dockh:0px}
+@media (max-height:480px){.pin{position:static;box-shadow:none}}   /* a phone held sideways: no room to pin */
+.stage{position:relative;height:clamp(340px,58vh,640px);height:clamp(340px,58svh,640px);background:var(--stage);border:1px solid var(--line);border-radius:16px;overflow:hidden;--dockh:0px}
 .stage canvas{display:block;width:100%;height:100%;touch-action:none}
 /* controls on the stage: a dock of chip rows along the bottom edge, day/evening under the plan button */
 .dock{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:6px;padding:22px 8px 8px;background:linear-gradient(to top,color-mix(in srgb,var(--stage) 92%,transparent) 55%,transparent);touch-action:pan-x;pointer-events:none}
@@ -184,6 +184,16 @@ svg text{font-family:var(--f-body)}
   .stage.walk .logo{display:none}
   .stage.walk[data-mode="int"] .hint{max-width:calc(100% - min(46%,190px) - 24px)}
   .sh-head h2{font-size:22px}
+  /* sizes from the visible screen (svh: Safari with its toolbars shown), so the 3D never takes the whole phone */
+  .stage{height:clamp(300px,50vh,560px);height:clamp(300px,50svh,560px)}
+  /* scrolled down to the panels: the pinned 3D shrinks to a third of the screen and drops its button rows
+     (they come back when the page is scrolled to the top again), so the controls below have room */
+  body.pinned:not(.full) .pin{gap:6px;padding-bottom:6px}
+  body.pinned:not(.full) .tabs{padding:3px}
+  body.pinned:not(.full) .tabs button{padding:7px 2px}
+  body.pinned:not(.full) .stage{height:clamp(170px,32vh,300px);height:clamp(170px,32svh,300px)}
+  body.pinned:not(.full) #dock,body.pinned:not(.full) .hint,body.pinned:not(.full) .logo,body.pinned:not(.full) .mini{display:none}
+  body.pinned:not(.full) .badge{bottom:6px}
 }
 @media (max-width:360px){
   .tabs button{font-size:13px;padding:9px 2px}
@@ -207,6 +217,7 @@ svg text{font-family:var(--f-body)}
   </header>
 
   <!-- the mode tabs and the 3D stage stay pinned at the top while the controls and the card below scroll under them -->
+  <div id="pinMark" aria-hidden="true"></div>
   <div class="pin" id="pin">
   <div class="tabs" role="group" aria-label="Режим">
     <button type="button" id="tExt" aria-pressed="true">Снаружи</button>
@@ -1414,7 +1425,7 @@ svg text{font-family:var(--f-body)}
     const tx = document.createTextNode(''); b.appendChild(tx); aptBtns[l] = { dot: dot, tx: tx };
   });
   function fillApts() {
-    LETTERS.forEach((l) => { const st = status(S.sec, S.floor, l), t = TYPES[l]; aptBtns[l].dot.style.background = ST[st].c; aptBtns[l].tx.nodeValue = ' ' + t.n + ' · ' + (narrow() ? t.short.replace('-комн.', '-к') : t.short + ' ' + fmt(t.area)); });   // phones: all four fit in one row, the area is in the card
+    LETTERS.forEach((l) => { const st = status(S.sec, S.floor, l), t = TYPES[l]; aptBtns[l].dot.style.background = ST[st].c; aptBtns[l].tx.nodeValue = ' ' + t.n + ' · ' + (narrow() ? t.short.replace('-комн.', '-к').replace('Студия', 'ст.') : t.short + ' ' + fmt(t.area)); });   // phones: all four fit in one row, the area is in the card
   }
   const actPlan = chip($('rAct'), 'Схема планировки', () => false, () => openPlan());
   const act3d = chip($('rAct'), 'Интерьер 3D', () => false, () => { S.mode = 'ext'; enterInterior(true); refresh(true); });
@@ -1444,6 +1455,15 @@ svg text{font-family:var(--f-body)}
     resize(); refresh(true);
   }
   fullBtn.addEventListener('click', () => setFull(!document.body.classList.contains('full')));
+  // phones: once the page is scrolled past the top of the pinned block, the 3D goes compact (CSS body.pinned).
+  // Two thresholds, so the shorter page after shrinking does not flip it straight back.
+  const pinMark = $('pinMark');
+  function checkPin() {
+    const b = document.body, top = pinMark.getBoundingClientRect().top;
+    const on = narrow() && !b.classList.contains('full') && (b.classList.contains('pinned') ? top < -4 : top < -48);
+    if (on !== b.classList.contains('pinned')) { b.classList.toggle('pinned', on); wake(); }
+  }
+  addEventListener('scroll', checkPin, { passive: true }); addEventListener('resize', checkPin);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.classList.contains('full') && sheetEl.hidden) setFull(false); });
   $('tInt').addEventListener('click', () => { if (S.mode !== 'int') { enterInterior(true); refresh(true); } });
   $('tWin').addEventListener('click', () => { if (S.mode !== 'win') { enterWindow(); refresh(true); } });
