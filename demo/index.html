@@ -174,7 +174,26 @@ svg text{font-family:var(--f-body)}
   .logo{bottom:calc(var(--dockh) + 8px);right:10px;font-size:14px}
   .logo small{font-size:7px;top:16px}
   .tbar{right:6px;top:6px}
+  /* compact chips on the stage, so a row holds more */
+  .dock{gap:5px;padding:18px 6px 6px}
+  .dock .chip{min-height:38px;padding:6px 11px;font-size:13px}
+  .dock .chip.fl{min-width:36px;padding:6px 6px}
+  .chip{padding:8px 12px;font-size:13.5px}
+  /* interior: the hint sits above the dock (no location badge there), off the room labels */
+  .stage[data-mode="int"] .hint{top:auto;bottom:calc(var(--dockh) + 4px);right:auto;max-width:calc(100% - 96px);text-align:left}
+  .stage.walk .logo{display:none}
+  .stage.walk[data-mode="int"] .hint{max-width:calc(100% - min(46%,190px) - 24px)}
+  .sh-head h2{font-size:22px}
 }
+@media (max-width:360px){
+  .tabs button{font-size:13px;padding:9px 2px}
+  .tbar .planbtn{padding:6px 10px}
+  .icobtn{width:38px;height:38px}
+}
+/* rows of chips wider than the screen fade out at the side they continue to */
+.chips.more-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent)}
+.chips.more-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 28px),transparent)}
+.chips.more-l.more-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent)}
 </style>
 </head>
 <body>
@@ -1120,6 +1139,7 @@ svg text{font-family:var(--f-body)}
     const c = v.out ? v : ABOVE[key];
     const rm = ROOMS.find((x) => x.id === v.card);
     const need = v.out ? (v.need || 12) : Math.max(rm.w, rm.d) + 3.5;
+    updateFov();   // fit with the field of view of the camera mode we are going to, not the one we come from (walk is wider)
     const p = new THREE.Vector3(...c.pos), t = new THREE.Vector3(...c.tgt);
     const d0 = p.distanceTo(t), asp = camera.aspect || 1;
     const dmin = need / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * Math.min(asp, 1.6));
@@ -1150,7 +1170,8 @@ svg text{font-family:var(--f-body)}
   function limits() {
     if (S.mode === 'ext') { controls.minDistance = 6; controls.maxDistance = S.extView === 'city' ? 30000 : 2200; controls.enablePan = true; controls.maxPolarAngle = Math.PI / 2 - 0.02; return; }
     if (S.mode === 'win' || S.cam === 'walk') return;
-    controls.minDistance = 2; controls.maxDistance = 30; controls.enablePan = true; controls.maxPolarAngle = Math.PI / 2 - 0.03;
+    // a narrow phone needs the camera further out to fit the whole floor; never clamp it closer than the view put it
+    controls.minDistance = 2; controls.maxDistance = Math.max(30, camera.position.distanceTo(controls.target) * 1.15); controls.enablePan = true; controls.maxPolarAngle = Math.PI / 2 - 0.03;
   }
   function flyTo(pos, tgt, instant, fov) {
     controls.minDistance = 0; controls.maxDistance = 100; controls.maxPolarAngle = Math.PI;
@@ -1273,16 +1294,21 @@ svg text{font-family:var(--f-body)}
   function chip(parent, text, test, fn, opt) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (opt && opt.cls ? ' ' + opt.cls : '');
     if (opt && opt.dots) { const s = document.createElement('span'); s.className = 'dots'; opt.dots.forEach((c) => { const i = document.createElement('i'); i.style.background = c; s.appendChild(i); }); b.appendChild(s); }
-    b.appendChild(document.createTextNode(text)); b.addEventListener('click', fn); parent.appendChild(b);
+    if (opt && opt.short) {   // a shorter label for phones (.lg / .sm switch at the 640px breakpoint)
+      const l = document.createElement('span'); l.className = 'lg'; l.textContent = text; const s = document.createElement('span'); s.className = 'sm'; s.textContent = opt.short;
+      b.appendChild(l); b.appendChild(s);
+    } else b.appendChild(document.createTextNode(text));
+    b.addEventListener('click', fn); parent.appendChild(b);
     sync.push(() => b.setAttribute('aria-pressed', test() ? 'true' : 'false')); return b;
   }
   const chips = {};
-  chip($('rFinish'), 'Как продаем (предчистовая)', () => S.finish === 'bare', () => { S.finish = 'bare'; refresh(); });
+  chip($('rFinish'), 'Как продаем (предчистовая)', () => S.finish === 'bare', () => { S.finish = 'bare'; refresh(); }, { short: 'Как продаем' });
   chip($('rFinish'), 'Дизайн-проект', () => S.finish === 'design', () => { S.finish = 'design'; refresh(); });
   Object.keys(VIEWS).forEach((k) => chip($('rView'), VIEWS[k].label, () => S.view === k, () => { S.view = k; if (VIEWS[k].out) S.cam = 'top'; enterInterior(false); refresh(true); }));
-  chip($('rCam'), 'Сверху, стены срезаны', () => S.cam === 'top', () => { S.cam = 'top'; enterInterior(false); refresh(true); });
-  chip($('rCam'), 'Хожу по квартире', () => S.cam === 'walk', () => { S.cam = 'walk'; if (VIEWS[S.view].out) S.view = 'living'; enterInterior(true); refresh(true); });
-  Object.keys(EXTV).forEach((k) => chip($('rExtView'), EXTV[k].label, () => S.extView === k, () => { S.extView = k; flyExt(false); refresh(true); }));
+  chip($('rCam'), 'Сверху, стены срезаны', () => S.cam === 'top', () => { S.cam = 'top'; enterInterior(false); refresh(true); }, { short: 'Сверху' });
+  chip($('rCam'), 'Хожу по квартире', () => S.cam === 'walk', () => { S.cam = 'walk'; if (VIEWS[S.view].out) S.view = 'living'; enterInterior(true); refresh(true); }, { short: 'Хожу внутри' });
+  const EXT_SHORT = { yard: 'Со двора', top: 'Сверху', back: 'С улицы', all: 'Все корпуса', area: 'Окрестности', city: 'Весь город' };
+  Object.keys(EXTV).forEach((k) => chip($('rExtView'), EXTV[k].label, () => S.extView === k, () => { S.extView = k; flyExt(false); refresh(true); }, { short: EXT_SHORT[k] }));
   chip($('rHouse'), 'Прозрачный', () => S.house === 'glass', () => { S.house = 'glass'; refresh(true); });
   chip($('rHouse'), 'Сплошной', () => S.house === 'solid', () => { S.house = 'solid'; refresh(true); });
   chip($('rInner'), 'Выделена цветом', () => !S.inner, () => { S.inner = false; refresh(true); });
@@ -1375,7 +1401,7 @@ svg text{font-family:var(--f-body)}
   const selSec = $('selSec');
   SECTIONS.forEach((sec) => { const o = document.createElement('option'); o.value = sec.i; selSec.appendChild(o); });
   function fillSelect() {
-    Array.prototype.forEach.call(selSec.options, (o, i) => { const sec = SECTIONS[i]; o.textContent = (sec.own ? '★ ' : '') + secName(sec) + ' · свободно ' + sec.free + ' из ' + sec.total; });
+    Array.prototype.forEach.call(selSec.options, (o, i) => { const sec = SECTIONS[i]; o.textContent = (sec.own ? '★ ' : '') + (narrow() ? 'Кв-л ' + sec.q + ', секц. ' + sec.n + ' · своб. ' + sec.free + ' из ' + sec.total : secName(sec) + ' · свободно ' + sec.free + ' из ' + sec.total); });
     selSec.value = S.sec;
   }
   selSec.addEventListener('change', () => selectSection(+selSec.value));
@@ -1388,7 +1414,7 @@ svg text{font-family:var(--f-body)}
     const tx = document.createTextNode(''); b.appendChild(tx); aptBtns[l] = { dot: dot, tx: tx };
   });
   function fillApts() {
-    LETTERS.forEach((l) => { const st = status(S.sec, S.floor, l), t = TYPES[l]; aptBtns[l].dot.style.background = ST[st].c; aptBtns[l].tx.nodeValue = ' ' + t.n + ' · ' + (narrow() ? t.short.replace('-комн.', '-к') : t.short) + ' ' + fmt(t.area); });
+    LETTERS.forEach((l) => { const st = status(S.sec, S.floor, l), t = TYPES[l]; aptBtns[l].dot.style.background = ST[st].c; aptBtns[l].tx.nodeValue = ' ' + t.n + ' · ' + (narrow() ? t.short.replace('-комн.', '-к') : t.short + ' ' + fmt(t.area)); });   // phones: all four fit in one row, the area is in the card
   }
   const actPlan = chip($('rAct'), 'Схема планировки', () => false, () => openPlan());
   const act3d = chip($('rAct'), 'Интерьер 3D', () => false, () => { S.mode = 'ext'; enterInterior(true); refresh(true); });
@@ -1402,6 +1428,10 @@ svg text{font-family:var(--f-body)}
 
   chip($('rTime'), 'День', () => S.time === 'day', () => { S.time = 'day'; refresh(); });
   chip($('rTime'), 'Вечер', () => S.time === 'eve', () => { S.time = 'eve'; refresh(); });
+  // a chip row wider than the screen fades out at the edge it continues past, so it is clear there is more to swipe to
+  function fades(r) { const more = r.scrollWidth > r.clientWidth + 2; r.classList.toggle('more-r', more && r.scrollLeft + r.clientWidth < r.scrollWidth - 2); r.classList.toggle('more-l', more && r.scrollLeft > 2); }
+  document.querySelectorAll('.chips').forEach((r) => r.addEventListener('scroll', () => fades(r), { passive: true }));
+  addEventListener('resize', () => document.querySelectorAll('.chips').forEach(fades));
   // phones: one round day/evening toggle instead of two chips; it shows what a tap switches to
   const timeBtn = $('timeBtn');
   timeBtn.addEventListener('click', () => { S.time = S.time === 'day' ? 'eve' : 'day'; refresh(); });
@@ -1542,6 +1572,7 @@ svg text{font-family:var(--f-body)}
     wake(); renderer.shadowMap.needsUpdate = true;
     $('pInt').hidden = S.mode !== 'int'; $('pExt').hidden = S.mode !== 'ext';
     dockEl.querySelectorAll('[data-m]').forEach((r) => { r.hidden = r.dataset.m.split(' ').indexOf(S.mode) < 0; });
+    stageEl.dataset.mode = S.mode;
     stageEl.style.setProperty('--dockh', dockEl.offsetHeight + 'px'); updateFov();
     $('rowStyle').hidden = S.finish !== 'design';
     $('rowSee').hidden = !(S.mode === 'int' && S.cam === 'walk');
@@ -1554,6 +1585,7 @@ svg text{font-family:var(--f-body)}
     dockEl.querySelectorAll('.chip[aria-pressed="true"]').forEach((b) => {   // keep the chosen chip of each dock row in sight (floor 8 sits past the edge on a phone)
       const r = b.parentNode; if (b.offsetLeft < r.scrollLeft || b.offsetLeft + b.offsetWidth > r.scrollLeft + r.clientWidth) r.scrollLeft = b.offsetLeft - (r.clientWidth - b.offsetWidth) / 2;
     });
+    document.querySelectorAll('.chips').forEach(fades);
     if (S.mode === 'win') describe();
     if (S.mode !== 'win' && !anim) updateFov();
   }
