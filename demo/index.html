@@ -6,8 +6,24 @@
 <title>3D-демо ЖК «Новелла» · 3dryad.ru</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>
-// start loading sales data right away, in parallel with three.js (the scene waits for both)
-window.__apts = fetch('../data/apartments.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+// start loading sales data right away, in parallel with three.js (the scene waits for both); a stalled request
+// (proxy, flaky network) gives up after 6 s and the demo starts on generated sample data instead of spinning forever
+window.__apts = Promise.race([
+  fetch('../data/apartments.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+  new Promise((res) => setTimeout(() => res(null), 6000))
+]);
+// until the first frame is drawn, any failure replaces the spinner with a message that names the reason
+window.__fail = function (why) {
+  const l = document.getElementById('loader'), fb = document.getElementById('fb');
+  if (!l || !fb) return; l.remove();
+  fb.querySelector('small').textContent = 'Причина: ' + String(why || 'неизвестна').slice(0, 160);
+  fb.style.display = 'flex';
+};
+window.addEventListener('error', (e) => {   // script errors and scripts that failed to load; a missing font stylesheet is not fatal
+  if (e instanceof ErrorEvent) window.__fail(e.message);
+  else if (e.target && e.target.tagName === 'SCRIPT') window.__fail('не загрузился ' + e.target.src.split('/').pop());
+}, true);
+window.addEventListener('unhandledrejection', (e) => window.__fail(e.reason && e.reason.message));
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,7 +76,8 @@ h1{font-family:var(--f-display);font-weight:500;font-size:clamp(26px,6vw,38px);l
 .rl small{display:block;color:var(--mut);font-weight:400;font-size:11px}
 .rl:hover{border-color:var(--acc)}
 #labels{position:absolute;inset:0;pointer-events:none}
-.fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--mut)}
+.fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--mut);background:var(--stage);line-height:1.45}
+.fallback small{display:block;margin-top:10px;font-size:12px;opacity:.8}
 .panel{display:flex;flex-direction:column;gap:12px}
 .row{display:flex;flex-direction:column;gap:6px}
 .lab{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
@@ -151,7 +168,7 @@ svg text{font-family:var(--f-body)}
     <button type="button" class="planbtn" id="planBtn">Схема квартиры</button>
     <div class="mini" id="mini" hidden></div>
     <div class="hint" id="hint"></div>
-    <div class="fallback" id="fb">Не удалось запустить 3D в этом браузере. Попробуйте открыть страницу в другом.</div>
+    <div class="fallback" id="fb"><div>Не удалось запустить 3D в этом браузере.<br>Обновите страницу (Ctrl+F5) или откройте её в Chrome, Яндекс Браузере или Edge. Если не помогло — включите в настройках браузера аппаратное ускорение.<small></small></div></div>
   </div>
 
   <div class="panel" id="pInt">
@@ -234,7 +251,7 @@ svg text{font-family:var(--f-body)}
   /* ---------- renderer ---------- */
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true }); }
-  catch (e) { $('loader').remove(); $('fb').style.display = 'flex'; return; }
+  catch (e) { window.__fail('WebGL недоступен (' + (e && e.message || 'нет контекста') + ')'); return; }
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
