@@ -493,6 +493,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     <!-- the main controls of each mode sit on the stage itself, so the 3D view stays in sight while switching -->
     <div class="dock" id="dock">
       <div class="chips" id="rView" data-m="int" role="group" aria-label="Комната"></div>
+      <div class="chips" id="rMode" data-m="int" role="group" aria-label="Как смотреть квартиру"><span class="dlab">Смотреть</span></div>
       <div class="chips" id="rFinish" data-m="int" role="group" aria-label="Отделка"></div>
       <div class="chips" id="rWin" data-m="win" role="group" aria-label="Окно"></div>
       <div class="chips steps" id="rSteps" data-m="ext" role="group" aria-label="Что показать"></div>
@@ -616,7 +617,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   const fmt = (n) => String(n).replace('.', ',');
 
   /* ---------- state ---------- */
-  const S = { mode: 'int', finish: 'design', cam: 'top', see: 'glass', inner: false, house: 'glass', extView: 'house', aptOpen: false, layer: 'free', sec: 0, apt: 'a', view: 'overview', style: 'scandi', time: 'day', floor: 8, win: 'living' };
+  const S = { mode: 'int', finish: 'design', cam: 'top', see: 'glass', walls: 'cut', inner: false, house: 'glass', extView: 'house', aptOpen: false, layer: 'free', sec: 0, apt: 'a', view: 'overview', style: 'scandi', time: 'day', floor: 8, win: 'living' };
   const Q = new URLSearchParams(location.search);   // read before anything rewrites the address (see updateUrl)
   let urlReady = false;
   // apartment finder: rooms (0 = studio), top price in roubles, floor band, free only
@@ -1477,7 +1478,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     mats.door.color.set(bare ? '#5d6063' : STYLES[S.style].c.accent);
     if (bare) mats.wall.color.set('#d4d1cb');
     mats.wallIn.color.copy(mats.wall.color);
-    const gl = S.mode === 'int' && S.cam === 'walk' && S.see === 'glass';
+    const gl = S.mode === 'int' && ((S.cam === 'walk' && S.see === 'glass') || (S.cam === 'top' && S.walls === 'glass'));
     mats.wallIn.transparent = gl; mats.wallIn.opacity = gl ? 0.18 : 1; mats.wallIn.depthWrite = !gl; mats.wallIn.needsUpdate = true;
     floorMeshes.forEach((f) => { f.m.material = bare ? mats.floorBare : (f.r.fl === 'W' ? mats.floorW : mats.floorT); });
     glowDiscs.forEach((d) => { d.visible = !bare; });
@@ -1531,6 +1532,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     const need = v.out ? (v.need || 12) : Math.max(rm.w, rm.d) + 3.5;
     updateFov();   // fit with the field of view of the camera mode we are going to, not the one we come from (walk is wider)
     const p = new THREE.Vector3(...c.pos), t = new THREE.Vector3(...c.tgt);
+    if (S.mode === 'int' && S.cam === 'top' && S.walls === 'solid' && v.out) { p.z = t.z + (p.z - t.z) * 0.45; p.y *= 1.25; }   // solid walls: look down steeper so the near wall does not hide the rooms
     const d0 = p.distanceTo(t), asp = camera.aspect || 1;
     const dmin = need / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * Math.min(asp, 1.6));
     const f = Math.max(1, dmin / d0);
@@ -1544,9 +1546,10 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     const inWin = S.mode === 'win', inExt = S.mode === 'ext';
     const eye = inWin || (S.mode === 'int' && S.cam === 'walk');
     wake(); renderer.shadowMap.needsUpdate = true;
-    wallsTall.visible = eye; ceilings.visible = eye; outside.visible = eye || inExt;
+    const tallTop = S.mode === 'int' && S.cam === 'top' && S.walls !== 'cut';   // from above with the walls on: full-height walls, no ceiling
+    wallsTall.visible = eye || tallTop; ceilings.visible = eye; outside.visible = eye || inExt;
     reliefG.visible = !(inExt && S.extView === 'city');
-    wallsRender.visible = !eye;
+    wallsRender.visible = !eye && !tallTop;
     const ownFloor = inExt && S.extView === 'floor' && SECTIONS[S.sec].own;   // a floor of our section: apartment A with furniture, core, neighbours
     root.visible = !inExt || (S.inner && isOwn()) || ownFloor;
     extG.visible = inExt;
@@ -1667,6 +1670,23 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     look.drag = false;
     if (tap && S.mode === 'int' && S.cam === 'walk') tapFloor(e);
   });
+
+  // from above: tap the floor of the plan and you are standing there, walking
+  const planTap = { on: false, x: 0, y: 0, t: 0 };
+  cv.addEventListener('pointerdown', (e) => { if (S.mode === 'int' && S.cam === 'top') { planTap.on = true; planTap.x = e.clientX; planTap.y = e.clientY; planTap.t = performance.now(); } });
+  cv.addEventListener('pointerup', (e) => {
+    if (!planTap.on) return; planTap.on = false;
+    if (!(S.mode === 'int' && S.cam === 'top') || Math.hypot(e.clientX - planTap.x, e.clientY - planTap.y) > 7 || performance.now() - planTap.t > 450) return;
+    const r = cv.getBoundingClientRect();
+    rc.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -(((e.clientY - r.top) / r.height) * 2 - 1)), camera);
+    const h = rc.intersectObjects(floorMeshes.map((f) => f.m), false)[0]; if (!h) return;
+    const room = roomAt(h.point.x, h.point.z);
+    S.cam = 'walk'; S.view = room && VIEWS[room.id] ? room.id : 'living';
+    enterInterior(true);
+    const cx = room ? room.x + room.w / 2 : h.point.x, cz = room ? room.z + room.d / 2 : h.point.z + 1, L = poseTo(h.point.x, h.point.z, cx, 1.2, cz);
+    placeWalk(h.point.x, h.point.z, L.yaw, -0.05);
+    refresh(true);
+  });
   cv.addEventListener('pointercancel', () => { look.drag = false; });
   cv.addEventListener('wheel', (e) => { if (lookOn()) { e.preventDefault(); camera.fov = clamp(camera.fov + e.deltaY * 0.03, 30, 85); camera.updateProjectionMatrix(); } }, { passive: false });
 
@@ -1718,6 +1738,17 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   Object.keys(VIEWS).forEach((k) => chip($('rView'), VIEWS[k].label, () => S.view === k, () => { S.view = k; if (VIEWS[k].out) S.cam = 'top'; enterInterior(false); refresh(true); }));
   chip($('rCam'), 'Сверху, стены срезаны', () => S.cam === 'top', () => { S.cam = 'top'; enterInterior(false); refresh(true); }, { short: 'Сверху' });
   chip($('rCam'), 'Хожу по квартире', () => S.cam === 'walk', () => { S.cam = 'walk'; if (VIEWS[S.view].out) S.view = 'living'; enterInterior(true); refresh(true); }, { short: 'Хожу внутри' });
+
+  // «Смотреть»: everything about how to look at the flat sits in one row on the stage (it used to hide in the «Вид» panel)
+  chip($('rMode'), 'Схема сверху', () => S.cam === 'top', () => { S.cam = 'top'; enterInterior(false); refresh(true); }, { short: 'Сверху' });
+  chip($('rMode'), 'Хожу по квартире', () => S.cam === 'walk', () => { S.cam = 'walk'; if (VIEWS[S.view].out) S.view = 'living'; enterInterior(true); refresh(true); }, { short: 'Хожу внутри' });
+  const wallsLab = document.createElement('span'); wallsLab.className = 'dlab'; wallsLab.textContent = 'Стены'; $('rMode').appendChild(wallsLab);
+  const wallChips = [];
+  wallChips.push([chip($('rMode'), 'Срезаны', () => S.walls === 'cut', () => { S.walls = 'cut'; enterInterior(false); refresh(true); }), 'top']);
+  wallChips.push([chip($('rMode'), 'Прозрачные', () => S.walls === 'glass', () => { S.walls = 'glass'; enterInterior(false); refresh(true); }), 'top']);
+  wallChips.push([chip($('rMode'), 'Сплошные', () => S.walls === 'solid', () => { S.walls = 'solid'; enterInterior(false); refresh(true); }), 'top']);
+  wallChips.push([chip($('rMode'), 'Прозрачные', () => S.see === 'glass', () => { S.see = 'glass'; refresh(true); }), 'walk']);
+  wallChips.push([chip($('rMode'), 'Сплошные', () => S.see === 'solid', () => { S.see = 'solid'; refresh(true); }), 'walk']);
   const EXT_SHORT = { house: 'Весь дом', floor: 'Этаж', yard: 'Со двора', top: 'Сверху', back: 'С улицы', all: 'Все корпуса', area: 'Окрестности', city: 'Весь город' };
   Object.keys(EXTV).forEach((k) => chip($('rExtView'), EXTV[k].label, () => S.extView === k, () => { S.extView = k; flyExt(false); refresh(true); }, { short: EXT_SHORT[k] }));
   chip($('rHouse'), 'Прозрачный', () => S.house === 'glass', () => { S.house = 'glass'; refresh(true); });
@@ -2427,6 +2458,10 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   function hintText() {
     const house = S.mode === 'ext' && S.extView === 'house', h = $('hint'), key = S.mode + S.cam + (house ? 'h' : '');
     // outside and from above the buttons on the stage are the controls: no instructions over the 3D
+    if (S.mode === 'int' && S.cam === 'top') {
+      h.textContent = narrow() ? 'Нажмите на пол — пройти туда' : 'Нажмите на пол в плане: вы окажетесь в этой точке и сможете ходить по квартире';
+      if (key === hintKey) return; hintKey = key; h.hidden = false; clearTimeout(hintTimer); hintTimer = setTimeout(() => { h.hidden = true; }, 6000); return;
+    }
     if (S.mode === 'ext' || (S.mode === 'int' && S.cam !== 'walk')) { h.hidden = true; hintKey = key; return; }
     // how to move, said for the device in hand: mouse buttons on a computer, fingers on a phone
     const mouse = canHover && !narrow();
@@ -2483,6 +2518,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     stageEl.style.setProperty('--dockh', dockEl.offsetHeight + 'px'); updateFov();
     $('rowStyle').hidden = S.finish !== 'design';
     $('rowSee').hidden = !(S.mode === 'int' && S.cam === 'walk');
+    wallChips.forEach((w) => { w[0].hidden = w[1] !== (S.cam === 'walk' ? 'walk' : 'top'); });
     $('tInt').setAttribute('aria-pressed', S.mode === 'int' ? 'true' : 'false'); $('tWin').setAttribute('aria-pressed', S.mode === 'win' ? 'true' : 'false'); $('tExt').setAttribute('aria-pressed', S.mode === 'ext' ? 'true' : 'false');
     refreshMaterials(); applyVisibility(); stageColor(true);
     $('badge').hidden = S.mode !== 'win'; if (S.mode === 'win') $('badge').textContent = 'Этаж ' + S.floor + ' · ' + WIN.find((w) => w.id === S.win).n; if (S.mode === 'ext') $('badge').textContent = 'Кв-л ' + SECTIONS[S.sec].q + ' · секц. ' + SECTIONS[S.sec].n + ' · эт. ' + S.floor + ' · кв. ' + TYPES[S.apt].n;
