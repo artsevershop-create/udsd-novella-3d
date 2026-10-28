@@ -214,6 +214,77 @@ svg text{font-family:var(--f-body)}
 .more > .row{margin-top:0}
 /* taps: no double-tap zoom or delay on controls, no grey flash in Safari */
 button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.stage.walk .logo{display:none}   /* walking: the mini-map takes that corner */
+/* side panel: where you are, card, finder */
+.side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.crumbs{gap:4px;align-items:center;font-size:13px;color:var(--mut);padding:0}
+.crumbs button{flex:none;border:0;background:none;color:var(--acc);font:500 13px var(--f-body);padding:6px 4px;cursor:pointer;border-radius:8px}
+.crumbs button[aria-current]{color:var(--fg);font-weight:700;cursor:default}
+.crumbs i{font-style:normal;color:var(--line);flex:none}
+.cardhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.favbtn{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:#d64570;font:400 20px/1 var(--f-body);cursor:pointer}
+.favbtn[aria-pressed="true"]{background:#d64570;color:#fff;border-color:#d64570}
+.cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.cta .chip{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
+.pick{display:flex;flex-direction:column;gap:12px;background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.pick-head{display:flex;align-items:center;gap:10px}
+.pick-head b{font:700 17px var(--f-display)}
+.pick-count{color:var(--acc);font-weight:500;font-size:14px}
+.pick-close{display:none;margin-left:auto}
+.pick input[type=range]{width:100%;accent-color:var(--acc)}
+.fchk{display:flex;gap:8px;align-items:center;font-size:14px}
+.fchk input{width:18px;height:18px;accent-color:var(--acc)}
+.pick-list{display:flex;flex-direction:column;border-top:1px solid var(--line);max-height:300px;overflow:auto}
+.pick-list button{display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;color:var(--fg);font:500 14px var(--f-body);padding:9px 2px;cursor:pointer}
+.pick-list button small{color:var(--mut);font-weight:400;font-size:12.5px}
+.pick-list button b{grid-row:span 2;align-self:center;font-variant-numeric:tabular-nums}
+.pick-list button:hover,.pick-list button[aria-current]{background:var(--chip)}
+.pick-list p{margin:8px 0 0;font-size:13px;color:var(--mut)}
+.pick-foot{display:flex;gap:8px;flex-wrap:wrap}
+.pick-show{background:var(--acc);border-color:var(--acc);color:var(--accfg)}
+.mbar,.scrim{display:none}
+/* hover hint on a computer: what is under the cursor */
+.tip{position:fixed;left:0;top:0;z-index:30;pointer-events:none;background:#0c0c0c;color:#fff;font:500 12.5px/1.35 var(--f-body);padding:6px 9px;border-radius:8px;max-width:260px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.tip b{font-weight:700}
+.dlg{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,20,25,.45);padding:16px}
+.dlg[hidden]{display:none}
+.dlg-in{background:var(--surf);border-radius:16px;padding:18px;max-width:420px;display:flex;flex-direction:column;gap:10px}
+.dlg-in h2{margin:0;font:700 20px var(--f-display)}
+.dlg-in p{margin:0}
+.dlg-btns{display:flex;gap:8px;flex-wrap:wrap}
+/* computer: the 3D takes the whole height on the left, the side panel scrolls on the right */
+@media (min-width:1024px){
+  body{padding-block:12px 24px}
+  .wrap{max-width:1560px;display:grid;grid-template-columns:minmax(0,1fr) 390px;column-gap:20px;row-gap:12px;align-items:start}
+  .demo-bar,header,.side{grid-column:2}
+  .demo-bar{margin:0}
+  #pinMark{display:none}
+  .pin{grid-column:1;grid-row:1 / span 40;height:calc(100vh - 24px);margin:0;padding:0;box-shadow:none;top:12px}
+  .pin .stage{flex:1;height:auto;min-height:0}
+  .side .card{grid-template-columns:minmax(0,1fr)}
+  h1{font-size:28px}
+}
+/* phones: thumb bar at the bottom, the finder is a sheet over the page */
+@media (max-width:640px){
+  body{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+  .mbar{display:flex;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:35;padding:8px max(10px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));background:color-mix(in srgb,#fff 95%,transparent);box-shadow:0 -6px 16px -10px rgba(15,40,55,.35)}
+  .mbar .chip{min-height:44px;justify-content:center}
+  #mPick{flex:1;background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+  #mPick span{opacity:.85;font-weight:500;margin-left:6px}
+  .mfav{width:44px;padding:0;font-size:20px;color:#d64570}
+  .mfav[aria-pressed="true"]{background:#d64570;border-color:#d64570;color:#fff}
+  .mlead{flex:1;background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
+  body.full .mbar{display:none}
+  .pick{display:none}
+  body.picking .pick{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;max-height:78svh;overflow:auto;border-radius:18px 18px 0 0;padding:14px 16px max(16px,env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px rgba(0,0,0,.25)}
+  body.picking .scrim{display:block;position:fixed;inset:0;z-index:45;background:rgba(10,20,25,.35)}
+  body.picking .mbar{display:none}
+  .pick-close{display:inline-flex}
+  .pick-list{max-height:none}
+  .crumbs{font-size:12px}
+  .crumbs button{font-size:12px;padding:4px 3px}
+  .cta,.favbtn{display:none}   /* the thumb bar has the heart and the request button */
+}
 /* rows of chips wider than the screen fade out at the side they continue to */
 .chips.more-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent)}
 .chips.more-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 28px),transparent)}
@@ -268,8 +339,22 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   <div class="fullnote">Демо-концепт 3dryad.ru · не официальный сайт застройщика</div>
   </div>
 
-  <!-- what matters most comes right under the 3D: the apartment card (status, price, floor), then the controls -->
+  <!-- side panel (a column to the right of the 3D on a computer, the page under the 3D on a phone):
+       where you are, the apartment card, the apartment finder, then the controls of the mode -->
+  <aside class="side" id="side">
+  <nav class="crumbs chips" id="crumbs" aria-label="Где вы"></nav>
   <div class="card" id="card" aria-live="polite"></div>
+
+  <!-- apartment finder: on a computer always open in the side panel, on a phone a sheet that slides up from the bottom -->
+  <section class="pick" id="pick" aria-label="Подбор квартиры">
+    <div class="pick-head"><b>Подбор квартиры</b><span class="pick-count" id="pickCount"></span><button type="button" class="icobtn pick-close" id="pickClose" aria-label="Закрыть подбор">✕</button></div>
+    <div class="row"><div class="lab">Комнат</div><div class="chips" id="fRooms"></div></div>
+    <div class="row"><div class="lab">Цена до <b id="fPriceV"></b></div><input type="range" id="fPrice" aria-label="Цена до, млн ₽"></div>
+    <div class="row"><div class="lab">Этаж</div><div class="chips" id="fFloor"></div></div>
+    <label class="fchk"><input type="checkbox" id="fFree" checked> Только свободные</label>
+    <div class="pick-list" id="pickList"></div>
+    <div class="pick-foot"><button type="button" class="chip" id="pickReset">Сбросить</button><button type="button" class="chip pick-show" id="pickShow">Показать на 3D</button></div>
+  </section>
 
   <div class="panel" id="pInt">
     <div class="row"><div class="lab">Камера</div><div class="chips" id="rCam"></div></div>
@@ -290,9 +375,28 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     </details>
   </div>
 
+  <div class="row" id="rowFav" hidden><div class="lab">Избранное</div><div class="chips" id="rFav"></div></div>
   <div class="row" id="rowRecent" hidden><div class="lab">Недавно смотрели</div><div class="chips" id="rRecent"></div></div>
 
   <p class="note" id="note"></p>
+  </aside>
+</div>
+
+<!-- phones: actions within reach of the thumb -->
+<nav class="mbar" id="mbar" aria-label="Действия">
+  <button type="button" class="chip" id="mPick">Подбор<span id="mPickN"></span></button>
+  <button type="button" class="chip mfav" id="mFav" aria-pressed="false" aria-label="В избранное">♡</button>
+  <button type="button" class="chip mlead" id="mLead">Оставить заявку</button>
+</nav>
+<div class="tip" id="tip" hidden></div>
+<div class="scrim" id="scrim" hidden></div>
+<div class="dlg" id="lead" hidden role="dialog" aria-label="Заявка на квартиру">
+  <div class="dlg-in">
+    <h2>Заявка на квартиру</h2>
+    <p id="leadWhat"></p>
+    <p class="note">Это демо. В рабочей версии заявка с этой квартирой, ценой и контактом покупателя уходит в CRM отдела продаж УДСД, а менеджер перезванивает. Здесь данные никуда не отправляются.</p>
+    <div class="dlg-btns"><button type="button" class="chip pick-show" id="leadCopy">Скопировать ссылку на квартиру</button><button type="button" class="chip" id="leadClose">Закрыть</button></div>
+  </div>
 </div>
 
 <div class="sheet" id="sheet" hidden role="dialog" aria-label="Схема квартиры">
@@ -331,6 +435,20 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
 
   /* ---------- state ---------- */
   const S = { mode: 'int', finish: 'design', cam: 'top', see: 'glass', inner: false, house: 'glass', extView: 'yard', layer: 'free', sec: 0, apt: 'a', view: 'overview', style: 'scandi', time: 'day', floor: 8, win: 'living' };
+  const Q = new URLSearchParams(location.search);   // read before anything rewrites the address (see updateUrl)
+  let urlReady = false;
+  // apartment finder: rooms (0 = studio), top price in roubles, floor band, free only
+  const FLT = { rooms: new Set(), price: Infinity, floor: 'any', free: true };
+  const ROOMS_N = { a: 3, b: 1, c: 2, d: 0 }, FLOOR_BANDS = { any: [2, 99], low: [2, 4], mid: [5, 8], high: [9, 99] };
+  function fltOn() { return FLT.rooms.size > 0 || FLT.price < Infinity || FLT.floor !== 'any'; }
+  function fltKey() { return [...FLT.rooms].join('') + '|' + FLT.price + '|' + FLT.floor + '|' + FLT.free; }
+  function fltMatch(si, f, l) {
+    if (FLT.free && status(si, f, l) !== 'free') return false;
+    if (FLT.rooms.size && !FLT.rooms.has(ROOMS_N[l])) return false;
+    const b = FLOOR_BANDS[FLT.floor]; if (f < b[0] || f > b[1]) return false;
+    if (FLT.price < Infinity) { const p = price(si, f, l); if (p == null || p > FLT.price) return false; }
+    return true;
+  }
 
   /* ---------- design styles ---------- */
   const STYLES = {
@@ -976,13 +1094,16 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     const ov = new THREE.Mesh(new THREE.BoxGeometry(sx + 1, sec.floors * FLOOR_H + 1, sz + 1), new THREE.MeshBasicMaterial({ color: free ? '#3ddc97' : '#6b7780', transparent: true, opacity: free ? 0.3 : 0.22, depthWrite: false }));   // light enough that the facades show through
     ov.position.set(sec.cx, sec.floors * FLOOR_H / 2, sec.cz); ov.visible = false; ov.renderOrder = 1; outside.add(ov); sec.ov = ov;
   });
+  const cellDim = new THREE.MeshBasicMaterial({ color: '#c9d2d6', transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide });
   let cellsKey = '', markKey = '';
   function rebuildCells() {
-    const sec = SECTIONS[S.sec], key = S.sec + ':' + S.floor + S.apt; if (key === cellsKey) return; cellsKey = key;
+    const sec = SECTIONS[S.sec], key = S.sec + ':' + S.floor + S.apt + fltKey(); if (key === cellsKey) return; cellsKey = key;
     while (cellG.children.length) { const c = cellG.children.pop(); c.geometry.dispose(); }
     for (let f = 2; f <= sec.floors; f++) LETTERS.forEach((l) => {
       if (f === S.floor && l === S.apt) return;
-      const ci = cellInfo(sec, l, f), m = new THREE.Mesh(new THREE.PlaneGeometry(ci.w - 0.5, 2.7), cellMats[status(sec.i, f, l)]);
+      // with the finder on, apartments that match keep their status colour and the rest fade to a light grey
+      const ci = cellInfo(sec, l, f), mat = fltOn() && !fltMatch(sec.i, f, l) ? cellDim : cellMats[status(sec.i, f, l)];
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(ci.w - 0.5, 2.7), mat);
       m.position.set(ci.c.x + ci.n.x * 0.1, ci.y + 1.5, ci.c.z + ci.n.z * 0.1);
       m.rotation.y = ci.n.z === 1 ? 0 : (ci.n.z === -1 ? Math.PI : (ci.n.x === 1 ? Math.PI / 2 : -Math.PI / 2));
       m.userData = { f: f, l: l }; m.renderOrder = 3; cellG.add(m);
@@ -1008,7 +1129,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
       const sel = ext && sec.i === S.sec;
       if (sec.own) { sec.mesh.visible = ext && !(sel && glass); if (ownPart) ownPart.visible = !ext; }
       else sec.mesh.visible = !(sel && glass);
-      sec.ov.visible = ext && S.layer === 'free' && !sel;
+      sec.ov.visible = ext && (S.layer === 'free' || fltOn()) && !sel;
     });
     selGlass.visible = selEdges.visible = ext && S.house === 'glass';
     cellG.visible = ext;
@@ -1399,7 +1520,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     GEO.forEach((g) => {
       if (city ? !/^(dist|part|novella)$/.test(g.k) : g.k === 'part' || g.k === 'novella') return;   // the city map shows only the city's names
       if (g.k === 'dist' && !wide) return;
-      if (g.k === 'sec' && (S.layer !== 'free' || g.sec.i === S.sec || !g.sec.free || S.extView === 'area')) return;
+      if (g.k === 'sec' && ((S.layer !== 'free' && !fltOn()) || g.sec.i === S.sec || !(fltOn() ? g.sec.match : g.sec.free) || S.extView === 'area')) return;
       if (S.extView === 'area' && g.k === 'street' && !/Тундра|Озеро|ул\. Мира/.test(g.t)) return;
       if (S.extView === 'area' && /Квартал [1345]|Детский|Стадион/.test(g.t)) return;
       gv.set(g.x, g.y || 0.6, g.z).project(camera); if (gv.z > 1 || Math.abs(gv.x) > 1.05 || Math.abs(gv.y) > 1.05) return;
@@ -1416,7 +1537,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     const placed = [];   // in the wide views a label that would cover one already placed is skipped (nearest and city names go first)
     geoDom.forEach((d, i) => {
       const it = shown[i]; if (!it) { d.style.display = 'none'; return; }
-      const g = it.g, txt = g.k === 'sec' ? g.sec.free + ' своб.' : g.t, cls = 'gl ' + (/^(sec|street|own|dist|part|novella)$/.test(g.k) ? g.k : '');
+      const g = it.g, txt = g.k === 'sec' ? (fltOn() ? g.sec.match + ' подх.' : g.sec.free + ' своб.') : g.t, cls = 'gl ' + (/^(sec|street|own|dist|part|novella)$/.test(g.k) ? g.k : '');
       d.style.display = ''; let ch = !d._w; if (d.className !== cls) { d.className = cls; ch = true; } if (d.textContent !== txt) { d.textContent = txt; ch = true; }
       if (ch) { d._w = d.offsetWidth; d._h = d.offsetHeight; }   // size is measured only when the label changes
       const bw = d._w, bh = d._h, x = it.sx - bw / 2, y = it.sy - bh / 2;
@@ -1456,6 +1577,160 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     const sec = SECTIONS[S.sec];
     floorBtns.forEach((b, i) => { b.hidden = (i + 2) > sec.floors; });
   }
+
+  /* ---------- finder, where-you-are trail, favourites, request, links to an apartment, hover hints ----------
+     (what the leading apartment selectors share: filters lighting up matching flats on the facades, a list of matches,
+     building → floor → apartment navigation, a heart, a clear request button, a link per apartment, hover info on a computer) */
+  let matches = [];
+  function computeMatches() {
+    matches = [];
+    SECTIONS.forEach((sec) => {
+      sec.match = 0; sec.minP = null;
+      for (let f = 2; f <= sec.floors; f++) LETTERS.forEach((l) => {
+        if (status(sec.i, f, l) === 'free') { const p = price(sec.i, f, l); if (p && (sec.minP == null || p < sec.minP)) sec.minP = p; }
+        if (fltOn() && fltMatch(sec.i, f, l)) { sec.match++; matches.push({ si: sec.i, f: f, l: l, p: price(sec.i, f, l) || Infinity }); }
+      });
+      const lit = fltOn() ? sec.match > 0 : sec.free > 0;   // the tint over each building follows the finder when it is on
+      sec.ov.material.color.set(lit ? '#3ddc97' : '#6b7780'); sec.ov.material.opacity = lit ? 0.3 : 0.14;
+    });
+    matches.sort((a, b) => a.p - b.p);
+  }
+  [['Студия', 0], ['1', 1], ['2', 2], ['3', 3]].forEach((r) => chip($('fRooms'), r[0], () => FLT.rooms.has(r[1]), () => { if (FLT.rooms.has(r[1])) FLT.rooms.delete(r[1]); else FLT.rooms.add(r[1]); onFilter(); }));
+  [['Любой', 'any'], ['2–4', 'low'], ['5–8', 'mid'], ['9–12', 'high']].forEach((r) => chip($('fFloor'), r[0], () => FLT.floor === r[1], () => { FLT.floor = r[1]; onFilter(); }));
+  const allP = []; SECTIONS.forEach((sec) => { for (let f = 2; f <= sec.floors; f++) LETTERS.forEach((l) => { const p = price(sec.i, f, l); if (p) allP.push(p); }); });
+  const pMin = Math.floor(Math.min(...allP) / 5e5) * 5e5, pMax = Math.ceil(Math.max(...allP) / 5e5) * 5e5, fPrice = $('fPrice');
+  fPrice.min = pMin; fPrice.max = pMax; fPrice.step = 500000; fPrice.value = pMax;
+  fPrice.addEventListener('input', () => { FLT.price = +fPrice.value >= pMax ? Infinity : +fPrice.value; onFilter(); });
+  $('fFree').addEventListener('change', (e) => { FLT.free = e.target.checked; onFilter(); });
+  $('pickReset').addEventListener('click', () => { FLT.rooms.clear(); FLT.price = Infinity; FLT.floor = 'any'; FLT.free = true; fPrice.value = pMax; $('fFree').checked = true; onFilter(); });
+  $('pickShow').addEventListener('click', () => { closePick(); goExt('all'); });
+  function onFilter() { computeMatches(); cellsKey = ''; refresh(true); }
+  const pickListEl = $('pickList');
+  function renderPick() {
+    $('fPriceV').textContent = FLT.price === Infinity ? 'любая' : money(FLT.price);
+    $('pickCount').textContent = fltOn() ? 'подходит ' + matches.length : 'свободно ' + SECTIONS.reduce((a, s) => a + s.free, 0);
+    $('mPickN').textContent = fltOn() ? ' · ' + matches.length : '';
+    pickListEl.textContent = '';
+    const note = (t) => { const p = document.createElement('p'); p.textContent = t; pickListEl.appendChild(p); };
+    if (!fltOn()) { note('Выберите комнаты, цену или этаж: подходящие квартиры загорятся на фасадах, а список появится здесь.'); return; }
+    if (!matches.length) { note('Ничего не нашлось — расширьте цену или этаж.'); return; }
+    matches.slice(0, 40).forEach((m) => {
+      const sec = SECTIONS[m.si], t = TYPES[m.l], b = document.createElement('button'); b.type = 'button';
+      if (S.mode === 'ext' && m.si === S.sec && m.f === S.floor && m.l === S.apt) b.setAttribute('aria-current', 'true');
+      const a = document.createElement('span'); a.textContent = 'Кв. ' + t.n + ' · ' + t.short + ', ' + fmt(area(m.si, m.f, m.l)) + ' м²';
+      const p = document.createElement('b'); p.textContent = money(price(m.si, m.f, m.l));
+      const w = document.createElement('small'); w.textContent = 'Кв-л ' + sec.q + ', секц. ' + sec.n + ' · этаж ' + m.f;
+      b.appendChild(a); b.appendChild(p); b.appendChild(w); b.addEventListener('click', () => { closePick(); goApt(m.si, m.f, m.l); });
+      pickListEl.appendChild(b);
+    });
+    if (matches.length > 40) note('И ещё ' + (matches.length - 40) + ' — уточните подбор, чтобы увидеть все.');
+  }
+  function goExt(view) {
+    S.extView = view; S.inner = false;
+    if (S.mode !== 'ext') enterExt(true); else flyExt(false);
+    refresh(true);
+  }
+  function goApt(si, f, l) {
+    S.sec = si; S.floor = f; S.apt = l; S.inner = false;
+    if (S.extView === 'all' || S.extView === 'area' || S.extView === 'city') S.extView = 'yard';
+    if (S.mode !== 'ext') { enterExt(true); refresh(true); } else afterPick();
+  }
+  const openPick = () => { document.body.classList.add('picking'); $('scrim').hidden = false; };
+  const closePick = () => { document.body.classList.remove('picking'); $('scrim').hidden = true; };
+  $('mPick').addEventListener('click', openPick); $('pickClose').addEventListener('click', closePick); $('scrim').addEventListener('click', closePick);
+
+  // where you are: ЖК › квартал › секция › этаж › квартира (› интерьер / вид из окна); each level flies the camera there
+  function renderCrumbs() {
+    const c = $('crumbs'); c.textContent = '';
+    const a = curApt(), sec = SECTIONS[a.sec];
+    const items = [['ЖК «Новелла»', () => goExt('all')], ['Квартал ' + sec.q, () => goExt('top')], ['Секция ' + sec.n, () => goExt('back')], ['Этаж ' + a.floor, () => goExt('yard')], ['Кв. ' + TYPES[a.apt].n, () => goExt('yard')]];
+    if (S.mode === 'int') items.push(['3D-интерьер']); if (S.mode === 'win') items.push(['Вид из окна']);
+    items.forEach((it, i) => {
+      if (i) { const s = document.createElement('i'); s.textContent = '›'; c.appendChild(s); }
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = it[0];
+      if (i === items.length - 1) b.setAttribute('aria-current', 'page'); else b.addEventListener('click', it[1]);
+      c.appendChild(b);
+    });
+  }
+
+  // favourites (this browser only) and the request button
+  let favs = [];
+  try { favs = JSON.parse(localStorage.getItem('nv-fav') || '[]').filter((r) => SECTIONS[r.sec] && TYPES[r.apt]); } catch (e) { favs = []; }
+  function curApt() { return S.mode === 'ext' ? { sec: S.sec, floor: S.floor, apt: S.apt } : { sec: towerSec.i, floor: S.floor, apt: 'a' }; }
+  const same = (x, a) => x.sec === a.sec && x.floor === a.floor && x.apt === a.apt;
+  const isFav = (a) => favs.some((x) => same(x, a));
+  function toggleFav() {
+    const a = curApt(); favs = isFav(a) ? favs.filter((x) => !same(x, a)) : [a].concat(favs).slice(0, 12);
+    try { localStorage.setItem('nv-fav', JSON.stringify(favs)); } catch (e) { /* storage may be blocked */ }
+    refresh(true);
+  }
+  function renderFavs() {
+    const box = $('rFav'); box.textContent = ''; $('rowFav').hidden = !favs.length;
+    favs.forEach((r) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'chip';
+      const dot = document.createElement('span'); dot.className = 'st'; dot.style.background = ST[status(r.sec, r.floor, r.apt)].c; b.appendChild(dot);
+      b.appendChild(document.createTextNode(' Кв. ' + TYPES[r.apt].n + ' · ' + SECTIONS[r.sec].q + '-' + SECTIONS[r.sec].n + ' · эт. ' + r.floor));
+      if (S.mode === 'ext' && same(r, curApt())) b.setAttribute('aria-pressed', 'true');
+      b.addEventListener('click', () => goApt(r.sec, r.floor, r.apt)); box.appendChild(b);
+    });
+    const on = isFav(curApt()), mf = $('mFav'); mf.textContent = on ? '♥' : '♡'; mf.setAttribute('aria-pressed', on ? 'true' : 'false'); mf.setAttribute('aria-label', on ? 'Убрать из избранного' : 'В избранное');
+  }
+  function decorateCard() {   // heart next to the title, a clear request button under the facts
+    const card = $('card'), h = card.querySelector('h2'); if (!h) return;
+    const head = document.createElement('div'); head.className = 'cardhead'; h.parentNode.insertBefore(head, h); head.appendChild(h);
+    const on = isFav(curApt()), fb = document.createElement('button'); fb.type = 'button'; fb.className = 'favbtn'; fb.textContent = on ? '♥' : '♡';
+    fb.setAttribute('aria-pressed', on ? 'true' : 'false'); fb.setAttribute('aria-label', on ? 'Убрать из избранного' : 'В избранное'); fb.addEventListener('click', toggleFav); head.appendChild(fb);
+    const cta = document.createElement('div'); cta.className = 'cta'; const lb = document.createElement('button'); lb.type = 'button'; lb.className = 'chip'; lb.textContent = 'Оставить заявку'; lb.addEventListener('click', openLead);
+    cta.appendChild(lb); head.parentNode.appendChild(cta);
+  }
+  function openLead() {
+    const a = curApt(), sec = SECTIONS[a.sec], t = TYPES[a.apt], st = status(a.sec, a.floor, a.apt);
+    $('leadWhat').textContent = 'Кв. ' + t.n + ' · ' + t.short + ', ' + fmt(area(a.sec, a.floor, a.apt)) + ' м² · ' + secName(sec) + ' · этаж ' + a.floor + ' · № ' + aptNum(a.sec, a.floor, a.apt) + ' · ' + ST[st].t.toLowerCase() + (st === 'sold' ? '' : ' · ' + money(price(a.sec, a.floor, a.apt)));
+    $('leadCopy').textContent = 'Скопировать ссылку на квартиру'; $('lead').hidden = false;
+  }
+  $('mFav').addEventListener('click', toggleFav); $('mLead').addEventListener('click', openLead);
+  $('leadClose').addEventListener('click', () => { $('lead').hidden = true; });
+  $('lead').addEventListener('click', (e) => { if (e.target.id === 'lead') $('lead').hidden = true; });
+  $('leadCopy').addEventListener('click', () => {
+    const done = () => { $('leadCopy').textContent = 'Ссылка скопирована'; };
+    try { navigator.clipboard.writeText(location.href).then(done, () => { $('leadCopy').textContent = location.href; }); } catch (e) { $('leadCopy').textContent = location.href; }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closePick(); $('lead').hidden = true; } });
+  // a link per apartment: ?mode=ext&sec=2-2&floor=8&apt=a (kept current while browsing)
+  function updateUrl() {
+    if (!urlReady) return;   // not until the start-up has applied the link it was opened with
+    try {
+      const a = curApt(), sec = SECTIONS[a.sec], q = '?mode=' + S.mode + '&sec=' + sec.q + '-' + sec.n + '&floor=' + a.floor + '&apt=' + a.apt;
+      if (location.search !== q) history.replaceState(null, '', q + location.hash);
+    } catch (e) { /* sandboxed frames may refuse */ }
+  }
+  function renderExtras() { renderCrumbs(); decorateCard(); renderFavs(); renderPick(); updateUrl(); }
+
+  // computer: what is under the cursor (a building or an apartment on the facade), with the cursor turning into a hand
+  const tipEl = $('tip'), canHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  let tipXY = null, tipPending = false;
+  function showTip() {
+    tipPending = false;
+    if (!tipXY || S.mode !== 'ext') { tipEl.hidden = true; cv.style.cursor = ''; return; }
+    const r = cv.getBoundingClientRect(); ndc.set(((tipXY[0] - r.left) / r.width) * 2 - 1, -((tipXY[1] - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, camera);
+    const cell = ray.intersectObjects(cellG.children, false)[0], hs = ray.intersectObjects(pickList.filter((m) => m.visible), false)[0];
+    let html = null;
+    if (cell && (!hs || cell.distance < hs.distance + 1)) {
+      const f = cell.object.userData.f, l = cell.object.userData.l, t = TYPES[l], st = status(S.sec, f, l);
+      html = '<b>Кв. ' + t.n + ' · ' + t.short + '</b>, ' + fmt(area(S.sec, f, l)) + ' м² · этаж ' + f + '<br>' + ST[st].t + (st === 'sold' ? '' : ' · ' + money(price(S.sec, f, l)));
+    } else if (hs && hs.object.userData.sec != null) {
+      const sec = SECTIONS[hs.object.userData.sec];
+      html = '<b>' + secName(sec) + '</b> · ' + sec.floors + ' эт.<br>Свободно ' + sec.free + ' из ' + sec.total + (sec.minP ? ' · от ' + money(sec.minP) : '') + (fltOn() ? '<br>Подходит по подбору: ' + sec.match : '') + (sec.i !== S.sec ? '<br>Нажмите, чтобы выбрать' : '');
+    }
+    if (!html) { tipEl.hidden = true; cv.style.cursor = ''; return; }
+    tipEl.innerHTML = html; tipEl.hidden = false; cv.style.cursor = 'pointer';
+    tipEl.style.transform = 'translate(' + Math.round(Math.min(tipXY[0] + 14, innerWidth - tipEl.offsetWidth - 8)) + 'px,' + Math.round(Math.min(tipXY[1] + 18, innerHeight - tipEl.offsetHeight - 8)) + 'px)';
+  }
+  if (canHover) {
+    cv.addEventListener('pointermove', (e) => { tipXY = e.buttons ? null : [e.clientX, e.clientY]; if (!tipPending) { tipPending = true; requestAnimationFrame(showTip); } });
+    cv.addEventListener('pointerleave', () => { tipXY = null; tipEl.hidden = true; cv.style.cursor = ''; });
+  }
+  computeMatches();
 
   chip($('rTime'), 'День', () => S.time === 'day', () => { S.time = 'day'; refresh(); });
   chip($('rTime'), 'Вечер', () => S.time === 'eve', () => { S.time = 'eve'; refresh(); });
@@ -1621,7 +1896,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     $('badge').hidden = S.mode === 'int'; if (S.mode === 'win') $('badge').textContent = 'Этаж ' + S.floor + ' · ' + WIN.find((w) => w.id === S.win).n; if (S.mode === 'ext') $('badge').textContent = 'Кв-л ' + SECTIONS[S.sec].q + ' · секц. ' + SECTIONS[S.sec].n + ' · эт. ' + S.floor + ' · кв. ' + TYPES[S.apt].n;
     $('h1').textContent = S.mode === 'ext' ? 'Квартира ' + TYPES[S.apt].n + ', ' + fmt(TYPES[S.apt].area) + ' м²' : (narrow() ? '3-комн. квартира, 72,6 м²' : 'Трёхкомнатная квартира, 72,6 м²');
     if (S.mode === 'ext') fillExtPanel();
-    trackRecent(); sync.forEach((f) => f()); renderCard(); renderNote(); hintText();
+    trackRecent(); sync.forEach((f) => f()); renderCard(); renderExtras(); renderNote(); hintText();
     dockEl.querySelectorAll('.chip[aria-pressed="true"]').forEach((b) => {   // keep the chosen chip of each dock row in sight (floor 8 sits past the edge on a phone)
       const r = b.parentNode; if (b.offsetLeft < r.scrollLeft || b.offsetLeft + b.offsetWidth > r.scrollLeft + r.clientWidth) r.scrollLeft = b.offsetLeft - (r.clientWidth - b.offsetWidth) / 2;
     });
@@ -1864,7 +2139,13 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   resize(); const c0 = camFor('overview'); camera.position.set(...c0.pos); controls.target.set(...c0.tgt); limits();
   resize(); refresh();
   // the buyer's path starts outside: the demo opens on «Снаружи» at our apartment (the interior above is set up for when they go in)
-  S.sec = towerSec.i; S.apt = 'a'; S.inner = false; S.extView = 'yard'; enterExt(true); refresh(true);
+  // a link may name the apartment and the mode (?mode=ext&sec=2-2&floor=8&apt=a); otherwise start at our apartment
+  const qSec = SECTIONS.find((x) => x.q + '-' + x.n === Q.get('sec')), qF = +Q.get('floor'), qA = Q.get('apt');
+  S.sec = qSec ? qSec.i : towerSec.i; S.apt = TYPES[qA] ? qA : 'a'; S.inner = false; S.extView = 'yard';
+  if (qF >= 2 && qF <= SECTIONS[S.sec].floors) S.floor = qF;
+  urlReady = true;
+  if (Q.get('mode') === 'int' || Q.get('mode') === 'win') { S.sec = towerSec.i; S.apt = 'a'; placeOutside(); if (Q.get('mode') === 'win') enterWindow(); else enterInterior(true); refresh(true); }
+  else { enterExt(true); refresh(true); }
   if (narrow()) $('moreExt').open = false;   // phones: rare settings folded, so the card and the main rows stay close to the 3D
   $('moreExt').addEventListener('toggle', () => document.querySelectorAll('.chips').forEach(fades));
   requestAnimationFrame(frame);
