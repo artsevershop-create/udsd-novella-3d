@@ -73,6 +73,10 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,6vw,38px);l
 .dock .chip,.tchips .chip{min-height:40px;padding:7px 12px;font-size:13.5px;background:color-mix(in srgb,var(--surf) 94%,transparent);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .dock .chip[aria-pressed="true"],.tchips .chip[aria-pressed="true"]{background:var(--acc)}
 .dock .chip.fl{min-width:40px;padding:7px 8px}
+.dockrow .chip{min-height:34px;padding:4px 12px;font-size:13px}
+.dockrow{display:flex;flex-direction:row!important;align-items:center;gap:6px;overflow-x:auto;pointer-events:auto}
+.dockrow>.chips{display:contents}
+.dockrow[hidden]{display:none}
 .dlab{flex:none;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:0 2px 0 4px}
 .tbar{position:absolute;right:8px;top:8px;display:flex;gap:6px;align-items:center}
 .tchips{gap:4px;overflow:visible;padding:0}
@@ -1749,6 +1753,16 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   wallChips.push([chip($('rMode'), 'Сплошные', () => S.walls === 'solid', () => { S.walls = 'solid'; enterInterior(false); refresh(true); }), 'top']);
   wallChips.push([chip($('rMode'), 'Прозрачные', () => S.see === 'glass', () => { S.see = 'glass'; refresh(true); }), 'walk']);
   wallChips.push([chip($('rMode'), 'Сплошные', () => S.see === 'solid', () => { S.see = 'solid'; refresh(true); }), 'walk']);
+  // the view settings used to hide behind the «Вид» button: now each mode shows its own rows right on the stage, in the dock
+  const dockFirst = $('dock').firstChild;
+  [['rHouse', 'ext', 'Дом'], ['rLayer', 'ext', 'Свободные'], ['rowInner', 'ext', 'Наша квартира'], ['rExtView', 'ext', 'Ракурс'], ['rowStyle', 'int', 'Стиль']].forEach((d) => {
+    const el = $(d[0]); const row = el.classList.contains('row') ? el : el.parentNode;
+    const lab = row.querySelector('.lab'); if (lab) { lab.textContent = d[2]; lab.className = 'dlab'; }
+    row.className = 'chips dockrow'; row.dataset.m = d[1];
+    if (!row.id) row.id = d[0] + 'Row';
+    $('dock').insertBefore(row, dockFirst);
+  });
+  $('viewBtn').hidden = true; $('viewBtn').style.display = 'none';
   const EXT_SHORT = { house: 'Весь дом', floor: 'Этаж', yard: 'Со двора', top: 'Сверху', back: 'С улицы', all: 'Все корпуса', area: 'Окрестности', city: 'Весь город' };
   Object.keys(EXTV).forEach((k) => chip($('rExtView'), EXTV[k].label, () => S.extView === k, () => { S.extView = k; flyExt(false); refresh(true); }, { short: EXT_SHORT[k] }));
   chip($('rHouse'), 'Прозрачный', () => S.house === 'glass', () => { S.house = 'glass'; refresh(true); });
@@ -2512,11 +2526,11 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     $('pExt').hidden = S.mode !== 'ext'; $('chooseOther').hidden = S.mode === 'ext'; $('side').dataset.mode = S.mode;
     $('sMine').hidden = !favs.length && recents.length < 2;
     $('vpanel').querySelectorAll('[data-vm]').forEach((g) => { g.hidden = g.dataset.vm !== S.mode; });
-    $('viewBtn').hidden = S.mode === 'win'; if (S.mode === 'win') setVP(false);
+    $('viewBtn').hidden = true; setVP(false);
     dockEl.querySelectorAll('[data-m]').forEach((r) => { r.hidden = r.dataset.m.split(' ').indexOf(S.mode) < 0; });
     stageEl.dataset.mode = S.mode;
     stageEl.style.setProperty('--dockh', dockEl.offsetHeight + 'px'); updateFov();
-    $('rowStyle').hidden = S.finish !== 'design';
+    $('rowStyle').hidden = S.mode !== 'int' || S.finish !== 'design';
     $('rowSee').hidden = !(S.mode === 'int' && S.cam === 'walk');
     wallChips.forEach((w) => { w[0].hidden = w[1] !== (S.cam === 'walk' ? 'walk' : 'top'); });
     $('tInt').setAttribute('aria-pressed', S.mode === 'int' ? 'true' : 'false'); $('tWin').setAttribute('aria-pressed', S.mode === 'win' ? 'true' : 'false'); $('tExt').setAttribute('aria-pressed', S.mode === 'ext' ? 'true' : 'false');
