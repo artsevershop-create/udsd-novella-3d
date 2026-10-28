@@ -305,6 +305,55 @@ body.pinned:not(.full) .stack{display:none}
   .compass{width:34px;height:34px}
   body.pinned:not(.full) .navpad{display:none}
 }
+/* icons */
+.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+.tabs button{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.tabs .ic{width:19px;height:19px}
+.planbtn{display:inline-flex;align-items:center;gap:6px}
+.planbtn .ic{width:18px;height:18px}
+.icobtn .ic{width:20px;height:20px}
+.navpad .ic{width:19px;height:19px;stroke-width:2.1}
+.backbtn{display:inline-flex;align-items:center;gap:4px}
+.backbtn .ic{width:17px;height:17px;stroke-width:2.2}
+.dock .chip .ic{width:17px;height:17px}
+.dock .steps .chip{gap:6px}
+@media (max-width:640px){.tabs .ic{width:17px;height:17px}.tabs button{gap:5px}.dock .steps .chip .ic{width:18px;height:18px}.dock .steps .chip{gap:5px;padding:6px 11px}.dock .steps .chip:not([aria-pressed="true"]) span{display:none}}   /* phone: steps as icons, the current one with its name */
+/* pins on the 3D: icons first, few words */
+.gl .ic{width:13px;height:13px;stroke-width:2;margin-right:3px;vertical-align:-2px}
+.gl.far{display:inline-flex;align-items:center;pointer-events:auto;cursor:help}
+.gl.own{display:inline-flex;align-items:center;color:#c46a00;pointer-events:auto;cursor:help}
+.gl.own .ic{width:14px;height:14px}
+.gl.atm{display:inline-flex;align-items:center;gap:4px;font-weight:600;color:#fff;background:#7ab929;border:1px solid #5f9a1c;pointer-events:auto;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.gl.atm .ic{width:14px;height:14px}
+.gl.atm::after{content:"скоро в 3D";font-weight:400;font-size:10px;opacity:.9;margin-left:2px}
+.gl.qnum{font:700 13px var(--f-display);min-width:24px;text-align:center;border-radius:999px;background:color-mix(in srgb,var(--surf) 88%,transparent)}
+.gl.poi{width:26px;height:26px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:2px solid currentColor;pointer-events:auto;cursor:help;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.gl.poi .ic{margin:0;width:14px;height:14px}
+.p-school{color:#2d6bd6}.p-kids{color:#e07a1f}.p-med{color:#d23c3c}.p-shop{color:#7a4fc4}.p-sport{color:#2f9a4c}
+.dock .poichip[aria-pressed="true"]{background:currentColor}
+.dock .poichip[aria-pressed="true"] .ic{stroke:#fff}
+.dock .poichip[aria-pressed="true"] span,.dock .poichip[aria-pressed="true"]{color:inherit}
+.gl.sec{min-width:24px;text-align:center}
+/* floor plan in the card */
+.fplan svg{max-height:none}
+.fp-apt{cursor:pointer}
+.fp-apt rect{stroke:#fff;stroke-width:1.5;transition:filter .15s}
+.fp-apt:hover rect,.fp-apt:focus rect{filter:brightness(.93)}
+.fp-apt.cur rect{stroke:var(--acc);stroke-width:3}
+.fp-corr{fill:#eef1f2}.fp-core{fill:#d9dee0}
+.fp-n{font:700 10px var(--f-body);fill:#0c0c0c}.fp-t{font:500 7.6px var(--f-body);fill:#26323a}
+.fp-cl{font:500 7px var(--f-body);fill:#5b6770}.fp-side{font:500 7.4px var(--f-body);fill:#5b6770}
+.fp-note{margin:2px 4px 2px;font-size:11.5px;color:var(--mut)}
+.fp-lift{fill:#fff;stroke:#8d989e;stroke-width:1}.fp-stair{stroke:#8d989e;stroke-width:1}
+.fp-n{font-size:12px}
+/* parking / storage grid */
+.seg2 .chip{gap:6px}.seg2 .chip .ic{width:17px;height:17px}
+.pgrid{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:3px}
+.pgrid.stor{grid-template-columns:repeat(10,minmax(0,1fr))}
+.pcell{aspect-ratio:1;border:0;border-radius:4px;font:600 9px/1 var(--f-body);color:#26323a;cursor:pointer;padding:0;min-width:0}
+.pcell.free{background:#8fd9b0}.pcell.res{background:#f4cf7e}.pcell.sold{background:#e9aaa6;color:#7a4440}
+.pcell.on{outline:2px solid var(--acc);outline-offset:1px}
+@media (max-width:420px){.pgrid{grid-template-columns:repeat(12,minmax(0,1fr))}.pcell{font-size:8px}}
 /* smooth change of mode: the stage fades out and back in */
 .veil{position:absolute;inset:0;z-index:1;background:var(--stage);opacity:0;pointer-events:none;transition:opacity .45s ease}
 .veil.on{opacity:1}
@@ -470,7 +519,47 @@ body.full .mbar{display:flex;z-index:45}
 </style>
 </head>
 <body>
-
+<!-- icons: one line style (24 grid, 1.8 stroke), used by the buttons and the pins on the 3D -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M4 21V9l8-5 8 5v12M9 21v-6h6v6M3 21h18"/></symbol>
+    <symbol id="i-int" viewBox="0 0 24 24"><path d="M5 12V9a2 2 0 012-2h10a2 2 0 012 2v3"/><path d="M3 14a2 2 0 014 0v1h10v-1a2 2 0 014 0v4H3v-4zM6 18v2M18 18v2"/></symbol>
+    <symbol id="i-win" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M12 3v18M4 12h16"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-plan" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M3 12h8V3M11 12v9M15 12h6"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 119.5 4a6.5 6.5 0 0010.5 10.5z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-rotl" viewBox="0 0 24 24"><path d="M4 12a8 8 0 108-8H8"/><path d="M10 1L7 4l3 3"/></symbol>
+    <symbol id="i-rotr" viewBox="0 0 24 24"><path d="M20 12a8 8 0 11-8-8h4"/><path d="M14 1l3 3-3 3"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-orbit" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="4"/><path d="M12 4v16"/><path d="M19 9.5l2 2.5-2.5 1.5"/></symbol>
+    <symbol id="i-city" viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l4-2v13M9 21V5l6 3v13M15 21v-8l4 2v6"/></symbol>
+    <symbol id="i-area" viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+    <symbol id="i-complex" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></symbol>
+    <symbol id="i-house" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="1"/><path d="M9.5 7h1M13.5 7h1M9.5 11h1M13.5 11h1M9.5 15h1M13.5 15h1"/></symbol>
+    <symbol id="i-floor" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5M3 16.5l9 5 9-5"/></symbol>
+    <symbol id="i-flat" viewBox="0 0 24 24"><path d="M6 21V4a1 1 0 011-1h10a1 1 0 011 1v17M4 21h16"/><path d="M14.5 12v.5"/></symbol>
+    <symbol id="i-school" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5M22 9v6"/></symbol>
+    <symbol id="i-kids" viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M7 21v-4a5 5 0 0110 0v4"/><path d="M9 13l-3-2M15 13l3-2"/></symbol>
+    <symbol id="i-med" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></symbol>
+    <symbol id="i-shop" viewBox="0 0 24 24"><path d="M3 4h2l2.5 11h10L20 8H6.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></symbol>
+    <symbol id="i-sport" viewBox="0 0 24 24"><path d="M12 3l5 9h-3l4 7H6l4-7H7z"/><path d="M12 19v2"/></symbol>
+    <symbol id="i-river" viewBox="0 0 24 24"><path d="M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></symbol>
+    <symbol id="i-district" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-12a7 7 0 10-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-parking" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9.5 17V7h3.5a3 3 0 010 6H9.5"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/></symbol>
+  </defs>
+</svg>
 
 <div class="wrap">
 <div class="demo-bar">Демо-концепт <a href="https://3dryad.ru" target="_blank" rel="noopener">3dryad.ru</a><span class="lg"> для УДСД</span> · не официальный сайт<span class="lg"> застройщика</span> · <a href="../"><span class="lg">Коммерческое предложение</span><span class="sm">КП</span></a></div>
@@ -483,9 +572,9 @@ body.full .mbar{display:flex;z-index:45}
   <div id="pinMark" aria-hidden="true"></div>
   <div class="pin" id="pin">
   <div class="tabs" role="group" aria-label="Режим">
-    <button type="button" id="tExt" aria-pressed="true">Снаружи</button>
-    <button type="button" id="tInt" aria-pressed="false">3D-интерьер</button>
-    <button type="button" id="tWin" aria-pressed="false">Вид из окна</button>
+    <button type="button" id="tExt" aria-pressed="true"><svg class="ic"><use href="#i-ext"/></svg><span>Снаружи</span></button>
+    <button type="button" id="tInt" aria-pressed="false"><svg class="ic"><use href="#i-int"/></svg><span>Интерьер</span></button>
+    <button type="button" id="tWin" aria-pressed="false"><svg class="ic"><use href="#i-win"/></svg><span>Вид из окна</span></button>
   </div>
 
   <div class="stage" id="stage">
@@ -493,12 +582,13 @@ body.full .mbar{display:flex;z-index:45}
     <div class="veil" id="veil" aria-hidden="true"></div>
     <!-- view settings right on the 3D: grouped by what they change, only those of the current mode -->
     <div class="vpanel" id="vpanel" hidden role="dialog" aria-label="Настройки вида">
-      <div class="vp-head"><b>Настройки вида</b><button type="button" class="icobtn" id="vpClose" aria-label="Закрыть">✕</button></div>
+      <div class="vp-head"><b>Настройки вида</b><button type="button" class="icobtn" id="vpClose" aria-label="Закрыть"><svg class="ic"><use href="#i-close"/></svg></button></div>
       <div class="vgroup" data-vm="ext">
         <div class="row"><div class="lab">Выбранный дом</div><div class="chips" id="rHouse"></div></div>
         <div class="row"><div class="lab">Свободные квартиры</div><div class="chips" id="rLayer"></div></div>
         <div class="row" id="rowInner"><div class="lab">Наша квартира</div><div class="chips" id="rInner"></div></div>
         <div class="row"><div class="lab">Ракурс камеры</div><div class="chips" id="rExtView"></div></div>
+        <div class="row"><div class="lab">Рядом</div><div class="chips" id="rPoi"></div></div>
       </div>
       <div class="vgroup" data-vm="int">
         <div class="row"><div class="lab">Камера</div><div class="chips" id="rCam"></div></div>
@@ -513,13 +603,13 @@ body.full .mbar{display:flex;z-index:45}
     <div class="badge" id="badge" hidden></div>
     <!-- one row of tools at the top right: plan, day/evening (chips on wide screens, one toggle on phones), full screen -->
     <div class="tbar">
-      <button type="button" class="planbtn tourbtn" id="tourBtn" aria-label="Экскурсия по «Новелле»">▶<span class="lg"> Экскурсия</span></button>
-      <button type="button" class="planbtn" id="planBtn"><span class="lg">Схема квартиры</span><span class="sm">Схема</span></button>
+      <button type="button" class="planbtn tourbtn" id="tourBtn" aria-label="Экскурсия по «Новелле»" title="Экскурсия"><svg class="ic"><use href="#i-play"/></svg><span class="lg">Экскурсия</span></button>
+      <button type="button" class="icobtn" id="planBtn" aria-label="Схема квартиры" title="Схема квартиры"><svg class="ic"><use href="#i-plan"/></svg></button>
       <div class="chips tchips" id="rTime" role="group" aria-label="Освещение" hidden></div>
-      <button type="button" class="planbtn viewbtn" id="viewBtn" aria-expanded="false" aria-controls="vpanel" title="Настройки вида">◐<span class="lg"> Вид</span></button>
-      <button type="button" class="icobtn" id="timeBtn" aria-label="Включить вечер" title="День / вечер">☾</button>
-      <button type="button" class="planbtn viewbtn" id="infoBtn" aria-expanded="false" title="Квартира: цена, планировка, подбор">ⓘ<span class="lg"> Квартира</span></button>
-      <button type="button" class="icobtn" id="fullBtn" aria-label="Во весь экран" aria-pressed="false">⤢</button>
+      <button type="button" class="icobtn viewbtn" id="viewBtn" aria-expanded="false" aria-controls="vpanel" aria-label="Настройки вида" title="Настройки вида"><svg class="ic"><use href="#i-sliders"/></svg></button>
+      <button type="button" class="icobtn" id="timeBtn" aria-label="Включить вечер" title="День / вечер"><svg class="ic"><use href="#i-moon"/></svg></button>
+      <button type="button" class="planbtn viewbtn" id="infoBtn" aria-expanded="false" title="Квартира: цена, планировка, подбор"><svg class="ic"><use href="#i-info"/></svg><span class="lg">Квартира</span></button>
+      <button type="button" class="icobtn" id="fullBtn" aria-label="Во весь экран" aria-pressed="false"><svg class="ic"><use href="#i-expand"/></svg></button>
     </div>
     <div class="mini" id="mini" hidden></div>
     <!-- where you are: compass (north) and a map of the complex with the camera and its direction; tap a building on it to choose it -->
@@ -529,19 +619,19 @@ body.full .mbar{display:flex;z-index:45}
     </div>
     <!-- camera by buttons: tilt, turn, back to the view, zoom, slow turn by itself -->
     <div class="navpad" id="navpad" role="group" aria-label="Камера">
-      <span></span><button type="button" class="icobtn" id="nUp" aria-label="Посмотреть сверху" title="Выше">▲</button><span></span>
-      <button type="button" class="icobtn" id="nLeft" aria-label="Повернуть влево" title="Повернуть влево">⟲</button>
-      <button type="button" class="icobtn" id="nHome" aria-label="Вернуть вид" title="Вернуть вид">⌂</button>
-      <button type="button" class="icobtn" id="nRight" aria-label="Повернуть вправо" title="Повернуть вправо">⟳</button>
-      <span></span><button type="button" class="icobtn" id="nDown" aria-label="Посмотреть ниже" title="Ниже">▼</button><span></span>
-      <button type="button" class="icobtn" id="nZoomIn" aria-label="Приблизить" title="Приблизить">+</button>
-      <button type="button" class="icobtn nauto" id="nAuto" aria-label="Вращать" title="Вращать" aria-pressed="false">360</button>
-      <button type="button" class="icobtn" id="nZoomOut" aria-label="Отдалить" title="Отдалить">−</button>
+      <span></span><button type="button" class="icobtn" id="nUp" aria-label="Посмотреть сверху" title="Выше"><svg class="ic"><use href="#i-up"/></svg></button><span></span>
+      <button type="button" class="icobtn" id="nLeft" aria-label="Повернуть влево" title="Повернуть влево"><svg class="ic"><use href="#i-rotl"/></svg></button>
+      <button type="button" class="icobtn" id="nHome" aria-label="Вернуть вид" title="Вернуть вид"><svg class="ic"><use href="#i-home"/></svg></button>
+      <button type="button" class="icobtn" id="nRight" aria-label="Повернуть вправо" title="Повернуть вправо"><svg class="ic"><use href="#i-rotr"/></svg></button>
+      <span></span><button type="button" class="icobtn" id="nDown" aria-label="Посмотреть ниже" title="Ниже"><svg class="ic"><use href="#i-down"/></svg></button><span></span>
+      <button type="button" class="icobtn" id="nZoomIn" aria-label="Приблизить" title="Приблизить"><svg class="ic"><use href="#i-plus"/></svg></button>
+      <button type="button" class="icobtn nauto" id="nAuto" aria-label="Вращать вокруг" title="Вращать вокруг" aria-pressed="false"><svg class="ic"><use href="#i-orbit"/></svg></button>
+      <button type="button" class="icobtn" id="nZoomOut" aria-label="Отдалить" title="Отдалить"><svg class="ic"><use href="#i-minus"/></svg></button>
     </div>
     <!-- outside: the floors of the chosen building, top to bottom, a dot per apartment in its status colour (tap = that floor, cut open) -->
     <div class="stack" id="stack" role="group" aria-label="Этажи дома"></div>
     <!-- inside and at the window: straight back to the building -->
-    <button type="button" class="backbtn" id="backHouse">← К дому</button>
+    <button type="button" class="backbtn" id="backHouse" title="Вернуться к дому"><svg class="ic"><use href="#i-back"/></svg>К дому</button>
     <div class="hint" id="hint"></div>
     <!-- the main controls of each mode sit on the stage itself, so the 3D view stays in sight while switching -->
     <div class="dock" id="dock">
@@ -648,6 +738,8 @@ body.full .mbar{display:flex;z-index:45}
 <script src="vendor/OrbitControls.js"></script>
 <!-- outlines of Novy Urengoy from OpenStreetMap (tools/gen-city.js); without the file the quarter is shown alone -->
 <script src="city.js"></script>
+<!-- infrastructure near the complex from OpenStreetMap (tools/gen-city.js) -->
+<script src="pois.js"></script>
 <script>
 // sales data comes from data/apartments.json (later: a CRM adapter writes the same format); the scene starts once it is loaded.
 // Without the file (opened from disk, offline) the demo falls back to statuses and prices generated in code.
@@ -670,7 +762,7 @@ body.full .mbar{display:flex;z-index:45}
   const fmt = (n) => String(n).replace('.', ',');
 
   /* ---------- state ---------- */
-  const S = { mode: 'int', finish: 'design', cam: 'top', see: 'glass', walls: 'cut', inner: false, house: 'glass', extView: 'house', aptOpen: false, layer: 'free', sec: 0, apt: 'a', view: 'overview', style: 'scandi', time: 'day', floor: 8, win: 'living' };
+  const S = { mode: 'int', finish: 'design', cam: 'top', see: 'glass', walls: 'cut', inner: false, house: 'glass', extView: 'house', aptOpen: false, pk: -1, pkTab: 'car', stor: -1, layer: 'free', sec: 0, apt: 'a', view: 'overview', style: 'scandi', time: 'day', floor: 8, win: 'living' };
   const Q = new URLSearchParams(location.search);   // read before anything rewrites the address (see updateUrl)
   let urlReady = false;
   // apartment finder: rooms (0 = studio), top price in roubles, floor band, free only
@@ -992,7 +1084,7 @@ body.full .mbar{display:flex;z-index:45}
   const mRoad = new THREE.MeshLambertMaterial({ color: '#585d61' }), mPave = new THREE.MeshLambertMaterial({ color: '#c9c7c0' });
   const mGround = new THREE.MeshLambertMaterial({ color: '#9fae8a' }), mTree = new THREE.MeshLambertMaterial({ color: '#4d6f47' });
   // mStrip: glazed ground-floor gallery (shops) along the street side
-  const mStrip = new THREE.MeshLambertMaterial({ color: '#8ea6ae' }), mTrunk = new THREE.MeshLambertMaterial({ color: '#5a4636' });
+  const mStrip = new THREE.MeshLambertMaterial({ color: '#8ea6ae', emissive: '#ffc874', emissiveIntensity: 0 }), mTrunk = new THREE.MeshLambertMaterial({ color: '#5a4636' });
   const mPole = new THREE.MeshLambertMaterial({ color: '#4a5055' }), mLampHead = new THREE.MeshBasicMaterial({ color: '#d5d9da' });
   const poolTex = (function () {
     const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
@@ -1085,7 +1177,9 @@ body.full .mbar{display:flex;z-index:45}
   [[0, 0, 440, 24], [0, -104, 440, 24], [0, 104, 440, 24], [-62, -52, 24, 80], [62, -52, 24, 80], [0, 52, 24, 80], [-124, 52, 24, 80], [124, 52, 24, 80]]
     .forEach((s) => slab(s[0], s[1], s[2], s[3], 0.1, mRoad));
   let ownPart = null;
-  const treeSpots = [], tr = rngMake(23);
+  const treeSpots = [], tr = rngMake(23), yardTrees = [];
+  const ledSpots = [];   // evening: a warm light line under the roof of every section, one instanced mesh
+  const led = (x, y, z, sx, sz) => ledSpots.push([x, y, z, sx, sz]);
   QUARTERS.forEach((q, qi) => {
     const cx = q.cx, cz = q.cz, hx = QW / 2, hz = QD / 2;
     slab(cx, cz, QW + 10, QD + 10, 0.22, mPlot);
@@ -1113,6 +1207,7 @@ body.full .mbar{display:flex;z-index:45}
         const depth = WD + 0.3, outer = zc + dir * WD / 2;
         const strip = new THREE.Mesh(new THREE.BoxGeometry(ls - 0.1, 3.2, depth), mStrip);
         strip.position.set(xc, 1.6, outer + dir * (0.6 - depth / 2)); outside.add(strip);
+        led(xc, fl[k] * 3 - 0.35, outer + dir * 0.08, ls - 0.6, 0.12); led(xc, fl[k] * 3 - 0.35, zc - dir * (WD / 2 + 0.08), ls - 0.6, 0.12);
       }
     });
     const le = (QD - 2 * WD - GAP) / 2;
@@ -1120,6 +1215,7 @@ body.full .mbar{display:flex;z-index:45}
       for (let k = 0; k < 2; k++) {
         const zc = k === 0 ? cz - GAP / 2 - le / 2 : cz + GAP / 2 + le / 2;
         reg(box(wing[1], zc, WD, le, wing[0][k], wall2(k + wi + 1), title()), wing[1], zc, le, WD, false, wing[0][k], qi, false);
+        [-1, 1].forEach((sd) => led(wing[1] + sd * (WD / 2 + 0.08), wing[0][k] * 3 - 0.35, zc, 0.12, le - 0.6));
       }
     });
     let placed = 0, guard = 0;
@@ -1133,13 +1229,17 @@ body.full .mbar{display:flex;z-index:45}
     const l = box(-330, -30, 96, 36, 4, '#E1DED6', 'Арктический лицей', 15); l.userData.name = 'Арктический лицей';
     [[-310, 80, 28, 12], [-290, 94, 12, 18]].forEach((p) => { const k = box(p[0], p[1], p[2], p[3], 2, '#E4E5DE', 'Детский сад', 6); k.userData.name = 'Детский сад'; });
   }
+  const mLed = new THREE.MeshBasicMaterial({ color: '#ffd9a0' });
+  const ledMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.22, 1), mLed, ledSpots.length);
+  { const dm = new THREE.Object3D(); ledSpots.forEach((p, i) => { dm.position.set(p[0], p[1], p[2]); dm.scale.set(p[3], 1, p[4]); dm.updateMatrix(); ledMesh.setMatrixAt(i, dm.matrix); }); }
+  ledMesh.visible = false; outside.add(ledMesh);
   { // courtyard trees
     const n = treeSpots.length;
     const low = new THREE.InstancedMesh(new THREE.ConeGeometry(1.9, 4.6, 7).translate(0, 3.9, 0), mTree, n);
     const trunk = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.22, 0.3, 1.8, 5).translate(0, 0.9, 0), mTrunk, n);
     const dm = new THREE.Object3D();
     treeSpots.forEach((t, i) => { dm.position.set(t[0], 0.3, t[1]); dm.rotation.set(0, i, 0); dm.scale.setScalar(t[2]); dm.updateMatrix(); low.setMatrixAt(i, dm.matrix); trunk.setMatrixAt(i, dm.matrix); });
-    outside.add(low, trunk);
+    outside.add(low, trunk); yardTrees.push(low, trunk);   // the parking scheme over the yard hides them
   }
   { // street lamps and their light pools, lit in the evening
     const spots = [];
@@ -1321,6 +1421,31 @@ body.full .mbar{display:flex;z-index:45}
   const houseMat = new THREE.MeshLambertMaterial({ color: '#cdd5d7', transparent: true, opacity: 0.2, depthWrite: false });
   const selGlass = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), houseMat); selGlass.renderOrder = 2; extG.add(selGlass);
   const selEdges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1)), new THREE.LineBasicMaterial({ color: '#7f9299' })); extG.add(selEdges);
+  // the chosen building lit as a whole: a light blue shell with a bright outline around it (in every view but the floor cut)
+  const haloMat = new THREE.MeshBasicMaterial({ color: '#009ddc', transparent: true, opacity: 0.16, depthWrite: false });
+  const selHalo = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), haloMat); selHalo.renderOrder = 3; extG.add(selHalo);
+  const haloEdges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1)), new THREE.LineBasicMaterial({ color: '#0a8fd0' })); selHalo.add(haloEdges);
+
+  /* ---------- parking places and storage rooms (uds-d.ru: 127 places in the first stage, storage 3,1–8,1 м² on the ground floor).
+     Sample statuses and prices, like the flats, until the developer's data; the parking is shown as a scheme over the yard of quarter 2. ---------- */
+  const PK_N = 127, PK = [], STOR = [], FL_COL_PK = { free: '#8fd9b0', res: '#f4cf7e', sold: '#e9aaa6' };
+  for (let i = 0; i < PK_N; i++) { const r = hash('pk' + i), st = r < 0.48 ? 'sold' : r < 0.58 ? 'res' : 'free'; PK.push({ n: i + 1, st: st, under: i < 96, price: Math.round((i < 96 ? 1.45e6 : 0.65e6) * (0.95 + hash('pp' + i) * 0.12) / 1e4) * 1e4 }); }
+  for (let i = 0; i < 40; i++) { const r = hash('st' + i), a = Math.round((3.1 + hash('sa' + i) * 5) * 10) / 10; STOR.push({ n: i + 1, a: a, st: r < 0.45 ? 'sold' : r < 0.55 ? 'res' : 'free', price: Math.round(a * 92000 / 1e3) * 1e3 }); }
+  const pkG = new THREE.Group(); pkG.visible = false; extG.add(pkG);
+  const PK_W = 2.25, PK_D = 5.3, PK_ROWS = [-20.2, -14.9, 3.5, 8.8], PK_PER = 32;   // two double rows with an aisle each
+  const pkBase = new THREE.Mesh(new THREE.BoxGeometry(74, 0.25, 50), new THREE.MeshLambertMaterial({ color: '#5d6267' })); pkBase.position.set(0, 0.42, -52); pkG.add(pkBase);
+  const pkInst = new THREE.InstancedMesh(new THREE.BoxGeometry(PK_W - 0.35, 0.12, PK_D - 0.4), new THREE.MeshLambertMaterial({ color: '#ffffff' }), PK_N);
+  const pkPos = [];
+  { const dm = new THREE.Object3D(), col = new THREE.Color();
+    for (let i = 0; i < PK_N; i++) {
+      const row = Math.floor(i / PK_PER), k = i % PK_PER, x = -36 + PK_W * (k + 0.5), z = -52 + PK_ROWS[row] + PK_D / 2;
+      pkPos.push([x, z]); dm.position.set(x, 0.6, z); dm.updateMatrix(); pkInst.setMatrixAt(i, dm.matrix); pkInst.setColorAt(i, col.set(FL_COL_PK[PK[i].st]));
+    }
+    pkInst.instanceMatrix.needsUpdate = true; if (pkInst.instanceColor) pkInst.instanceColor.needsUpdate = true;
+  }
+  pkG.add(pkInst);
+  const pkSel = new THREE.Mesh(new THREE.BoxGeometry(PK_W - 0.1, 0.5, PK_D - 0.1), new THREE.MeshBasicMaterial({ color: '#007db6', transparent: true, opacity: 0.55, depthWrite: false })); pkSel.visible = false; pkG.add(pkSel);
+  function showPk(i) { S.pk = i; pkSel.visible = i >= 0; if (i >= 0) pkSel.position.set(pkPos[i][0], 0.75, pkPos[i][1]); wake(); }
   const cellG = new THREE.Group(); extG.add(cellG);
   const cellMats = {}; Object.keys(ST).forEach((k) => { cellMats[k] = new THREE.MeshBasicMaterial({ color: ST[k].c, transparent: true, opacity: k === 'sold' ? 0.3 : 0.55, depthWrite: false, side: THREE.DoubleSide }); });
   const aptMat = new THREE.MeshLambertMaterial({ color: '#f2a23a', emissive: '#7a4300' });
@@ -1357,9 +1482,11 @@ body.full .mbar{display:flex;z-index:45}
       aptEdges.geometry.dispose(); aptEdges.geometry = new THREE.EdgesGeometry(aptBox.geometry);
       selGlass.scale.set(sec.alongX ? sec.len : sec.depth, sec.floors * FLOOR_H, sec.alongX ? sec.depth : sec.len);
       selGlass.position.set(sec.cx, sec.floors * FLOOR_H / 2, sec.cz); selEdges.scale.copy(selGlass.scale); selEdges.position.copy(selGlass.position);
+      selHalo.scale.set(selGlass.scale.x + 1.6, selGlass.scale.y + (sec.gab ? 5 : 1.2), selGlass.scale.z + 1.6); selHalo.position.set(sec.cx, selHalo.scale.y / 2, sec.cz);
     }
     aptBox.position.set(ci.c.x - ci.n.x * t.D / 2, ci.y + 1.45, ci.c.z - ci.n.z * t.D / 2);
-    aptBox.visible = !(S.inner && isOwn()) && S.extView !== 'floor';
+    // the flat is lit only once one is chosen: at the building step the whole house speaks
+    aptBox.visible = !(S.inner && isOwn()) && S.extView !== 'floor' && (S.aptOpen || /^(yard|top|back)$/.test(S.extView));
     rebuildCells();
   }
   function syncSections() {
@@ -1372,7 +1499,10 @@ body.full .mbar{display:flex;z-index:45}
       sec.ov.visible = ext && (S.layer === 'free' || fltOn()) && !sel && S.extView !== 'house' && !fv;   // «Весь дом» and a floor: only the chosen building speaks
     });
     selGlass.visible = selEdges.visible = ext && S.house === 'glass' && !fv;
-    cellG.visible = ext && !fv;
+    selHalo.visible = ext && !fv && S.extView !== 'city' && S.extView !== 'parking';
+    pkG.visible = ext && S.extView === 'parking'; yardTrees.forEach((m) => { m.visible = !pkG.visible; });
+    haloMat.opacity = S.extView === 'all' || S.extView === 'area' ? 0.32 : 0.14;   // from afar the chosen house must stand out more
+    cellG.visible = ext && !fv && S.extView !== 'parking';
     rebuildFloor();
   }
 
@@ -1448,8 +1578,8 @@ body.full .mbar{display:flex;z-index:45}
       const pts = [new THREE.Vector3(nb.x0, 0.05, nb.z0), new THREE.Vector3(nb.x1, 0.05, nb.z0), new THREE.Vector3(nb.x1, 0.05, nb.z1), new THREE.Vector3(nb.x0, 0.05, nb.z1)];
       nbG.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: col })));
       const t = TYPES[nb.l], lw = Math.min(w - 0.4, 5.2);
-      const lab = new THREE.Mesh(new THREE.PlaneGeometry(lw, lw / 2).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: labelTex('Кв. ' + t.n + ' · ' + t.short, fmt(t.area) + ' м² · ' + ST[st].t.toLowerCase()), transparent: true, depthWrite: false }));
-      lab.position.set(cx, 0.06, cz); nbG.add(lab);
+      const lab = new THREE.Mesh(new THREE.PlaneGeometry(lw, lw / 2).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: labelTex(t.short, fmt(t.area) + ' м²'), transparent: true, depthWrite: false }));
+      lab.position.set(cx, 0.06, cz); lab.userData.lab = true; lab.visible = S.mode !== 'ext'; nbG.add(lab);   // outside the flat number is an HTML label already
     });
   }
 
@@ -1507,10 +1637,8 @@ body.full .mbar{display:flex;z-index:45}
     pill([['Лестница'], ['незадымляемая', 0.28]], 13.95, 11.9, 1.75);
     text('коридор', 5.5, 7.1, 0.32, MUT, 500, 4); text('коридор', 19, 7.3, 0.32, MUT, 500, 4);
     text('вход', 11.55, 4.65, 0.24, ACC, 600, 1); text('вход', 14.45, 4.5, 0.24, ACC, 600, 1); text('вход', 9.85, 7.95, 0.24, ACC, 600, 1); text('вход', 16.45, 8.35, 0.24, ACC, 600, 1);
-    g.fillStyle = 'rgba(255,255,255,0.9)'; g.beginPath(); g.rect(P(5.25), P(14.6), P(15.5), P(2.8)); g.fill(); seg(13, 14.1, 13, 14.6, 0.05, ACC);
-    text('Лифтовый узел — типовое решение', 13, 15.15, 0.62, INK, 600, 15);
-    text('лестница, 2 лифта (один для пожарных), холл, тамбур', 13, 15.95, 0.44, MUT, 500, 15);
-    text('условно: уточним по поэтажным планам УДСД', 13, 16.7, 0.44, MUT, 500, 15);
+    g.fillStyle = 'rgba(255,255,255,0.9)'; g.beginPath(); g.rect(P(7.25), P(14.6), P(11.5), P(1.3)); g.fill(); seg(13, 14.1, 13, 14.6, 0.05, ACC);
+    text('Лифтовый узел · типовой, условно', 13, 15.25, 0.52, INK, 600, 11);
     const tex = new THREE.CanvasTexture(c); tex.anisotropy = 4;
     const m = new THREE.Mesh(new THREE.PlaneGeometry(CW, CD).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, alphaTest: 0.02 }));
     m.position.set(CW / 2, 0.04, CD / 2); m.visible = false; root.add(m); return m;
@@ -1549,6 +1677,7 @@ body.full .mbar{display:flex;z-index:45}
     mLawn.color.set(day ? '#8fa583' : '#3a4a3a'); mPlot.color.set(day ? '#b9bdb7' : '#4a4f4e'); mPave.color.set(day ? '#c9c7c0' : '#575a58');
     mTree.color.set(day ? '#4d6f47' : '#223225'); mRoof.color.set(day ? '#8c9193' : '#3c4144');
     Object.keys(facadeCache).forEach((k) => { facadeCache[k].color.set(day ? '#ffffff' : '#6f7b94'); facadeCache[k].emissiveIntensity = day ? 0 : 1; });
+    mStrip.emissiveIntensity = day ? 0 : 0.85; ledMesh.visible = !day;   // shop windows and the roof lines light up in the evening
     mLampHead.color.set(day ? '#d5d9da' : '#ffe3a8'); mPool.visible = !day; aptMat.emissive.set(day ? '#7a4300' : '#d98a1f');
   }
 
@@ -1664,6 +1793,8 @@ body.full .mbar{display:flex;z-index:45}
     // the neighbourhood: over the quarters towards the nearest districts of the northern part of the city (south-east)
     if (S.extView === 'area') { flyTo([-800, 620, -950], [650, 0, 550], instant); return; }
     if (S.extView === 'all') { flyTo([0, 420, 270], [0, 0, 0], instant); return; }
+    // parking and storage: the scheme over the yard of quarter 2, seen from above
+    if (S.extView === 'parking') { updateFov(); const t2 = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2), R = Math.max(62 / t2, 84 / (t2 * Math.min(camera.aspect, 1.6))) * (camera.aspect > 1 ? 1.45 : 1.1); flyTo([0, R * 0.94, -52 + R * 0.34], [0, 0, -52], instant); return; }
     // the chosen building as a whole: its facade on the side of the chosen apartment fills the screen, every flat on it pickable
     if (S.extView === 'house') {
       updateFov();
@@ -1780,6 +1911,7 @@ body.full .mbar{display:flex;z-index:45}
   function chip(parent, text, test, fn, opt) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (opt && opt.cls ? ' ' + opt.cls : '');
     if (opt && opt.dots) { const s = document.createElement('span'); s.className = 'dots'; opt.dots.forEach((c) => { const i = document.createElement('i'); i.style.background = c; s.appendChild(i); }); b.appendChild(s); }
+    if (opt && opt.icon) b.insertAdjacentHTML('beforeend', '<svg class="ic"><use href="#i-' + opt.icon + '"/></svg>');
     if (opt && opt.short) {   // a shorter label for phones (.lg / .sm switch at the 640px breakpoint)
       const l = document.createElement('span'); l.className = 'lg'; l.textContent = text; const s = document.createElement('span'); s.className = 'sm'; s.textContent = opt.short;
       b.appendChild(l); b.appendChild(s);
@@ -1807,16 +1939,16 @@ body.full .mbar{display:flex;z-index:45}
   wallChips.push([chip($('rMode'), 'Сплошные', () => S.see === 'solid', () => { S.see = 'solid'; refresh(true); }), 'walk']);
   // the view settings used to hide behind the «Вид» button: now each mode shows its own rows right on the stage, in the dock
   const dockFirst = $('dock').firstChild;
-  [['rHouse', 'ext', 'Дом'], ['rLayer', 'ext', 'Свободные'], ['rowInner', 'ext', 'Наша квартира'], ['rExtView', 'ext', 'Ракурс'], ['rowStyle', 'int', 'Стиль']].forEach((d) => {
+  [['rPoi', 'ext', 'Рядом'], ['rHouse', 'ext', 'Дом'], ['rLayer', 'ext', 'Свободные'], ['rowInner', 'ext', 'Наша квартира'], ['rExtView', 'ext', 'Ракурс'], ['rowStyle', 'int', 'Стиль']].forEach((d) => {
     const el = $(d[0]); const row = el.classList.contains('row') ? el : el.parentNode;
     const lab = row.querySelector('.lab'); if (lab) { lab.textContent = d[2]; lab.className = 'dlab'; }
     row.className = 'chips dockrow'; row.dataset.m = d[1];
     if (!row.id) row.id = d[0] + 'Row';
     $('dock').insertBefore(row, dockFirst);
   });
-  ['rHouseRow', 'rLayerRow', 'rowInner', 'rExtViewRow', 'rowStyle'].forEach((id) => { const r = $(id); if (r) r.classList.add('sec'); });
+  ['rPoiRow', 'rHouseRow', 'rLayerRow', 'rowInner', 'rExtViewRow', 'rowStyle'].forEach((id) => { const r = $(id); if (r) r.classList.add('sec'); });
   ['rFinish', 'rApt'].forEach((id) => { $(id).classList.add('sec'); });
-  $('viewBtn').title = 'Все настройки вида'; $('viewBtn').innerHTML = '⚙<span class="lg"> Вид</span>';
+  $('viewBtn').title = 'Все настройки вида';
   $('viewBtn').addEventListener('click', (e) => { e.stopImmediatePropagation(); const on = document.body.classList.toggle('moreview'); $('viewBtn').setAttribute('aria-expanded', on ? 'true' : 'false'); resize(); }, true);
   $('infoBtn').addEventListener('click', () => { const on = document.body.classList.toggle('infoopen'); $('infoBtn').setAttribute('aria-expanded', on ? 'true' : 'false'); });
   const sheetX = document.createElement('button'); sheetX.type = 'button'; sheetX.className = 'icobtn sheetx'; sheetX.setAttribute('aria-label', 'Закрыть'); sheetX.textContent = '✕';
@@ -1861,6 +1993,7 @@ body.full .mbar{display:flex;z-index:45}
     const r = cv.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
     if (S.extView === 'floor') { const fh = ray.intersectObjects(floorG.children, false).find((h) => h.object.userData.l); if (fh) { openApt(fh.object.userData.l); return; } }
+    if (S.extView === 'parking') { const ph = ray.intersectObject(pkInst, false)[0]; if (ph) { S.pkTab = 'car'; showPk(ph.instanceId); refresh(true); } return; }
     const cells = ray.intersectObjects(cellG.children, false)[0];
     const hs = ray.intersectObjects(pickList.filter((m) => m.visible), false)[0];
     if (cells && (!hs || cells.distance < hs.distance + 1)) { selectApt(cells.object.userData.f, cells.object.userData.l); return; }
@@ -1871,18 +2004,13 @@ body.full .mbar{display:flex;z-index:45}
   const geoEl = $('geo');
   const GEO = [
     { t: 'ул. Мира', k: 'street', x: 150, z: -104 }, { t: 'ул. Мира', k: 'street', x: -150, z: -104 },
-    { t: 'Центральный проезд', k: 'street', x: 150, z: 0 }, { t: 'Центральный проезд', k: 'street', x: -150, z: 0 },
-    { t: 'Южный проезд', k: 'street', x: 110, z: 104 }, { t: 'Южный проезд', k: 'street', x: -110, z: 104 },
-    { t: 'Поперечный проезд', k: 'street', x: -62, z: -52 }, { t: 'Поперечный проезд', k: 'street', x: 62, z: -52 },
-    { t: 'Арктический лицей', k: 'place', x: -330, z: -30, y: 17 }, { t: 'Детский сад', k: 'place', x: -310, z: 80, y: 9 },
-    { t: 'Детский сад «Новеллы» (в проекте)', k: 'place', x: 178, z: 52, y: 4 },
-    { t: 'Парковка', k: 'street', x: 0, z: -135 }, { t: 'Стадион лицея', k: 'street', x: -330, z: 32 }, { t: 'Тундра', k: 'street', x: -650, z: 150 }, { t: 'Лесотундра', k: 'street', x: -700, z: -330 }
+    { t: 'Детсад (проект)', k: 'place', ic: 'kids', x: 178, z: 52, y: 4 },
   ];
-  QUARTERS.forEach((q, i) => GEO.push({ t: 'Квартал ' + (i + 1), k: 'place', x: q.cx, z: q.cz, y: 4 }));
+  QUARTERS.forEach((q, i) => GEO.push({ t: String(i + 1), k: 'qnum', x: q.cx, z: q.cz, y: 4 }));   // quarter numbers only, no words
   SECTIONS.forEach((sec) => GEO.push({ t: '', k: 'sec', sec: sec, x: sec.cx, z: sec.cz, y: sec.floors * FLOOR_H + 2 }));
-  LAKES.slice(0, 3).forEach((L) => GEO.push({ t: 'Озеро', k: 'street', x: L[0], z: L[1] }));
+  // schematic lakes stay unnamed
   // the city: district names (OpenStreetMap), the two parts of the city, our complex as a landmark on the city map
-  DISTRICTS.forEach((D) => GEO.push({ t: D.n.replace(/^микрорайон /, 'мкр ').replace(/^квартал /, 'кв-л '), k: 'dist', x: D.c[0], z: D.c[1], y: 8 }));
+  DISTRICTS.forEach((D) => GEO.push({ t: D.n.replace(/^микрорайон |^квартал |^посёлок /, ''), tt: D.n, k: 'dist', x: D.c[0], z: D.c[1], y: 8 }));
   if (CITY) CITY.parts.forEach((pt, i) => {   // part names outside their outlines: the northern part above it, the southern part below
     const p = ring2(pt[1]), zs = p.map((q) => q[1]);
     GEO.push({ t: pt[0], k: 'part', x: p.reduce((a, q) => a + q[0], 0) / p.length, z: i === 0 ? Math.min(...zs) - 350 : Math.max(...zs) + 350, y: 20 });
@@ -1892,12 +2020,22 @@ body.full .mbar{display:flex;z-index:45}
   // far labels: real districts and city parts (OpenStreetMap) and the rivers at their nearest point, nearest first
   const kmTxt = (m) => (m < 1000 ? Math.round(m / 50) * 50 + ' м' : (m / 1000).toFixed(1).replace('.', ',') + ' км');
   const FAR = [];
-  DISTRICTS.forEach((D) => { const m = Math.hypot(D.c[0], D.c[1]); if (m > 450) FAR.push({ k: 'far', x: D.c[0], z: D.c[1], km: m, t: D.n.replace(/^микрорайон /, 'мкр ').replace(/^квартал /, 'кв-л ') + ' · ' + kmTxt(m) }); });
+  // short names on the 3D (an icon says what it is), the full name and the distance in the hover / tap hint
+  const shortName = (n) => n.replace(/^микрорайон |^квартал |^посёлок /, '').replace(/^(\d+)-й микрорайон$/, '$1-й мкр');
+  DISTRICTS.forEach((D) => { const m = Math.hypot(D.c[0], D.c[1]); if (m > 450) FAR.push({ k: 'far', ic: 'district', x: D.c[0], z: D.c[1], km: m, t: shortName(D.n), tt: D.n + ' · ' + kmTxt(m) }); });
   if (CITY) {
-    CITY.parts.forEach((pt) => { const p = ring2(pt[1]), x = p.reduce((a, q) => a + q[0], 0) / p.length, z = p.reduce((a, q) => a + q[1], 0) / p.length, m = Math.hypot(x, z); if (m > 1500) FAR.push({ k: 'far', x: x, z: z, km: m, t: pt[0].replace('Новый Уренгой · ', '') + ' · ' + kmTxt(m) }); });
-    CITY.rivers.forEach((rv) => { let best = null; rv[1].forEach((f) => { for (let i = 0; i < f.length; i += 2) { const m = Math.hypot(f[i], f[i + 1]); if (!best || m < best.km) best = { x: f[i], z: f[i + 1], km: m }; } }); if (best) FAR.push({ k: 'far', x: best.x, z: best.z, km: best.km, t: 'р. ' + rv[0] + ' · ' + kmTxt(best.km) }); });
+    CITY.parts.forEach((pt) => { const p = ring2(pt[1]), x = p.reduce((a, q) => a + q[0], 0) / p.length, z = p.reduce((a, q) => a + q[1], 0) / p.length, m = Math.hypot(x, z); if (m > 1500) FAR.push({ k: 'far', ic: 'city', x: x, z: z, km: m, t: pt[0].replace('Новый Уренгой · ', '').replace(' часть', ''), tt: pt[0] + ' · ' + kmTxt(m) }); });
+    CITY.rivers.forEach((rv) => { let best = null; rv[1].forEach((f) => { for (let i = 0; i < f.length; i += 2) { const m = Math.hypot(f[i], f[i + 1]); if (!best || m < best.km) best = { x: f[i], z: f[i + 1], km: m }; } }); if (best) FAR.push({ k: 'far', ic: 'river', x: best.x, z: best.z, km: best.km, t: rv[0], tt: 'Река ' + rv[0] + ' · ' + kmTxt(best.km) }); });
   }
   FAR.sort((a, b) => a.km - b.km);
+  // the developer's other complex «Атмосфера» (мкр Созидателей): a marker on the city map, «скоро в 3D» on tap
+  const atmD = DISTRICTS.find((D) => /Созидател/.test(D.n));
+  const ATM = atmD ? { k: 'atm', ic: 'complex', t: 'Атмосфера', x: atmD.c[0], z: atmD.c[1], y: 30, tt: 'ЖК «Атмосфера» · мкр Созидателей · ' + kmTxt(Math.hypot(atmD.c[0], atmD.c[1])) + ' — скоро в 3D' } : null;
+  // infrastructure from OpenStreetMap (demo/pois.js): a round icon on the 3D; name and distance on hover or tap
+  const POI_KIND = { school: 'Школы', kids: 'Детсады', med: 'Медицина', shop: 'Магазины', sport: 'Спорт, парки' };
+  const POI = (window.POIS || []).map((p) => ({ k: 'poi', ic: p[0], kind: p[0], t: '', x: p[2], z: p[3], km: p[4], tt: p[1] + ' · ' + kmTxt(p[4]) }));
+  const POI_ON = new Set(['school', 'kids', 'med']);   // shops are many: off at start
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   function updateGeo() {
     const on = S.mode === 'ext'; geoEl.hidden = !on; if (!on) return;
     const w = stageEl.clientWidth, h = stageEl.clientHeight, cp = camera.position, items = [], city = S.extView === 'city', wide = city || S.extView === 'area' || S.extView === 'all';
@@ -1905,7 +2043,7 @@ body.full .mbar{display:flex;z-index:45}
       const sec = SECTIONS[S.sec];
       LETTERS.forEach((l) => {
         const ci = cellInfo(sec, l, S.floor); gv.set(ci.c.x - ci.n.x * ci.t.D / 2, ci.y + (sec.own ? 2.9 : 1.6), ci.c.z - ci.n.z * ci.t.D / 2).project(camera);
-        if (gv.z < 1) items.push({ g: { k: 'aptl', l: l, t: '№ ' + aptNum(sec.i, S.floor, l) }, d: -5, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h });
+        if (gv.z < 1) items.push({ g: { k: 'aptl', l: l, t: String(aptNum(sec.i, S.floor, l)), tt: 'Квартира № ' + aptNum(sec.i, S.floor, l) + ' · ' + TYPES[l].short + ' · ' + ST[status(sec.i, S.floor, l)].t }, d: -5, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h });
       });
     }
     // what is out there in the distance: districts, parts of the city, rivers — named with the distance from the complex
@@ -1920,10 +2058,19 @@ body.full .mbar{display:flex;z-index:45}
         const sx = (dx * 0.5 + 0.5) * w, sy = (dy * 0.5 + 0.5) * h;
         if (!behind && sx > x0 && sx < x1 && sy > y0 && sy < y1) { if (nIn++ < 6) items.push({ g: g, d: 1e5 + g.km, sx: sx, sy: sy }); return; }
         let ux = sx - cx, uy = sy - cy; const L = Math.hypot(ux, uy) || 1; ux /= L; uy /= L;
-        const a = Math.atan2(uy, ux); if (dirs.length >= 6 || dirs.some((q) => Math.abs(Math.atan2(Math.sin(a - q), Math.cos(a - q))) < 0.5)) return; dirs.push(a);
+        const a = Math.atan2(uy, ux); if (dirs.length >= (nl ? 2 : 6) || dirs.some((q) => Math.abs(Math.atan2(Math.sin(a - q), Math.cos(a - q))) < 0.5)) return; dirs.push(a);
         const t = Math.min(ux ? ((ux > 0 ? x1 : x0) - cx) / ux : 1e9, uy ? ((uy > 0 ? y1 : y0) - cy) / uy : 1e9);
         const oct = ((Math.round(a / (Math.PI / 4)) % 8) + 8) % 8;
-        items.push({ g: { k: 'far', t: ARW[oct] + ' ' + g.t }, d: 2e5 + g.km, sx: cx + ux * t, sy: cy + uy * t });
+        items.push({ g: { k: 'far', ic: g.ic, t: ARW[oct] + ' ' + g.t, tt: g.tt }, d: 2e5 + g.km, sx: cx + ux * t, sy: cy + uy * t });
+      });
+    }
+    // infrastructure pins: in the views around the complex, nearest first, the kinds switched on in «Вид»
+    if (/^(house|yard|top|back|all|area)$/.test(S.extView) && POI_ON.size) {
+      let np = 0; const lim = S.extView === 'area' ? 40 : 22;
+      POI.forEach((g) => {
+        if (np >= lim || !POI_ON.has(g.kind)) return;
+        gv.set(g.x, 6, g.z).project(camera); if (gv.z > 1 || Math.abs(gv.x) > 0.97 || Math.abs(gv.y) > 0.97) return;
+        np++; items.push({ g: g, d: 3e4 + g.km, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h });
       });
     }
     GEO.forEach((g) => {
@@ -1932,15 +2079,16 @@ body.full .mbar{display:flex;z-index:45}
       if (city ? !/^(dist|part|novella)$/.test(g.k) : g.k === 'part' || g.k === 'novella') return;   // the city map shows only the city's names
       if (g.k === 'dist' && !wide) return;
       if (g.k === 'sec' && ((S.layer !== 'free' && !fltOn()) || S.extView === 'house' || g.sec.i === S.sec || !(fltOn() ? g.sec.match : g.sec.free) || S.extView === 'area')) return;
-      if (S.extView === 'area' && g.k === 'street' && !/Тундра|Озеро|ул\. Мира/.test(g.t)) return;
-      if (S.extView === 'area' && /Квартал [1345]|Детский|Стадион/.test(g.t)) return;
+      if (g.k === 'qnum' && S.extView !== 'all') return;   // quarter numbers only over the whole complex
+      if (S.extView === 'parking' && g.k !== 'street') return;
       gv.set(g.x, g.y || 0.6, g.z).project(camera); if (gv.z > 1 || Math.abs(gv.x) > 1.05 || Math.abs(gv.y) > 1.05) return;
       const d = g.k === 'part' || g.k === 'novella' ? -2 : Math.hypot(g.x - cp.x, (g.y || 0) - cp.y, g.z - cp.z);
       items.push({ g: g, d: d, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h });
     });
-    if (isOwn() && S.extView !== 'area' && S.extView !== 'floor' && !city) {   // name the apartment we built, so it is not confused with the others
+    if (ATM && (city || S.extView === 'area')) { gv.set(ATM.x, ATM.y, ATM.z).project(camera); if (gv.z < 1 && Math.abs(gv.x) < 1 && Math.abs(gv.y) < 1) items.push({ g: ATM, d: -3, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h }); }
+    if (isOwn() && S.extView !== 'area' && S.extView !== 'floor' && S.extView !== 'parking' && !city) {   // name the apartment we built, so it is not confused with the others
       gv.copy(aptBox.position); gv.y += 2.2; gv.project(camera);
-      if (gv.z < 1) items.push({ g: { k: 'own', t: 'Наша кв. А · 3D-интерьер' }, d: -1, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h - 14 });
+      if (gv.z < 1) items.push({ g: { k: 'own', ic: 'star', t: 'А', tt: 'Квартира А — есть 3D-интерьер и вид из окна' }, d: -1, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h - 14 });
     }
     items.sort((a, b) => a.d - b.d);
     const max = city ? 44 : 34; let ns = 0; const shown = items.filter((it) => it.g.k !== 'sec' || ++ns <= (S.extView === 'all' ? 12 : 8)).slice(0, max);
@@ -1948,13 +2096,16 @@ body.full .mbar{display:flex;z-index:45}
     const placed = [];   // in the wide views a label that would cover one already placed is skipped (nearest and city names go first)
     geoDom.forEach((d, i) => {
       const it = shown[i]; if (!it) { d.style.display = 'none'; return; }
-      const g = it.g, txt = g.k === 'sec' ? (fltOn() ? g.sec.match + ' подх.' : g.sec.free + ' своб.') : g.t;
-      const cls = 'gl ' + (/^(sec|street|own|dist|part|novella|aptl|far)$/.test(g.k) ? g.k : '') + (g.k === 'aptl' && S.aptOpen && g.l === S.apt ? ' on' : '');
-      d.style.display = ''; let ch = !d._w; if (d.className !== cls) { d.className = cls; ch = true; } if (d.textContent !== txt) { d.textContent = txt; ch = true; }
+      const g = it.g, txt = g.k === 'sec' ? String(fltOn() ? g.sec.match : g.sec.free) : g.t;
+      const cls = 'gl ' + (/^(sec|street|own|dist|part|novella|aptl|far|poi|qnum|atm)$/.test(g.k) ? g.k : '') + (g.k === 'poi' ? ' p-' + g.kind : '') + (g.k === 'aptl' && S.aptOpen && g.l === S.apt ? ' on' : '');
+      const html = (g.ic ? '<svg class="ic"><use href="#i-' + g.ic + '"/></svg>' : '') + (txt ? '<span>' + esc(txt) + '</span>' : '');
+      d.style.display = ''; let ch = !d._w; if (d.className !== cls) { d.className = cls; ch = true; } if (d._html !== html) { d.innerHTML = html; d._html = html; ch = true; }
+      d.title = g.tt || (g.k === 'sec' ? (fltOn() ? 'Подходит по подбору: ' : 'Свободно квартир: ') + txt : '');
       if (ch) { d._w = d.offsetWidth; d._h = d.offsetHeight; }   // size is measured only when the label changes
       const bw = d._w, bh = d._h;
       let x = it.sx - bw / 2, y = it.sy - bh / 2;
       if (g.k === 'far') { x = clamp(x, narrow() ? 118 : 136, w - bw - (narrow() ? 118 : 146)); y = clamp(y, 52, h - bh - dockEl.offsetHeight - 6); }   // clear of the floor column and the camera pad   // edge labels stay whole inside the stage
+      else if (x < 2 || x + bw > w - 2) { d.style.display = 'none'; return; }   // a name cut by the stage edge is dropped
       if (placed.some((p) => x < p[0] + p[2] + 2 && x + bw + 2 > p[0] && y < p[1] + p[3] + 1 && y + bh + 1 > p[1])) { d.style.display = 'none'; return; }
       placed.push([x, y, bw, bh]);
       d.dataset.sec = g.k === 'sec' ? g.sec.i : ''; d.dataset.l = g.k === 'aptl' ? g.l : '';
@@ -1962,7 +2113,18 @@ body.full .mbar{display:flex;z-index:45}
       d.style.transform = 'translate(' + x.toFixed(0) + 'px,' + y.toFixed(0) + 'px)';
     });
   }
+  // what nearby to show: one icon chip per kind, each toggles
+  Object.keys(POI_KIND).forEach((k) => chip($('rPoi'), POI_KIND[k], () => POI_ON.has(k), () => { if (POI_ON.has(k)) POI_ON.delete(k); else POI_ON.add(k); refresh(true); }, { icon: k, cls: 'poichip p-' + k }));
+  // a tap on an icon (phone) shows what it is, like the hover hint on a computer
+  let geoTipT = 0;
+  function geoTip(el) {
+    const t = $('tip'), r = el.getBoundingClientRect(); t.textContent = el.title; t.hidden = false;
+    t.style.transform = 'translate(' + Math.round(clamp(r.left, 8, innerWidth - t.offsetWidth - 8)) + 'px,' + Math.round(r.bottom + 6) + 'px)';
+    clearTimeout(geoTipT); geoTipT = setTimeout(() => { t.hidden = true; }, 2600);
+  }
   geoEl.addEventListener('click', (e) => {
+    if (e.target.closest('.atm')) { atmDlg(); return; }
+    const p = e.target.closest('.poi,.far,.own'); if (p && p.title) { geoTip(p); return; }
     const a = e.target.closest('.aptl'); if (a && a.dataset.l) { openApt(a.dataset.l); return; }
     const t = e.target.closest('.sec'); if (t && t.dataset.sec !== '') selectSection(+t.dataset.sec);
   });
@@ -2095,7 +2257,7 @@ body.full .mbar{display:flex;z-index:45}
     const on = isFav(curApt()), mf = $('mFav'); mf.textContent = on ? '♥' : '♡'; mf.setAttribute('aria-pressed', on ? 'true' : 'false'); mf.setAttribute('aria-label', on ? 'Убрать из избранного' : 'В избранное');
   }
   function decorateCard() {   // heart next to the title, a clear request button under the facts
-    if (S.mode === 'ext' && !(S.aptOpen || /^(yard|top|back)$/.test(S.extView))) return;   // the building and floor steps have no single flat yet
+    if (S.mode === 'ext' && (S.extView === 'parking' || !(S.aptOpen || /^(yard|top|back)$/.test(S.extView)))) return;   // the building and floor steps have no single flat yet
     const card = $('card'), h = card.querySelector('h2'); if (!h) return;
     const head = document.createElement('div'); head.className = 'cardhead'; h.parentNode.insertBefore(head, h); head.appendChild(h);
     const on = isFav(curApt()), fb = document.createElement('button'); fb.type = 'button'; fb.className = 'favbtn'; fb.textContent = on ? '♥' : '♡';
@@ -2233,13 +2395,13 @@ body.full .mbar{display:flex;z-index:45}
   }
 
   /* ---------- steps along the bottom of the stage: Город · Район · Комплекс · Дом · Этаж · Квартира ---------- */
-  const STEP = [['Город', 'city'], ['Район', 'area'], ['Комплекс', 'all', 'ЖК'], ['Дом', 'house'], ['Этаж', 'floor'], ['Квартира', 'apt', 'Кв.']];
-  const stepOf = () => (S.aptOpen ? 'apt' : /^(yard|top|back)$/.test(S.extView) ? 'apt' : S.extView);
+  const STEP = [['Город', 'city', 'Город', 'city'], ['Район', 'area', 'Район', 'area'], ['Комплекс', 'all', 'ЖК', 'complex'], ['Дом', 'house', 'Дом', 'house'], ['Этаж', 'floor', 'Этаж', 'floor'], ['Квартира', 'apt', 'Кв.', 'flat'], ['Паркинг', 'parking', 'Паркинг', 'parking']];
+  const stepOf = () => (S.extView === 'parking' ? 'parking' : S.aptOpen ? 'apt' : /^(yard|top|back)$/.test(S.extView) ? 'apt' : S.extView);
   STEP.forEach((s) => chip($('rSteps'), s[0], () => S.mode === 'ext' && stepOf() === s[1], () => {
     if (s[1] === 'house') goHouse(); else if (s[1] === 'floor') goFloor(S.floor);
     else if (s[1] === 'apt') { S.aptOpen = true; if (S.extView === 'all' || S.extView === 'area' || S.extView === 'city') S.extView = 'house'; goExt(S.extView); }
     else { S.aptOpen = false; goExt(s[1]); }
-  }, s[2] ? { short: s[2] } : undefined));
+  }, { short: s[2], icon: s[3] }));
   sync.push(() => { $('planBtn').hidden = S.mode === 'ext'; });
   // «360°»: the building turns by itself (sales office screen); any touch of the 3D stops it
   const nAuto = $('nAuto');
@@ -2300,7 +2462,7 @@ body.full .mbar{display:flex;z-index:45}
   // phones: one round day/evening toggle instead of two chips; it shows what a tap switches to
   const timeBtn = $('timeBtn');
   timeBtn.addEventListener('click', () => { S.time = S.time === 'day' ? 'eve' : 'day'; refresh(); });
-  sync.push(() => { const eve = S.time === 'eve'; timeBtn.textContent = eve ? '☀' : '☾'; timeBtn.setAttribute('aria-label', eve ? 'Включить день' : 'Включить вечер'); });
+  sync.push(() => { const eve = S.time === 'eve'; timeBtn.innerHTML = '<svg class="ic"><use href="#i-' + (eve ? 'sun' : 'moon') + '"/></svg>'; timeBtn.setAttribute('aria-label', eve ? 'Включить день' : 'Включить вечер'); });
   // phones: the dock leaves the stage and sits right under it, so it never covers the 3D (full screen puts it back over the scene)
   const phoneMQ = matchMedia('(max-width:640px)');
   function placeDock() {
@@ -2315,7 +2477,7 @@ body.full .mbar{display:flex;z-index:45}
   const fullBtn = $('fullBtn');
   function setFull(on) {
     document.body.classList.toggle('full', on); placeDock(); fullBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    fullBtn.textContent = on ? '✕' : '⤢'; fullBtn.setAttribute('aria-label', on ? 'Выйти из полноэкранного режима' : 'Во весь экран');
+    fullBtn.innerHTML = '<svg class="ic"><use href="#i-' + (on ? 'close' : 'expand') + '"/></svg>'; fullBtn.setAttribute('aria-label', on ? 'Выйти из полноэкранного режима' : 'Во весь экран');
     resize(); refresh(true);
     // the stage changed its size: frame the current view again
     if (S.mode === 'int') enterInterior(true); else if (S.mode === 'ext') flyExt(true);
@@ -2340,6 +2502,12 @@ body.full .mbar{display:flex;z-index:45}
     $('devWhat').textContent = (mode === 'win' ? 'Вид из окна' : '3D-интерьер') + ' для кв. ' + t.n + ' (' + secName(sec).toLowerCase() + ', этаж ' + S.floor + ') — в разработке. Сейчас внутри прорисована квартира А: 3 комнаты, 72,6 м², квартал 2, секция 2, этаж 8.';
     $('devGo').textContent = mode === 'win' ? 'Вид из окна квартиры А' : 'Открыть квартиру А в 3D';
     $('devGo').onclick = () => { $('dev').hidden = true; S.sec = towerSec.i; S.apt = 'a'; S.floor = 8; S.inner = false; placeOutside(); if (mode === 'win') enterWindow(); else enterInterior(true); refresh(true); };
+    $('dev').hidden = false;
+  }
+  function atmDlg() {
+    $('devWhat').textContent = 'ЖК «Атмосфера» (мкр Созидателей) — скоро в 3D. Его можно собрать в этом же сервисе: выбор квартир на фасаде, планы этажей, интерьеры и вид из окна.';
+    $('devGo').textContent = 'К «Новелле»';
+    $('devGo').onclick = () => { $('dev').hidden = true; goExt('all'); };
     $('dev').hidden = false;
   }
   /* ---------- guided tour: city → complex → finder → our building → floor → interior → pre-finish → window, day and evening ----------
@@ -2407,6 +2575,7 @@ body.full .mbar{display:flex;z-index:45}
   document.addEventListener('keydown', (e) => { if (tour.i < 0) return; if (e.key === 'Escape') tourExit(); else if (e.key === 'ArrowRight') { tourPause(); tourGo(tour.i + 1); } else if (e.key === 'ArrowLeft') { tourPause(); tourGo(tour.i - 1); } else if (e.key === ' ') { e.preventDefault(); $('tourPlay').click(); } });
   $('devClose').addEventListener('click', () => { $('dev').hidden = true; });
   $('dev').addEventListener('click', (e) => { if (e.target.id === 'dev') $('dev').hidden = true; });
+  sync.push(() => { nbG.children.forEach((c) => { if (c.userData.lab) c.visible = S.mode !== 'ext'; }); });
   sync.push(() => { const dev = S.mode === 'ext' && !isOwn(); ['tInt', 'tWin'].forEach((id) => { $(id).classList.toggle('dev', dev); $(id).title = dev ? 'Для этой квартиры — в разработке' : ''; }); });
   $('tExt').addEventListener('click', () => { if (S.mode !== 'ext') swap(() => { S.sec = towerSec.i; S.apt = 'a'; S.inner = false; S.extView = 'house'; S.aptOpen = false; enterExt(true); refresh(true); }); });
 
@@ -2470,12 +2639,59 @@ body.full .mbar{display:flex;z-index:45}
     }
     card.appendChild(left); card.appendChild(right);
   }
+  // the plan of a floor: the four flats where they lie in the section, coloured by status, with number, rooms, area and price;
+  // lift core and corridor between them; yard side on top. Typical layout until the developer's floor plans (marked so).
+  function floorPlanSvg(sec, f) {
+    const R = { a: [0, 0, 110, 66], b: [150, 0, 75, 66], c: [0, 76, 110, 64], d: [150, 80, 75, 60] };
+    let s = '<svg viewBox="-4 -22 233 182" role="img" aria-label="План этажа ' + f + '">';
+    s += '<text x="112" y="-9" text-anchor="middle" class="fp-side">двор</text><text x="112" y="157" text-anchor="middle" class="fp-side">улица</text>';
+    s += '<rect x="0" y="66" width="225" height="14" class="fp-corr"/><rect x="110" y="0" width="40" height="140" class="fp-core"/>';
+    // lift core as signs: two lift cars at the top, stair treads below
+    s += '<rect x="116" y="16" width="12" height="16" rx="1.5" class="fp-lift"/><rect x="132" y="16" width="12" height="16" rx="1.5" class="fp-lift"/>';
+    for (let k = 0; k < 6; k++) s += '<line x1="118" x2="142" y1="' + (96 + k * 6) + '" y2="' + (96 + k * 6) + '" class="fp-stair"/>';
+    LETTERS.forEach((l) => {
+      const r = R[l], st = status(sec.i, f, l), t = TYPES[l], cur = S.aptOpen && l === S.apt, cx = r[0] + r[2] / 2, cy = r[1] + r[3] / 2;
+      s += '<g data-apt="' + l + '" class="fp-apt' + (cur ? ' cur' : '') + '" tabindex="0" role="button" aria-label="Квартира ' + aptNum(sec.i, f, l) + ', ' + t.short + ', ' + ST[st].t + '">';
+      s += '<rect x="' + (r[0] + 1.5) + '" y="' + (r[1] + 1.5) + '" width="' + (r[2] - 3) + '" height="' + (r[3] - 3) + '" rx="3" fill="' + FL_COL[st] + '"/>';
+      s += '<text x="' + cx + '" y="' + (cy - 2) + '" text-anchor="middle" class="fp-n">' + aptNum(sec.i, f, l) + '</text>';
+      s += '<text x="' + cx + '" y="' + (cy + 11) + '" text-anchor="middle" class="fp-t">' + t.short.replace('-комн.', 'к').replace('Студия', 'ст') + ' · ' + fmt(area(sec.i, f, l)) + '</text></g>';
+    });
+    return s + '</svg><p class="fp-note">Планировка этажа условная</p>';
+  }
+  // parking places and storage rooms: a grid in the card (the places also lie on the 3D), the chosen one with price and a request
+  function renderParkingCard(box, el, tiles, back) {
+    box.appendChild(back('← Дом', goHouse));
+    const car = S.pkTab === 'car', list = car ? PK : STOR, free = list.filter((x) => x.st === 'free').length;
+    const h = el('h2', '', car ? 'Машино-места' : 'Кладовые'); h.appendChild(el('span', 'pill free', free + ' своб.')); box.appendChild(h);
+    const tb = el('div', 'xbtns seg2');
+    [['car', 'Машино-места', 'parking'], ['stor', 'Кладовые', 'box']].forEach((t) => {
+      const b = el('button', 'chip'); b.type = 'button'; b.setAttribute('aria-pressed', S.pkTab === t[0] ? 'true' : 'false');
+      b.innerHTML = '<svg class="ic"><use href="#i-' + t[2] + '"/></svg><span>' + t[1] + '</span>';
+      b.addEventListener('click', () => { S.pkTab = t[0]; if (t[0] !== 'car') showPk(-1); refresh(true); }); tb.appendChild(b);
+    });
+    box.appendChild(tb);
+    const grid = el('div', 'pgrid' + (car ? '' : ' stor'));
+    list.forEach((x, i) => {
+      const b = el('button', 'pcell ' + x.st + ((car ? S.pk : S.stor) === i ? ' on' : ''), String(x.n)); b.type = 'button';
+      b.title = (car ? 'Место ' : 'Кладовая ') + x.n + (car ? '' : ' · ' + fmt(x.a) + ' м²') + ' · ' + ST[x.st].t;
+      b.addEventListener('click', () => { if (car) showPk(i); else S.stor = i; refresh(true); }); grid.appendChild(b);
+    });
+    box.appendChild(grid);
+    const i = car ? S.pk : S.stor, x = list[i];
+    if (x) {
+      box.appendChild(tiles(car ? [['Место', '№ ' + x.n], ['Уровень', x.under ? 'подземный' : 'наземный'], ['Статус', ST[x.st].t], ['Цена', x.st === 'sold' ? '—' : money(x.price).replace(' ₽', '')]]
+        : [['Кладовая', '№ ' + x.n], ['Площадь', fmt(x.a) + ' м²'], ['Статус', ST[x.st].t], ['Цена', x.st === 'sold' ? '—' : money(x.price).replace(' ₽', '')]]));
+      if (x.st !== 'sold') { const lb = el('button', 'chip walk3d', 'Оставить заявку'); lb.type = 'button'; lb.addEventListener('click', () => { $('leadWhat').textContent = (car ? 'Машино-место № ' : 'Кладовая № ') + x.n + (car ? '' : ', ' + fmt(x.a) + ' м²') + ' · ' + ST[x.st].t.toLowerCase() + ' · ' + money(x.price); $('lead').hidden = false; }); box.appendChild(lb); }
+    } else box.appendChild(el('p', 'sub', car ? 'Нажмите на место на схеме во дворе или в сетке' : 'Кладовые на цокольном этаже, вход с улицы'));
+    box.appendChild(el('p', 'fp-note', 'Пример: статусы, цены и схема условные' + (car ? ' · 127 мест в первом этапе' : ' · 3,1–8,1 м²')));
+  }
   // outside, the card follows the path of choosing: the building (summary) → a floor (its flats) → an apartment (plan, price, walk in 3D)
   function renderExtCard(card, el) {
     const sec = SECTIONS[S.sec], box = el('div', 'xc'); card.appendChild(box);
     const tile = (k, v) => { const d = el('div'); d.appendChild(el('small', '', k)); d.appendChild(el('b', '', v)); return d; };
     const tiles = (pairs) => { const t = el('div', 'tiles'); pairs.forEach((p) => t.appendChild(tile(p[0], p[1]))); return t; };
     const back = (txt, fn) => { const b = el('button', 'back', txt); b.type = 'button'; b.addEventListener('click', fn); return b; };
+    if (S.extView === 'parking') { renderParkingCard(box, el, tiles, back); return; }
     const aptView = S.aptOpen || /^(yard|top|back)$/.test(S.extView);
     if (S.extView === 'floor' && !aptView) {   // a floor: its four flats with status
       box.appendChild(back('← Все этажи', goHouse));
@@ -2483,6 +2699,8 @@ body.full .mbar{display:flex;z-index:45}
       h.appendChild(el('span', 'pill ' + (free ? 'free' : 'sold'), free + ' из 4 свободны')); box.appendChild(h);
       box.appendChild(el('p', 'sub', secName(sec) + ' · нажмите на квартиру на плане или в списке'));
       const lg = el('div', 'legend2'); [['free', 'Доступна'], ['res', 'Бронь'], ['sold', 'Продана']].forEach((p) => { const s = el('span'); const i = el('i'); i.style.background = FL_COL[p[0]]; s.appendChild(i); s.appendChild(document.createTextNode(p[1])); lg.appendChild(s); }); box.appendChild(lg);
+      const fp = el('div', 'cplan fplan'); fp.innerHTML = floorPlanSvg(sec, S.floor); box.appendChild(fp);
+      fp.addEventListener('click', (e) => { const g = e.target.closest('[data-apt]'); if (g) openApt(g.getAttribute('data-apt')); });
       const list = el('div', 'flist');
       LETTERS.forEach((l) => {
         const t = TYPES[l], st = status(sec.i, S.floor, l), b = el('button'); b.type = 'button';
@@ -2512,11 +2730,12 @@ body.full .mbar{display:flex;z-index:45}
     const pr = el('div', 'price', st === 'sold' ? 'Продана' : money(price(S.sec, S.floor, S.apt)));
     if (st !== 'sold') pr.appendChild(el('small', '', Math.round(price(S.sec, S.floor, S.apt) / area(S.sec, S.floor, S.apt) / 1000).toLocaleString('ru-RU') + ' тыс. ₽ за м²' + (SAMPLE ? ' · пример' : '')));
     box.appendChild(pr);
-    const w3 = el('button', 'chip walk3d' + (own ? '' : ' dev'), '🚶 3D прогулка'); w3.type = 'button';
-    w3.addEventListener('click', () => { if (!own) { devDlg('int'); return; } S.cam = 'walk'; S.view = 'living'; enterInterior(true); refresh(true); });
+    // the last step: into the flat — 3D interior first, the window view is one tab away
+    const w3 = el('button', 'chip walk3d' + (own ? '' : ' dev'), '🚪 Войти в квартиру · 3D-интерьер'); w3.type = 'button';
+    w3.addEventListener('click', () => { if (!own) { devDlg('int'); return; } swap(() => { S.cam = 'top'; S.view = 'overview'; enterInterior(true); refresh(true); }); });
     box.appendChild(w3);
     const bs = el('div', 'xbtns'), wv = el('button', 'chip' + (own ? '' : ' dev'), 'Вид из окна'), sc = el('button', 'chip', 'Схема');
-    wv.type = sc.type = 'button'; wv.addEventListener('click', () => { if (!own) { devDlg('win'); return; } enterWindow(); refresh(true); }); sc.addEventListener('click', openPlan);
+    wv.type = sc.type = 'button'; wv.addEventListener('click', () => { if (!own) { devDlg('win'); return; } swap(() => { enterWindow(); refresh(true); }); }); sc.addEventListener('click', openPlan);
     bs.appendChild(wv); bs.appendChild(sc);
     if (S.extView !== 'floor') { const fc = el('button', 'chip', 'Этаж ' + S.floor + ' в разрезе'); fc.type = 'button'; fc.addEventListener('click', () => { const a = S.apt; goFloor(S.floor); openApt(a); }); bs.appendChild(fc); }
     box.appendChild(bs);
