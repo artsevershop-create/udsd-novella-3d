@@ -215,6 +215,23 @@ svg text{font-family:var(--f-body)}
 /* taps: no double-tap zoom or delay on controls, no grey flash in Safari */
 button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .stage.walk .logo{display:none}   /* walking: the mini-map takes that corner */
+.tabs button.dev:not([aria-pressed="true"]),.chip.dev{opacity:.5}   /* not drawn for the chosen flat yet: «в разработке» on tap */
+/* guided tour */
+.tourbtn{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
+@media (min-width:641px){.badge{max-width:calc(100% - 400px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+@media (min-width:641px) and (max-width:1399px){.tourbtn .lg{display:none}}   /* the tool row would reach the location badge */
+body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,body.touring .logo,body.touring .mini{display:none}
+.tour{position:absolute;left:8px;right:8px;bottom:8px;z-index:3;display:flex;flex-direction:column;gap:6px;max-width:620px;margin:0 auto;background:color-mix(in srgb,var(--surf) 95%,transparent);border-radius:16px;padding:10px 12px;box-shadow:0 6px 22px rgba(0,0,0,.18)}
+.tour[hidden]{display:none}
+.tour-t{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.tour-t b{font:700 17px var(--f-display)}
+.tour-t span{font-size:12.5px;color:var(--mut);white-space:nowrap}
+.tour p{margin:0;font-size:14px;line-height:1.4;color:var(--fg)}
+.tour-b{display:flex;gap:6px;align-items:center}
+.tour-dots{flex:1;display:flex;gap:3px;min-width:0}
+.tour-dots i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.tour-dots i.on{background:var(--acc)}
+.devtag{display:inline-block;font-size:12px;font-weight:600;color:#9a6a00;background:#fff3cd;border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:middle}
 /* side panel: where you are, card, finder */
 .side{display:flex;flex-direction:column;gap:14px;min-width:0}
 .crumbs{gap:4px;align-items:center;font-size:13px;color:var(--mut);padding:0}
@@ -319,6 +336,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     <div class="badge" id="badge" hidden></div>
     <!-- one row of tools at the top right: plan, day/evening (chips on wide screens, one toggle on phones), full screen -->
     <div class="tbar">
+      <button type="button" class="planbtn tourbtn" id="tourBtn" aria-label="Экскурсия по «Новелле»">▶<span class="lg"> Экскурсия</span></button>
       <button type="button" class="planbtn" id="planBtn"><span class="lg">Схема квартиры</span><span class="sm">Схема</span></button>
       <div class="chips tchips" id="rTime" role="group" aria-label="Освещение"></div>
       <button type="button" class="icobtn sm" id="timeBtn" aria-label="Включить вечер">☾</button>
@@ -333,6 +351,18 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
       <div class="chips" id="rWin" data-m="win" role="group" aria-label="Окно"></div>
       <div class="chips" id="rApt" data-m="ext" role="group" aria-label="Квартира на этаже"></div>
       <div class="chips" id="rFloor" data-m="win ext" role="group" aria-label="Этаж"><span class="dlab">Этаж</span></div>
+    </div>
+    <!-- guided tour: one continuous journey from the city to the window, with camera flights between the steps -->
+    <div class="tour" id="tour" hidden role="region" aria-label="Экскурсия">
+      <div class="tour-t"><b id="tourT"></b><span id="tourN"></span></div>
+      <p id="tourD" aria-live="polite"></p>
+      <div class="tour-b">
+        <button type="button" class="icobtn" id="tourPrev" aria-label="Предыдущий шаг">‹</button>
+        <button type="button" class="icobtn" id="tourPlay" aria-label="Пауза">❚❚</button>
+        <button type="button" class="icobtn" id="tourNext" aria-label="Следующий шаг">›</button>
+        <div class="tour-dots" id="tourDots"></div>
+        <button type="button" class="icobtn" id="tourExit" aria-label="Выйти из экскурсии">✕</button>
+      </div>
     </div>
     <div class="fallback" id="fb"><div>Не удалось запустить 3D в этом браузере.<br>Обновите страницу (Ctrl+F5) или откройте её в Chrome, Яндекс Браузере или Edge. Если не помогло — включите в настройках браузера аппаратное ускорение.<small></small></div></div>
   </div>
@@ -389,6 +419,14 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   <button type="button" class="chip mlead" id="mLead">Оставить заявку</button>
 </nav>
 <div class="tip" id="tip" hidden></div>
+<div class="dlg" id="dev" hidden role="dialog" aria-label="В разработке">
+  <div class="dlg-in">
+    <h2>В разработке</h2>
+    <p id="devWhat"></p>
+    <p class="note">В пилоте 3D-интерьеры и вид из окна строятся для всех планировок по проектам застройщика.</p>
+    <div class="dlg-btns"><button type="button" class="chip pick-show" id="devGo">Открыть квартиру А в 3D</button><button type="button" class="chip" id="devClose">Остаться здесь</button></div>
+  </div>
+</div>
 <div class="scrim" id="scrim" hidden></div>
 <div class="dlg" id="lead" hidden role="dialog" aria-label="Заявка на квартиру">
   <div class="dlg-in">
@@ -1129,7 +1167,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
       const sel = ext && sec.i === S.sec;
       if (sec.own) { sec.mesh.visible = ext && !(sel && glass); if (ownPart) ownPart.visible = !ext; }
       else sec.mesh.visible = !(sel && glass);
-      sec.ov.visible = ext && (S.layer === 'free' || fltOn()) && !sel;
+      sec.ov.visible = ext && (S.layer === 'free' || fltOn()) && !sel && S.extView !== 'house';   // «Весь дом»: only the chosen building speaks
     });
     selGlass.visible = selEdges.visible = ext && S.house === 'glass';
     cellG.visible = ext;
@@ -1329,7 +1367,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     controls.minDistance = 0; controls.maxDistance = 100; controls.maxPolarAngle = Math.PI;
     const to = { pos: new THREE.Vector3(...pos), tgt: new THREE.Vector3(...tgt) };
     if (instant) { camera.position.copy(to.pos); controls.target.copy(to.tgt); limits(); }
-    else anim = { t0: performance.now(), dur: 900, p0: camera.position.clone(), g0: controls.target.clone(), to: to };
+    else anim = { t0: performance.now(), dur: document.body.classList.contains('touring') ? 1800 : 900, p0: camera.position.clone(), g0: controls.target.clone(), to: to };
   }
   function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
@@ -1352,7 +1390,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     setRange(0.1, 3000);
     describe();
   }
-  const EXTV = { yard: { label: 'Со стороны окон' }, top: { label: 'Сверху' }, back: { label: 'С противоположной стороны' }, all: { label: 'Все корпуса' }, area: { label: 'Окрестности' }, city: { label: 'Весь город' } };
+  const EXTV = { house: { label: 'Весь дом' }, yard: { label: 'Со стороны окон' }, top: { label: 'Сверху' }, back: { label: 'С противоположной стороны' }, all: { label: 'Все корпуса' }, area: { label: 'Окрестности' }, city: { label: 'Весь город' } };
   function extTarget() {
     const sec = SECTIONS[S.sec], ci = cellInfo(sec, S.apt, S.floor);
     return [ci.c.x - ci.n.x * 3, ci.y + 1.5, ci.c.z - ci.n.z * 3, ci.n];
@@ -1366,6 +1404,15 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     // the neighbourhood: over the quarters towards the nearest districts of the northern part of the city (south-east)
     if (S.extView === 'area') { flyTo([-800, 620, -950], [650, 0, 550], instant); return; }
     if (S.extView === 'all') { flyTo([0, 420, 270], [0, 0, 0], instant); return; }
+    // the chosen building as a whole: its facade on the side of the chosen apartment fills the screen, every flat on it pickable
+    if (S.extView === 'house') {
+      updateFov();
+      const sec = SECTIONS[S.sec], h = sec.floors * FLOOR_H, c = [sec.cx, h * 0.48, sec.cz], half = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+      // from above at ~32°, so the opposite wing of the quarter (~50 m across the yard) does not stand between camera and facade
+      const R = Math.max(85, (h + 14) * 1.7 / (2 * half), sec.len * 1.8 / (2 * half * Math.min(camera.aspect, 1.6))), el = 0.6;
+      pos = [c[0] + n.x * R * Math.cos(el) + (n.z ? R * 0.12 : 0), c[1] + R * Math.sin(el), c[2] + n.z * R * Math.cos(el) + (n.x ? R * 0.12 : 0)];
+      flyTo(pos, c, instant); return;
+    }
     if (S.extView === 'top') pos = [tx[0] - 2, tx[1] + 95, tx[2] + 24];
     else if (S.extView === 'back') pos = [tx[0] - n.x * 76 + (n.z ? 10 : 0), tx[1] + 12, tx[2] - n.z * 76 + (n.x ? 10 : 0)];
     else pos = [tx[0] + n.x * 66 + (n.z ? -8 : 0), tx[1] + 30, tx[2] + n.z * 66 + (n.x ? -8 : 0)];
@@ -1459,7 +1506,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   Object.keys(VIEWS).forEach((k) => chip($('rView'), VIEWS[k].label, () => S.view === k, () => { S.view = k; if (VIEWS[k].out) S.cam = 'top'; enterInterior(false); refresh(true); }));
   chip($('rCam'), 'Сверху, стены срезаны', () => S.cam === 'top', () => { S.cam = 'top'; enterInterior(false); refresh(true); }, { short: 'Сверху' });
   chip($('rCam'), 'Хожу по квартире', () => S.cam === 'walk', () => { S.cam = 'walk'; if (VIEWS[S.view].out) S.view = 'living'; enterInterior(true); refresh(true); }, { short: 'Хожу внутри' });
-  const EXT_SHORT = { yard: 'Со двора', top: 'Сверху', back: 'С улицы', all: 'Все корпуса', area: 'Окрестности', city: 'Весь город' };
+  const EXT_SHORT = { house: 'Весь дом', yard: 'Со двора', top: 'Сверху', back: 'С улицы', all: 'Все корпуса', area: 'Окрестности', city: 'Весь город' };
   Object.keys(EXTV).forEach((k) => chip($('rExtView'), EXTV[k].label, () => S.extView === k, () => { S.extView = k; flyExt(false); refresh(true); }, { short: EXT_SHORT[k] }));
   chip($('rHouse'), 'Прозрачный', () => S.house === 'glass', () => { S.house = 'glass'; refresh(true); });
   chip($('rHouse'), 'Сплошной', () => S.house === 'solid', () => { S.house = 'solid'; refresh(true); });
@@ -1475,10 +1522,11 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   /* ---------- selecting buildings and apartments outside ---------- */
   function secName(sec) { return sec.own || sec.n ? 'Квартал ' + sec.q + ', секция ' + sec.n : 'Корпус'; }
   function firstFree(sec, f) { for (const l of LETTERS) if (status(sec.i, f, l) === 'free') return l; return 'a'; }
+  // step 1 of choosing: a building — the camera flies to it and shows its whole facade; step 2: an apartment on that facade
   function selectSection(i) {
     const sec = SECTIONS[i]; S.sec = i; if (S.floor > sec.floors) S.floor = sec.floors; if (S.floor < 2) S.floor = 2;
     S.apt = i === towerSec.i ? 'a' : firstFree(sec, S.floor); if (S.sec === towerSec.i && S.floor === 8) S.apt = 'a';
-    S.inner = false; afterPick();
+    S.inner = false; S.extView = 'house'; afterPick();
   }
   function selectApt(f, l) { S.floor = f; S.apt = l; afterPick(); }
   function afterPick() { placeOutside(); flyExt(false); refresh(true); }
@@ -1520,7 +1568,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     GEO.forEach((g) => {
       if (city ? !/^(dist|part|novella)$/.test(g.k) : g.k === 'part' || g.k === 'novella') return;   // the city map shows only the city's names
       if (g.k === 'dist' && !wide) return;
-      if (g.k === 'sec' && ((S.layer !== 'free' && !fltOn()) || g.sec.i === S.sec || !(fltOn() ? g.sec.match : g.sec.free) || S.extView === 'area')) return;
+      if (g.k === 'sec' && ((S.layer !== 'free' && !fltOn()) || S.extView === 'house' || g.sec.i === S.sec || !(fltOn() ? g.sec.match : g.sec.free) || S.extView === 'area')) return;
       if (S.extView === 'area' && g.k === 'street' && !/Тундра|Озеро|ул\. Мира/.test(g.t)) return;
       if (S.extView === 'area' && /Квартал [1345]|Детский|Стадион/.test(g.t)) return;
       gv.set(g.x, g.y || 0.6, g.z).project(camera); if (gv.z > 1 || Math.abs(gv.x) > 1.05 || Math.abs(gv.y) > 1.05) return;
@@ -1569,11 +1617,12 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     LETTERS.forEach((l) => { const st = status(S.sec, S.floor, l), t = TYPES[l]; aptBtns[l].dot.style.background = ST[st].c; aptBtns[l].tx.nodeValue = ' ' + t.n + ' · ' + (narrow() ? t.short.replace('-комн.', '-к').replace('Студия', 'ст.') : t.short + ' ' + fmt(t.area)); });   // phones: all four fit in one row, the area is in the card
   }
   const actPlan = chip($('rAct'), 'Схема планировки', () => false, () => openPlan());
-  const act3d = chip($('rAct'), 'Интерьер 3D', () => false, () => { S.mode = 'ext'; enterInterior(true); refresh(true); });
-  const actWin = chip($('rAct'), 'Вид из окна', () => false, () => { enterWindow(); refresh(true); });
+  const act3d = chip($('rAct'), 'Интерьер 3D', () => false, () => { if (!isOwn()) { devDlg('int'); return; } S.mode = 'ext'; enterInterior(true); refresh(true); });
+  const actWin = chip($('rAct'), 'Вид из окна', () => false, () => { if (!isOwn()) { devDlg('win'); return; } enterWindow(); refresh(true); });
   function fillExtPanel() {
     fillSelect(); fillApts();
-    const own = isOwn(); act3d.hidden = actWin.hidden = !own; $('rowInner').hidden = !own;
+    const own = isOwn(); $('rowInner').hidden = !own;
+    [act3d, actWin].forEach((b) => b.classList.toggle('dev', !own));   // only apartment A is drawn inside; the rest say «в разработке»
     const sec = SECTIONS[S.sec];
     floorBtns.forEach((b, i) => { b.hidden = (i + 2) > sec.floors; });
   }
@@ -1632,7 +1681,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   }
   function goApt(si, f, l) {
     S.sec = si; S.floor = f; S.apt = l; S.inner = false;
-    if (S.extView === 'all' || S.extView === 'area' || S.extView === 'city') S.extView = 'yard';
+    if (S.extView === 'all' || S.extView === 'area' || S.extView === 'city') S.extView = 'house';   // from afar: first the whole building, the flat lit on it
     if (S.mode !== 'ext') { enterExt(true); refresh(true); } else afterPick();
   }
   const openPick = () => { document.body.classList.add('picking'); $('scrim').hidden = false; };
@@ -1643,7 +1692,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   function renderCrumbs() {
     const c = $('crumbs'); c.textContent = '';
     const a = curApt(), sec = SECTIONS[a.sec];
-    const items = [['ЖК «Новелла»', () => goExt('all')], ['Квартал ' + sec.q, () => goExt('top')], ['Секция ' + sec.n, () => goExt('back')], ['Этаж ' + a.floor, () => goExt('yard')], ['Кв. ' + TYPES[a.apt].n, () => goExt('yard')]];
+    const items = [['ЖК «Новелла»', () => goExt('all')], ['Квартал ' + sec.q, () => goExt('top')], ['Секция ' + sec.n, () => goExt('house')], ['Этаж ' + a.floor, () => goExt('yard')], ['Кв. ' + TYPES[a.apt].n, () => goExt('yard')]];
     if (S.mode === 'int') items.push(['3D-интерьер']); if (S.mode === 'win') items.push(['Вид из окна']);
     items.forEach((it, i) => {
       if (i) { const s = document.createElement('i'); s.textContent = '›'; c.appendChild(s); }
@@ -1695,7 +1744,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
     const done = () => { $('leadCopy').textContent = 'Ссылка скопирована'; };
     try { navigator.clipboard.writeText(location.href).then(done, () => { $('leadCopy').textContent = location.href; }); } catch (e) { $('leadCopy').textContent = location.href; }
   });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closePick(); $('lead').hidden = true; } });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closePick(); $('lead').hidden = true; $('dev').hidden = true; } });
   // a link per apartment: ?mode=ext&sec=2-2&floor=8&apt=a (kept current while browsing)
   function updateUrl() {
     if (!urlReady) return;   // not until the start-up has applied the link it was opened with
@@ -1760,8 +1809,72 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   }
   addEventListener('scroll', checkPin, { passive: true }); addEventListener('resize', checkPin);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.classList.contains('full') && sheetEl.hidden) setFull(false); });
-  $('tInt').addEventListener('click', () => { if (S.mode !== 'int') { enterInterior(true); refresh(true); } });
-  $('tWin').addEventListener('click', () => { if (S.mode !== 'win') { enterWindow(); refresh(true); } });
+  $('tInt').addEventListener('click', () => { if (S.mode === 'ext' && !isOwn()) { devDlg('int'); return; } if (S.mode !== 'int') { enterInterior(true); refresh(true); } });
+  $('tWin').addEventListener('click', () => { if (S.mode === 'ext' && !isOwn()) { devDlg('win'); return; } if (S.mode !== 'win') { enterWindow(); refresh(true); } });
+  // 3D inside and the window view exist only for apartment A (quarter 2, section 2, floor 8): for any other flat say so and offer A
+  function devDlg(mode) {
+    const t = TYPES[S.apt], sec = SECTIONS[S.sec];
+    $('devWhat').textContent = (mode === 'win' ? 'Вид из окна' : '3D-интерьер') + ' для кв. ' + t.n + ' (' + secName(sec).toLowerCase() + ', этаж ' + S.floor + ') — в разработке. Сейчас внутри прорисована квартира А: 3 комнаты, 72,6 м², квартал 2, секция 2, этаж 8.';
+    $('devGo').textContent = mode === 'win' ? 'Вид из окна квартиры А' : 'Открыть квартиру А в 3D';
+    $('devGo').onclick = () => { $('dev').hidden = true; S.sec = towerSec.i; S.apt = 'a'; S.floor = 8; S.inner = false; placeOutside(); if (mode === 'win') enterWindow(); else enterInterior(true); refresh(true); };
+    $('dev').hidden = false;
+  }
+  /* ---------- guided tour: city → complex → finder → our building → floor → interior → pre-finish → window, day and evening ----------
+     (after the stadium demo by By Omid: one continuous journey with camera flights, pause / steps / exit; touching the 3D pauses it) */
+  const tourOwn = () => { S.sec = towerSec.i; S.apt = 'a'; S.floor = 8; S.inner = false; };
+  const tourInt = (view, cam, finish) => { tourOwn(); S.view = view; S.cam = cam; S.finish = finish; S.time = 'day'; placeOutside(); enterInterior(true); refresh(true); };
+  const tourNoFilter = () => { if (fltOn()) { FLT.rooms.clear(); FLT.price = Infinity; FLT.floor = 'any'; FLT.free = true; fPrice.value = pMax; $('fFree').checked = true; computeMatches(); cellsKey = ''; } };
+  const TOUR = [
+    { t: 'Новый Уренгой', d: '«Новелла» — в северной части города, мкр. Уютный. Микрорайоны, реки и дороги — по OpenStreetMap.', go: () => { tourNoFilter(); tourOwn(); S.time = 'day'; goExt('city'); } },
+    { t: 'Окрестности', d: 'Рядом — микрорайоны Славянский, Олимпийский, Мирный. Ул. Мира идёт вдоль кварталов.', go: () => goExt('area') },
+    { t: 'Весь комплекс', d: '5 кварталов, 5–12 этажей. Зелёным подсвечены корпуса, где есть свободные квартиры.', go: () => { tourNoFilter(); goExt('all'); } },
+    { t: 'Подбор', d: 'Выбраны 3-комнатные: подходящие корпуса подсвечены, на каждом — сколько подходит.', go: () => { FLT.rooms = new Set([3]); onFilter(); goExt('all'); } },
+    { t: 'Ваш дом', d: 'Квартал 2, секция 2 целиком: дом прозрачный, квартиры по статусам, наша А на 8 этаже выделена.', go: () => { tourNoFilter(); tourOwn(); goExt('house'); } },
+    { t: 'Квартира на фасаде', d: 'Квартира А ближе: статус, цена, этаж и номер — в карточке.', go: () => { tourOwn(); goExt('yard'); } },
+    { t: 'План этажа', d: 'Соседи по площадке со статусами, лифты, холл и лестница (типовое решение до планов застройщика).', go: () => tourInt('top', 'top', 'design') },
+    { t: '3D-интерьер', d: 'Вся квартира сверху, стены срезаны: дизайн-проект и площадь каждой комнаты.', go: () => tourInt('overview', 'top', 'design') },
+    { t: '«Как продаем»', d: 'Предчистовая отделка по стандарту УДСД — вид с уровня глаз из гостиной.', go: () => tourInt('living', 'walk', 'bare') },
+    { t: 'Вид из окна', d: 'Из гостиной с 8 этажа: что видно днём.', go: () => { tourOwn(); S.finish = 'design'; S.win = 'living'; S.time = 'day'; enterWindow(); refresh(true); } },
+    { t: 'Вечером', d: 'В окнах соседних домов горит свет, во дворах — фонари.', go: () => { S.time = 'eve'; refresh(); } },
+    { t: 'Выбор за вами', d: 'Сердечко — в избранное, «Оставить заявку» — менеджер перезвонит. Дальше управляйте сами.', go: () => { S.time = 'day'; tourOwn(); goExt('yard'); } }
+  ];
+  const tourEl = $('tour'), tour = { i: -1, playing: false, timer: 0, full: false };
+  const TOUR_MS = 6500;
+  for (let k = 0; k < TOUR.length; k++) $('tourDots').appendChild(document.createElement('i'));
+  function tourRender() {
+    const st = TOUR[tour.i]; $('tourT').textContent = st.t; $('tourN').textContent = (tour.i + 1) + ' из ' + TOUR.length;
+    $('tourD').textContent = tour.playing ? st.d : st.d + ' (пауза: можно крутить камеру самому, ▶ — дальше)';
+    $('tourPlay').textContent = tour.playing ? '❚❚' : '▶'; $('tourPlay').setAttribute('aria-label', tour.playing ? 'Пауза' : 'Продолжить');
+    [...$('tourDots').children].forEach((d, k) => d.classList.toggle('on', k <= tour.i));
+    $('tourPrev').disabled = tour.i === 0;
+    stageEl.style.setProperty('--dockh', '0px'); updateFov();
+  }
+  function tourGo(i) {
+    clearTimeout(tour.timer); tour.i = Math.max(0, Math.min(TOUR.length - 1, i));
+    TOUR[tour.i].go(); tourRender();
+    if (tour.playing) tour.timer = setTimeout(() => { if (tour.i + 1 < TOUR.length) tourGo(tour.i + 1); else { tour.playing = false; tourRender(); } }, TOUR_MS);
+  }
+  function tourStart() {
+    closePick(); $('lead').hidden = $('dev').hidden = true; sheetEl.hidden = true;
+    document.body.classList.add('touring'); tourEl.hidden = false; tour.playing = true;
+    tour.full = narrow() && !document.body.classList.contains('full'); if (tour.full) setFull(true);   // a phone gives the whole screen to the tour
+    tourGo(0);
+  }
+  function tourPause() { if (!tour.playing) return; tour.playing = false; clearTimeout(tour.timer); tourRender(); }
+  function tourExit() {
+    clearTimeout(tour.timer); tour.playing = false; tour.i = -1; tourEl.hidden = true; document.body.classList.remove('touring');
+    tourNoFilter(); S.time = 'day'; if (tour.full) setFull(false); else { resize(); refresh(true); }
+  }
+  $('tourBtn').addEventListener('click', tourStart);
+  $('tourPlay').addEventListener('click', () => { if (tour.playing) tourPause(); else { tour.playing = true; tourGo(tour.i + 1 < TOUR.length ? tour.i + 1 : 0); } });
+  $('tourPrev').addEventListener('click', () => { tourPause(); tourGo(tour.i - 1); });
+  $('tourNext').addEventListener('click', () => { tourPause(); tourGo(tour.i + 1); });
+  $('tourExit').addEventListener('click', tourExit);
+  ['pointerdown', 'wheel'].forEach((ev) => cv.addEventListener(ev, () => { if (tour.i >= 0) tourPause(); }, { passive: true }));   // free flight: the visitor takes the camera
+  document.addEventListener('keydown', (e) => { if (tour.i < 0) return; if (e.key === 'Escape') tourExit(); else if (e.key === 'ArrowRight') { tourPause(); tourGo(tour.i + 1); } else if (e.key === 'ArrowLeft') { tourPause(); tourGo(tour.i - 1); } else if (e.key === ' ') { e.preventDefault(); $('tourPlay').click(); } });
+  $('devClose').addEventListener('click', () => { $('dev').hidden = true; });
+  $('dev').addEventListener('click', (e) => { if (e.target.id === 'dev') $('dev').hidden = true; });
+  sync.push(() => { const dev = S.mode === 'ext' && !isOwn(); ['tInt', 'tWin'].forEach((id) => { $(id).classList.toggle('dev', dev); $(id).title = dev ? 'Для этой квартиры — в разработке' : ''; }); });
   $('tExt').addEventListener('click', () => { if (S.mode !== 'ext') { S.sec = towerSec.i; S.apt = 'a'; S.inner = false; S.extView = 'yard'; enterExt(true); refresh(true); } });
 
   ROOMS.forEach((r) => {
@@ -1794,8 +1907,9 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
       left.appendChild(el('h2', '', 'Кв. ' + t.n + ' · ' + t.short + ', ' + fmt(area(S.sec, S.floor, S.apt)) + ' м²'));
       left.appendChild(metaRow([['Статус', ST[st].t], ['Цена', st === 'sold' ? '—' : money(price(S.sec, S.floor, S.apt))], ['Этаж', S.floor + ' из ' + sec.floors], ['Номер', '№ ' + aptNum(S.sec, S.floor, S.apt)]]));
       const ul = el('ul');
-      [secName(sec) + (sec.own ? ' — подготовленная для показа секция' : ''), 'В этом корпусе свободно ' + sec.free + ' из ' + sec.total + ' квартир', 'Окна выходят ' + (t.face === 1 ? 'во двор, на юг' : 'на улицу, на север'),
-       sec.own && S.apt === 'a' ? 'Для этой квартиры есть 3D-интерьер и вид из окна' : 'Для этой планировки доступна схема; 3D-интерьер пока только у квартиры А секции 2 квартала 2'].forEach((x) => ul.appendChild(el('li', '', x)));
+      (S.extView === 'house' ? ['Нажмите на квартиру на фасаде, чтобы выбрать её; «Со стороны окон» — подлететь ближе'] : []).concat([secName(sec) + (sec.own ? ' — подготовленная для показа секция' : ''), 'В этом корпусе свободно ' + sec.free + ' из ' + sec.total + ' квартир', 'Окна выходят ' + (t.face === 1 ? 'во двор, на юг' : 'на улицу, на север'),
+       sec.own && S.apt === 'a' ? 'Для этой квартиры есть 3D-интерьер и вид из окна' : '3D-интерьер и вид из окна — в разработке; есть схема планировки. Внутри уже прорисована квартира А (квартал 2, секция 2, этаж 8)']).forEach((x) => ul.appendChild(el('li', '', x)));
+      if (!(sec.own && S.apt === 'a')) { const tg = el('span', 'devtag', '3D в разработке'); left.querySelector('h2').appendChild(tg); }
       right.appendChild(ul);
     } else if (S.mode === 'win') {
       const d = describe.data;
@@ -1844,8 +1958,8 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   }
   let hintTimer = 0, hintKey = '';
   function hintText() {
-    const h = $('hint'), key = S.mode + S.cam;
-    h.textContent = narrow()
+    const house = S.mode === 'ext' && S.extView === 'house', h = $('hint'), key = S.mode + S.cam + (house ? 'h' : '');
+    h.textContent = house ? 'Нажмите на квартиру на фасаде, чтобы выбрать' : narrow()
       ? (S.mode === 'win' ? 'Потяните — осмотреться, щипок — угол обзора' : S.mode === 'int' && S.cam === 'walk' ? 'Нажмите на пол — пройти, потяните — осмотреться' : 'Крутите пальцем, щипок — масштаб')
       : (S.mode === 'ext' ? 'Крутите пальцем или мышью, щипок меняет масштаб' : S.mode === 'win' ? 'Потяните, чтобы осмотреться, колесо или щипок меняют угол обзора'
         : (S.cam === 'walk' ? 'Нажмите на пол, чтобы пройти. Потяните, чтобы осмотреться' : 'Крутите пальцем или мышью, щипок меняет масштаб'));
@@ -2083,7 +2197,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   }
   function updateFov() {
     const w = stageEl.clientWidth, h = stageEl.clientHeight; if (!w || !h) return;
-    const asp = w / h, d = dockEl.offsetHeight;
+    const tourEl = $('tour'), asp = w / h, d = tourEl && !tourEl.hidden ? tourEl.offsetHeight + 16 : dockEl.offsetHeight;   // the tour panel covers the bottom like the dock
     camera.fov = S.mode === 'ext' ? (asp < 0.9 ? 50 : 38) : S.mode === 'win' ? (asp < 0.9 ? 78 : 62) : (S.cam === 'walk' ? (asp < 0.9 ? 72 : 62) : (asp < 0.9 ? 60 : 42));
     // the dock covers the bottom d px: render the top part of a taller virtual frame, so what the camera aims at sits mid-way in the free area
     camera.aspect = w / (h + d);
@@ -2144,10 +2258,12 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
   S.sec = qSec ? qSec.i : towerSec.i; S.apt = TYPES[qA] ? qA : 'a'; S.inner = false; S.extView = 'yard';
   if (qF >= 2 && qF <= SECTIONS[S.sec].floors) S.floor = qF;
   urlReady = true;
-  if (Q.get('mode') === 'int' || Q.get('mode') === 'win') { S.sec = towerSec.i; S.apt = 'a'; placeOutside(); if (Q.get('mode') === 'win') enterWindow(); else enterInterior(true); refresh(true); }
-  else { enterExt(true); refresh(true); }
+  // without a link the demo opens on our apartment A in 3D: it is the only one drawn inside (the others say «в разработке»)
+  if (Q.get('mode') === 'ext') { enterExt(true); refresh(true); }
+  else { S.sec = towerSec.i; S.apt = 'a'; if (!(qF >= 2 && qF <= 12)) S.floor = 8; placeOutside(); if (Q.get('mode') === 'win') enterWindow(); else enterInterior(true); refresh(true); }
   if (narrow()) $('moreExt').open = false;   // phones: rare settings folded, so the card and the main rows stay close to the 3D
   $('moreExt').addEventListener('toggle', () => document.querySelectorAll('.chips').forEach(fades));
+  if (Q.get('tour')) setTimeout(tourStart, 700);   // ?tour=1 — opens straight into the guided tour (sales office screen, the proposal page)
   requestAnimationFrame(frame);
   window.__nv = { S: S, walk: walk, startWalk: startWalk, enterWindow: enterWindow, enterInterior: enterInterior, refresh: refresh, camera: camera, describe: describe, data: DATA_OK ? 'json' : 'generated' };
 });
