@@ -200,7 +200,7 @@ svg text{font-family:var(--f-body)}
   body.pinned:not(.full) .tabs{padding:3px}
   body.pinned:not(.full) .tabs button{padding:7px 2px}
   body.pinned:not(.full) .stage{height:clamp(170px,32vh,300px);height:clamp(170px,32svh,300px)}
-  body.pinned:not(.full) #dock,body.pinned:not(.full) .hint,body.pinned:not(.full) .logo,body.pinned:not(.full) .mini{display:none}
+  body.pinned:not(.full) #dock:not(.out),body.pinned:not(.full) .hint,body.pinned:not(.full) .logo,body.pinned:not(.full) .mini{display:none}
   body.pinned:not(.full) .badge{bottom:6px}
 }
 @media (max-width:360px){
@@ -414,6 +414,32 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   .crumbs{font-size:12px}
   .crumbs button{font-size:12px;padding:4px 3px}
   .cta,.favbtn{display:none}   /* the thumb bar has the heart and the request button */
+}
+
+/* ===== phone layout v2: the 3D is clean, the controls sit under it (not over it) ===== */
+@media (max-width:640px){
+  body{padding-top:6px}
+  .demo-bar{font-size:10.5px;padding:3px 9px}
+  h1{font-size:15px}
+  .stage{height:clamp(290px,46svh,520px)}
+  .stage[data-mode="int"]{height:clamp(250px,37svh,400px)}   /* the flat is wide: a shorter stage frames it tighter */
+  /* nothing floats over the scene except the tool row, the floor column and the location badge */
+  .navpad,.where,.logo,.hint,.stage .compass{display:none!important}
+  .dock.out{position:static;padding:0;background:none;gap:8px;touch-action:auto;pointer-events:auto;margin-top:-2px}
+  .dock.out>.chips,.dock.out>.dockrow{background:var(--chip);border-radius:14px;padding:5px 6px;overflow-x:auto;min-height:0}
+  .dock.out .chip{min-height:42px;font-size:14px;padding:7px 14px;box-shadow:none;border:1px solid var(--line);background:var(--surf)}
+  .dock.out .chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#fff}
+  .dock.out .dockrow .chip{min-height:38px}
+  .dock.out .dlab{font-size:10.5px;min-width:54px;white-space:normal;line-height:1.1}
+  .tbar{top:6px;right:6px;gap:5px}
+  .tbar .planbtn{min-height:36px;padding:5px 11px;font-size:12.5px}
+  .tbar .icobtn{width:36px;height:36px}
+  .stage .stack{top:50px;bottom:44px}
+  .badge{bottom:6px;left:8px;max-width:calc(100% - 16px)}
+  body.pinned:not(.full) .stage{height:clamp(170px,34svh,300px)}
+  body.pinned:not(.full) #dock.out{display:flex}
+  body.full .dock.out{position:absolute}
+  .dock.out #rSteps{order:-3}.dock.out #rApt{order:-2}.dock.out #rFloor{order:-1}
 }
 /* rows of chips wider than the screen fade out at the side they continue to */
 .chips.more-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent)}
@@ -2241,10 +2267,20 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   const timeBtn = $('timeBtn');
   timeBtn.addEventListener('click', () => { S.time = S.time === 'day' ? 'eve' : 'day'; refresh(); });
   sync.push(() => { const eve = S.time === 'eve'; timeBtn.textContent = eve ? '☀' : '☾'; timeBtn.setAttribute('aria-label', eve ? 'Включить день' : 'Включить вечер'); });
+  // phones: the dock leaves the stage and sits right under it, so it never covers the 3D (full screen puts it back over the scene)
+  const phoneMQ = matchMedia('(max-width:640px)');
+  function placeDock() {
+    const out = phoneMQ.matches && !document.body.classList.contains('full');
+    if (out === dockEl.classList.contains('out')) return;
+    dockEl.classList.toggle('out', out);
+    if (out) $('pin').insertAdjacentElement('afterend', dockEl); else stageEl.appendChild(dockEl);
+    stageEl.style.setProperty('--dockh', (out ? 0 : dockEl.offsetHeight) + 'px'); resize(); updateFov(); wake();
+  }
+  phoneMQ.addEventListener('change', placeDock); placeDock();
   // full screen: tabs + stage over the whole page (on a phone the 3D gets the entire screen)
   const fullBtn = $('fullBtn');
   function setFull(on) {
-    document.body.classList.toggle('full', on); fullBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    document.body.classList.toggle('full', on); placeDock(); fullBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
     fullBtn.textContent = on ? '✕' : '⤢'; fullBtn.setAttribute('aria-label', on ? 'Выйти из полноэкранного режима' : 'Во весь экран');
     resize(); refresh(true);
   }
@@ -2529,7 +2565,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     $('viewBtn').hidden = true; setVP(false);
     dockEl.querySelectorAll('[data-m]').forEach((r) => { r.hidden = r.dataset.m.split(' ').indexOf(S.mode) < 0; });
     stageEl.dataset.mode = S.mode;
-    stageEl.style.setProperty('--dockh', dockEl.offsetHeight + 'px'); updateFov();
+    stageEl.style.setProperty('--dockh', (dockEl.classList.contains('out') ? 0 : dockEl.offsetHeight) + 'px'); updateFov();
     $('rowStyle').hidden = S.mode !== 'int' || S.finish !== 'design';
     $('rowSee').hidden = !(S.mode === 'int' && S.cam === 'walk');
     wallChips.forEach((w) => { w[0].hidden = w[1] !== (S.cam === 'walk' ? 'walk' : 'top'); });
@@ -2725,7 +2761,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   }
   function updateFov() {
     const w = stageEl.clientWidth, h = stageEl.clientHeight; if (!w || !h) return;
-    const tourEl = $('tour'), asp = w / h, d = tourEl && !tourEl.hidden ? tourEl.offsetHeight + 16 : dockEl.offsetHeight;   // the tour panel covers the bottom like the dock
+    const tourEl = $('tour'), asp = w / h, d = tourEl && !tourEl.hidden ? tourEl.offsetHeight + 16 : (dockEl.classList.contains('out') ? 0 : dockEl.offsetHeight);   // the tour panel covers the bottom like the dock
     camera.fov = S.mode === 'ext' ? (asp < 0.9 ? 50 : 38) : S.mode === 'win' ? (asp < 0.9 ? 78 : 62) : (S.cam === 'walk' ? (asp < 0.9 ? 72 : 62) : (asp < 0.9 ? 60 : 42));
     // the dock covers the bottom d px: render the top part of a taller virtual frame, so what the camera aims at sits mid-way in the free area
     camera.aspect = w / (h + d);
@@ -2734,7 +2770,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   }
   function resize() {
     const w = stageEl.clientWidth, h = stageEl.clientHeight; if (!w || !h) return;
-    stageEl.style.setProperty('--dockh', dockEl.offsetHeight + 'px');
+    stageEl.style.setProperty('--dockh', (dockEl.classList.contains('out') ? 0 : dockEl.offsetHeight) + 'px');
     // phones keep up to 2x (small screens), computers 1.5x: a full-screen canvas at 2x is 4x the pixels for little visible gain
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 2 : 1.5)); renderer.setSize(w, h, false); updateFov(); wake();
   }
