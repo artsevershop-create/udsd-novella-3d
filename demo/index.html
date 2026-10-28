@@ -64,7 +64,7 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,6vw,38px);l
    Phones get a shorter stage so there is room to scroll the controls; short landscape screens do not pin at all. */
 .pin{position:sticky;top:0;z-index:5;display:flex;flex-direction:column;gap:10px;background:var(--bg);margin:0 -4px;padding:max(6px,env(safe-area-inset-top,0px)) 4px 8px;box-shadow:0 10px 12px -12px rgba(15,40,55,.35)}
 @media (max-height:480px){.pin{position:static;box-shadow:none}}   /* a phone held sideways: no room to pin */
-.stage{position:relative;height:clamp(340px,58vh,640px);height:clamp(340px,58svh,640px);background:var(--stage);border:1px solid var(--line);border-radius:16px;overflow:hidden;--dockh:0px}
+.stage{position:relative;height:clamp(420px,calc(100vh - 130px),900px);height:clamp(420px,calc(100svh - 130px),900px);background:var(--stage);border:1px solid var(--line);border-radius:16px;overflow:hidden;--dockh:0px}
 .stage canvas{display:block;width:100%;height:100%;touch-action:none}
 /* controls on the stage: a dock of chip rows along the bottom edge, day/evening under the plan button */
 .dock{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:6px;padding:22px 8px 8px;background:linear-gradient(to top,color-mix(in srgb,var(--stage) 92%,transparent) 55%,transparent);touch-action:pan-x;pointer-events:none}
@@ -217,7 +217,7 @@ button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highligh
 .stage.walk .logo{display:none}   /* walking: the mini-map takes that corner */
 .tabs button.dev:not([aria-pressed="true"]),.chip.dev{opacity:.5}   /* not drawn for the chosen flat yet: «в разработке» on tap */
 /* floor column on the stage (left): number + a dot per apartment; the chosen floor filled */
-.stack{position:absolute;left:8px;top:56px;bottom:calc(var(--dockh) + 40px);z-index:2;display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none;background:color-mix(in srgb,var(--surf) 90%,transparent);border-radius:12px;padding:5px;box-shadow:0 1px 4px rgba(0,0,0,.12);max-height:max-content}
+.stack{position:absolute;left:8px;top:110px;bottom:calc(var(--dockh) + 40px);z-index:2;display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none;background:color-mix(in srgb,var(--surf) 90%,transparent);border-radius:12px;padding:5px;box-shadow:0 1px 4px rgba(0,0,0,.12);max-height:max-content}
 .stack::-webkit-scrollbar{display:none}
 .stack[hidden],body.touring .stack{display:none}
 .stack button{display:flex;align-items:center;gap:6px;border:0;background:transparent;border-radius:7px;padding:3px 6px;font:600 12px/1 var(--f-body);color:var(--fg);cursor:pointer;font-variant-numeric:tabular-nums;min-height:22px}
@@ -271,12 +271,34 @@ body.pinned:not(.full) .stack{display:none}
 .gl.aptl{pointer-events:auto;cursor:pointer;font-weight:700;font-size:12px;border:2px solid #fff;padding:3px 8px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .gl.aptl.on{background:var(--acc);color:#fff}
 /* camera buttons: a column on the right, centred in the free part of the stage */
-.navpad{position:absolute;right:8px;top:calc((100% - var(--dockh)) / 2 + 24px);transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:2}
+.navpad{position:absolute;right:8px;top:calc((100% - var(--dockh)) / 2 + 24px);transform:translateY(-50%);display:grid;grid-template-columns:repeat(3,38px);gap:4px;z-index:2;background:color-mix(in srgb,var(--surf) 70%,transparent);border-radius:14px;padding:5px}
 .navpad[hidden],body.touring .navpad{display:none}
-.navpad .icobtn{font-size:20px}
+.navpad .icobtn{width:38px;height:38px;font-size:17px;box-shadow:none}
+.navpad #nZoomIn,.navpad #nZoomOut{font-size:22px}
+/* where you are: compass + plan of the complex with the camera wedge */
+.where{position:absolute;left:8px;top:8px;z-index:2;display:flex;gap:6px;align-items:flex-start}
+.where[hidden],body.touring .where{display:none}
+.compass{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--surf) 94%,transparent);cursor:pointer;padding:0;position:relative;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.compass i{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;font:700 11px/1 var(--f-body);font-style:normal;color:#c43d32;padding-top:3px}
+.compass i::after{content:"";position:absolute;left:50%;top:15px;width:0;height:0;border:5px solid transparent;border-bottom:13px solid #c43d32;transform:translateX(-50%)}
+.cmap{width:170px;height:94px;background:color-mix(in srgb,var(--surf) 92%,transparent);border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.12);cursor:pointer}
+.cmap rect{fill:#d9dee0;stroke:#fff;stroke-width:1.5}
+.cmap rect.free{fill:#bfe8d2}.cmap rect.cur{fill:var(--acc)}.cmap rect.own{stroke:#f2a23a;stroke-width:3}
+.cmap .road{fill:none;stroke:#b9bfc3;stroke-width:5}
+.cmap .cam{fill:rgba(0,125,182,.25);stroke:var(--acc);stroke-width:1.5}
+.cmap text{font:600 11px var(--f-body);fill:var(--mut)}
+/* steps along the bottom: city → district → complex → house → floor → apartment */
+.dock .steps .chip{font-weight:600}
+.dock .steps .chip[disabled]{opacity:.4;cursor:default}
+.gl.far{font-size:10.5px;color:var(--mut);background:color-mix(in srgb,var(--surf) 78%,transparent);border:1px dashed color-mix(in srgb,var(--mut) 40%,transparent)}
 @media (max-width:640px){
-  .navpad .nturn{display:none}   /* a finger turns the scene itself; zoom and «back» stay */
-  .navpad .icobtn{width:38px;height:38px}
+  .navpad{grid-template-columns:repeat(3,30px);gap:2px;padding:2px;right:4px;background:transparent}
+  .navpad .icobtn{width:30px;height:30px;font-size:13px;background:color-mix(in srgb,var(--surf) 82%,transparent)}
+  .navpad #nZoomIn,.navpad #nZoomOut{font-size:18px}
+  .navpad .nauto{font-size:9px}
+  .dock .steps .chip{padding:6px 10px}
+  .cmap{display:none}   /* a phone keeps the compass; the plan would cover the floor column */
+  .compass{width:34px;height:34px}
   body.pinned:not(.full) .navpad{display:none}
 }
 /* guided tour */
@@ -401,19 +423,26 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     <div class="tbar">
       <button type="button" class="planbtn tourbtn" id="tourBtn" aria-label="Экскурсия по «Новелле»">▶<span class="lg"> Экскурсия</span></button>
       <button type="button" class="planbtn" id="planBtn"><span class="lg">Схема квартиры</span><span class="sm">Схема</span></button>
-      <div class="chips tchips" id="rTime" role="group" aria-label="Освещение"></div>
-      <button type="button" class="icobtn sm" id="timeBtn" aria-label="Включить вечер">☾</button>
+      <div class="chips tchips" id="rTime" role="group" aria-label="Освещение" hidden></div>
+      <button type="button" class="icobtn" id="timeBtn" aria-label="Включить вечер" title="День / вечер">☾</button>
       <button type="button" class="icobtn" id="fullBtn" aria-label="Во весь экран" aria-pressed="false">⤢</button>
     </div>
     <div class="mini" id="mini" hidden></div>
-    <!-- camera buttons on the right edge: for those who do not drag or pinch -->
+    <!-- where you are: compass (north) and a map of the complex with the camera and its direction; tap a building on it to choose it -->
+    <div class="where" id="where">
+      <button type="button" class="compass" id="compass" aria-label="Повернуть камеру на север" title="Север вверх"><i>С</i></button>
+      <svg class="cmap" id="cmap" viewBox="-200 -110 400 220" aria-label="План комплекса"></svg>
+    </div>
+    <!-- camera by buttons: tilt, turn, back to the view, zoom, slow turn by itself -->
     <div class="navpad" id="navpad" role="group" aria-label="Камера">
-      <button type="button" class="icobtn" id="nZoomIn" aria-label="Приблизить" title="Приблизить">+</button>
-      <button type="button" class="icobtn" id="nZoomOut" aria-label="Отдалить" title="Отдалить">−</button>
-      <button type="button" class="icobtn nturn" id="nLeft" aria-label="Повернуть влево" title="Повернуть влево">⟲</button>
-      <button type="button" class="icobtn nturn" id="nRight" aria-label="Повернуть вправо" title="Повернуть вправо">⟳</button>
+      <span></span><button type="button" class="icobtn" id="nUp" aria-label="Посмотреть сверху" title="Выше">▲</button><span></span>
+      <button type="button" class="icobtn" id="nLeft" aria-label="Повернуть влево" title="Повернуть влево">⟲</button>
       <button type="button" class="icobtn" id="nHome" aria-label="Вернуть вид" title="Вернуть вид">⌂</button>
-      <button type="button" class="icobtn nauto" id="nAuto" aria-label="Вращать дом" title="Вращать дом" aria-pressed="false">360°</button>
+      <button type="button" class="icobtn" id="nRight" aria-label="Повернуть вправо" title="Повернуть вправо">⟳</button>
+      <span></span><button type="button" class="icobtn" id="nDown" aria-label="Посмотреть ниже" title="Ниже">▼</button><span></span>
+      <button type="button" class="icobtn" id="nZoomIn" aria-label="Приблизить" title="Приблизить">+</button>
+      <button type="button" class="icobtn nauto" id="nAuto" aria-label="Вращать" title="Вращать" aria-pressed="false">360</button>
+      <button type="button" class="icobtn" id="nZoomOut" aria-label="Отдалить" title="Отдалить">−</button>
     </div>
     <!-- outside: the floors of the chosen building, top to bottom, a dot per apartment in its status colour (tap = that floor, cut open) -->
     <div class="stack" id="stack" role="group" aria-label="Этажи дома"></div>
@@ -425,6 +454,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       <div class="chips" id="rView" data-m="int" role="group" aria-label="Комната"></div>
       <div class="chips" id="rFinish" data-m="int" role="group" aria-label="Отделка"></div>
       <div class="chips" id="rWin" data-m="win" role="group" aria-label="Окно"></div>
+      <div class="chips steps" id="rSteps" data-m="ext" role="group" aria-label="Что показать"></div>
       <div class="chips" id="rApt" data-m="off" role="group" aria-label="Квартира на этаже"></div>
       <div class="chips" id="rFloor" data-m="win" role="group" aria-label="Этаж"><span class="dlab">Этаж</span></div>
     </div>
@@ -1281,9 +1311,17 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     if (!fv) return;
     const sx = sec.alongX ? sec.len : sec.depth, sz = sec.alongX ? sec.depth : sec.len, y0 = (S.floor - 1) * FLOOR_H;
     const add = (geo, mat, x, y, z, ud) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); if (ud) m.userData = ud; floorG.add(m); return m; };
-    if (y0 > 0.1) {   // the floors below, as a plain block with an outline
-      const lo = add(new THREE.BoxGeometry(sx, y0, sz), lowerMat, sec.cx, y0 / 2, sec.cz);
-      lo.add(new THREE.LineSegments(new THREE.EdgesGeometry(lo.geometry), flLine));
+    // the building stays a building: the floors below keep their real facade, the floors above turn to glass with an outline
+    const facadeBox = (h, floors) => {
+      const geo = new THREE.BoxGeometry(sx, h, sz), uv = geo.attributes.uv, vRep = floors / 4;
+      const tile = (face, ext) => { const u = Math.max(1, Math.round(ext / 6)) / 4; for (let i = face * 4; i < face * 4 + 4; i++) uv.setXY(i, uv.getX(i) * u, uv.getY(i) * vRep); };
+      tile(0, sz); tile(1, sz); tile(4, sx); tile(5, sx); return geo;
+    };
+    if (y0 > 0.1) add(facadeBox(y0, S.floor - 1), Array.isArray(sec.mesh.material) ? sec.mesh.material : lowerMat, sec.cx, y0 / 2, sec.cz);
+    const top = sec.floors * FLOOR_H - y0 - FLOOR_H;
+    if (top > 0.1) {
+      const up = add(new THREE.BoxGeometry(sx, top, sz), houseMat, sec.cx, y0 + FLOOR_H + top / 2, sec.cz); up.renderOrder = 2;
+      up.add(new THREE.LineSegments(new THREE.EdgesGeometry(up.geometry), new THREE.LineBasicMaterial({ color: '#7f9299' })));
     }
     if (!sec.own) add(new THREE.BoxGeometry(sx + 0.4, 0.3, sz + 0.4), plateMat, sec.cx, y0 + 0.15, sec.cz);   // the floor slab: corridor and lift core read as its light grey (our section has its own floor model)
     LETTERS.forEach((l) => {
@@ -1543,8 +1581,9 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       updateFov();
       const sec = SECTIONS[S.sec], c = [sec.cx, (S.floor - 1) * FLOOR_H + 0.5, sec.cz], half = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
       const R = Math.max(26, sec.len * 1.25 / (2 * half * Math.min(camera.aspect, 1.6)), WD * 2.4 / (2 * half)), el = 1.08;
-      const k = sec.own ? -1 : 1;   // our section from the street side: the plan model and its captions then read the right way up
-      pos = [c[0] + k * n.x * R * Math.cos(el), c[1] + R * Math.sin(el), c[2] + k * n.z * R * Math.cos(el)];
+      // our section always from the street (north, -z) side: the plan model and its captions then read the right way up
+      const fx = sec.own ? 0 : n.x, fz = sec.own ? -1 : n.z;
+      pos = [c[0] + fx * R * Math.cos(el), c[1] + R * Math.sin(el), c[2] + fz * R * Math.cos(el)];
       flyTo(pos, c, instant); return;
     }
     if (S.extView === 'top') pos = [tx[0] - 2, tx[1] + 95, tx[2] + 24];
@@ -1660,10 +1699,11 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   function selectSection(i) {
     const sec = SECTIONS[i]; S.sec = i; if (S.floor > sec.floors) S.floor = sec.floors; if (S.floor < 2) S.floor = 2;
     S.apt = i === towerSec.i ? 'a' : firstFree(sec, S.floor); if (S.sec === towerSec.i && S.floor === 8) S.apt = 'a';
-    S.inner = false; S.extView = 'house'; afterPick();
+    S.inner = false; S.extView = 'house'; S.aptOpen = false; afterPick();
   }
   // path of choosing (Дом → Этаж → Квартира → Прогулка): a flat tapped on the facade opens its floor with the card
-  function selectApt(f, l) { S.floor = f; S.apt = l; S.extView = 'floor'; S.aptOpen = true; afterPick(); }
+  // a flat tapped on the facade (or chosen in a list) stays on the whole house, lit, with its card; «Этаж» cuts the house open
+  function selectApt(f, l) { S.floor = f; S.apt = l; if (/^(all|area|city)$/.test(S.extView)) S.extView = 'house'; S.aptOpen = true; afterPick(); }
   function afterPick() { placeOutside(); flyExt(false); refresh(true); }
   function goHouse() { S.extView = 'house'; S.aptOpen = false; S.inner = false; if (S.mode !== 'ext') enterExt(false); else { placeOutside(); flyExt(false); } refresh(true); }
   function goFloor(f) {
@@ -1705,6 +1745,15 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   });
   GEO.push({ t: 'ЖК «Новелла»', k: 'novella', x: 0, z: -40, y: 40 });
   const geoDom = [], gv = new THREE.Vector3();
+  // far labels: real districts and city parts (OpenStreetMap) and the rivers at their nearest point, nearest first
+  const kmTxt = (m) => (m < 1000 ? Math.round(m / 50) * 50 + ' м' : (m / 1000).toFixed(1).replace('.', ',') + ' км');
+  const FAR = [];
+  DISTRICTS.forEach((D) => { const m = Math.hypot(D.c[0], D.c[1]); if (m > 450) FAR.push({ k: 'far', x: D.c[0], z: D.c[1], km: m, t: D.n.replace(/^микрорайон /, 'мкр ').replace(/^квартал /, 'кв-л ') + ' · ' + kmTxt(m) }); });
+  if (CITY) {
+    CITY.parts.forEach((pt) => { const p = ring2(pt[1]), x = p.reduce((a, q) => a + q[0], 0) / p.length, z = p.reduce((a, q) => a + q[1], 0) / p.length, m = Math.hypot(x, z); if (m > 1500) FAR.push({ k: 'far', x: x, z: z, km: m, t: pt[0].replace('Новый Уренгой · ', '') + ' · ' + kmTxt(m) }); });
+    CITY.rivers.forEach((rv) => { let best = null; rv[1].forEach((f) => { for (let i = 0; i < f.length; i += 2) { const m = Math.hypot(f[i], f[i + 1]); if (!best || m < best.km) best = { x: f[i], z: f[i + 1], km: m }; } }); if (best) FAR.push({ k: 'far', x: best.x, z: best.z, km: best.km, t: 'р. ' + rv[0] + ' · ' + kmTxt(best.km) }); });
+  }
+  FAR.sort((a, b) => a.km - b.km);
   function updateGeo() {
     const on = S.mode === 'ext'; geoEl.hidden = !on; if (!on) return;
     const w = stageEl.clientWidth, h = stageEl.clientHeight, cp = camera.position, items = [], city = S.extView === 'city', wide = city || S.extView === 'area' || S.extView === 'all';
@@ -1715,8 +1764,27 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
         if (gv.z < 1) items.push({ g: { k: 'aptl', l: l, t: '№ ' + aptNum(sec.i, S.floor, l) }, d: -5, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h });
       });
     }
+    // what is out there in the distance: districts, parts of the city, rivers — named with the distance from the complex
+    // out of the frame, the label sits at the edge of the stage with an arrow towards it, like a navigator (one per direction)
+    if (/^(house|yard|top|back|all|floor)$/.test(S.extView)) {
+      const dh = dockEl.offsetHeight, nl = narrow(), x0 = nl ? 120 : 140, x1 = w - (nl ? 120 : 150), y0 = 58, y1 = h - dh - 16, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, dirs = [];
+      const ARW = ['→', '↘', '↓', '↙', '←', '↖', '↑', '↗'];
+      let nIn = 0;
+      FAR.forEach((g) => {
+        gv.set(g.x, 12, g.z).project(camera);
+        let dx = gv.x, dy = -gv.y; const behind = gv.z > 1; if (behind) { dx = -dx; dy = -dy; }
+        const sx = (dx * 0.5 + 0.5) * w, sy = (dy * 0.5 + 0.5) * h;
+        if (!behind && sx > x0 && sx < x1 && sy > y0 && sy < y1) { if (nIn++ < 6) items.push({ g: g, d: 1e5 + g.km, sx: sx, sy: sy }); return; }
+        let ux = sx - cx, uy = sy - cy; const L = Math.hypot(ux, uy) || 1; ux /= L; uy /= L;
+        const a = Math.atan2(uy, ux); if (dirs.length >= 6 || dirs.some((q) => Math.abs(Math.atan2(Math.sin(a - q), Math.cos(a - q))) < 0.5)) return; dirs.push(a);
+        const t = Math.min(ux ? ((ux > 0 ? x1 : x0) - cx) / ux : 1e9, uy ? ((uy > 0 ? y1 : y0) - cy) / uy : 1e9);
+        const oct = ((Math.round(a / (Math.PI / 4)) % 8) + 8) % 8;
+        items.push({ g: { k: 'far', t: ARW[oct] + ' ' + g.t }, d: 2e5 + g.km, sx: cx + ux * t, sy: cy + uy * t });
+      });
+    }
     GEO.forEach((g) => {
       if (S.extView === 'floor') return;
+      if (g.k === 'dist' && /^(house|yard|top|back|all)$/.test(S.extView)) return;   // shown as far labels with distance
       if (city ? !/^(dist|part|novella)$/.test(g.k) : g.k === 'part' || g.k === 'novella') return;   // the city map shows only the city's names
       if (g.k === 'dist' && !wide) return;
       if (g.k === 'sec' && ((S.layer !== 'free' && !fltOn()) || S.extView === 'house' || g.sec.i === S.sec || !(fltOn() ? g.sec.match : g.sec.free) || S.extView === 'area')) return;
@@ -1731,17 +1799,19 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       if (gv.z < 1) items.push({ g: { k: 'own', t: 'Наша кв. А · 3D-интерьер' }, d: -1, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h - 14 });
     }
     items.sort((a, b) => a.d - b.d);
-    const max = city ? 44 : 26; let ns = 0; const shown = items.filter((it) => it.g.k !== 'sec' || ++ns <= (S.extView === 'all' ? 12 : 8)).slice(0, max);
+    const max = city ? 44 : 34; let ns = 0; const shown = items.filter((it) => it.g.k !== 'sec' || ++ns <= (S.extView === 'all' ? 12 : 8)).slice(0, max);
     while (geoDom.length < max) { const d = document.createElement('div'); d.className = 'gl'; geoEl.appendChild(d); geoDom.push(d); }
     const placed = [];   // in the wide views a label that would cover one already placed is skipped (nearest and city names go first)
     geoDom.forEach((d, i) => {
       const it = shown[i]; if (!it) { d.style.display = 'none'; return; }
       const g = it.g, txt = g.k === 'sec' ? (fltOn() ? g.sec.match + ' подх.' : g.sec.free + ' своб.') : g.t;
-      const cls = 'gl ' + (/^(sec|street|own|dist|part|novella|aptl)$/.test(g.k) ? g.k : '') + (g.k === 'aptl' && S.aptOpen && g.l === S.apt ? ' on' : '');
+      const cls = 'gl ' + (/^(sec|street|own|dist|part|novella|aptl|far)$/.test(g.k) ? g.k : '') + (g.k === 'aptl' && S.aptOpen && g.l === S.apt ? ' on' : '');
       d.style.display = ''; let ch = !d._w; if (d.className !== cls) { d.className = cls; ch = true; } if (d.textContent !== txt) { d.textContent = txt; ch = true; }
       if (ch) { d._w = d.offsetWidth; d._h = d.offsetHeight; }   // size is measured only when the label changes
-      const bw = d._w, bh = d._h, x = it.sx - bw / 2, y = it.sy - bh / 2;
-      if (wide && placed.some((p) => x < p[0] + p[2] + 2 && x + bw + 2 > p[0] && y < p[1] + p[3] + 1 && y + bh + 1 > p[1])) { d.style.display = 'none'; return; }
+      const bw = d._w, bh = d._h;
+      let x = it.sx - bw / 2, y = it.sy - bh / 2;
+      if (g.k === 'far') { x = clamp(x, narrow() ? 118 : 136, w - bw - (narrow() ? 118 : 146)); y = clamp(y, 52, h - bh - dockEl.offsetHeight - 6); }   // clear of the floor column and the camera pad   // edge labels stay whole inside the stage
+      if (placed.some((p) => x < p[0] + p[2] + 2 && x + bw + 2 > p[0] && y < p[1] + p[3] + 1 && y + bh + 1 > p[1])) { d.style.display = 'none'; return; }
       placed.push([x, y, bw, bh]);
       d.dataset.sec = g.k === 'sec' ? g.sec.i : ''; d.dataset.l = g.k === 'aptl' ? g.l : '';
       d.style.borderColor = g.k === 'aptl' ? FL_COL[status(S.sec, S.floor, g.l)] : '';   // the number carries the status colour of its flat
@@ -1837,7 +1907,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   }
   function goApt(si, f, l) {
     S.sec = si; S.floor = f; S.apt = l; S.inner = false;
-    S.extView = 'floor'; S.aptOpen = true;   // the floor of that flat, cut open, with its card
+    if (!/^(yard|top|back)$/.test(S.extView)) S.extView = 'house'; S.aptOpen = true;   // the whole house with that flat lit, and its card
     if (S.mode !== 'ext') { enterExt(true); refresh(true); } else afterPick();
   }
   const openPick = () => { document.body.classList.add('picking'); $('scrim').hidden = false; };
@@ -1975,7 +2045,58 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   $('nZoomIn').addEventListener('click', () => navZoom(0.66)); $('nZoomOut').addEventListener('click', () => navZoom(1.5));
   $('nLeft').addEventListener('click', () => navTurn(0.6)); $('nRight').addEventListener('click', () => navTurn(-0.6));
   $('nHome').addEventListener('click', navHome);
+  // tilt: ▲ looks more from above, ▼ lower towards the horizon
+  function navTilt(d) {
+    const t = controls.target.clone(), sp = new THREE.Spherical().setFromVector3(camera.position.clone().sub(t));
+    sp.phi = clamp(sp.phi - d, 0.12, Math.min(controls.maxPolarAngle, 1.5)); orbitTo(new THREE.Vector3().setFromSpherical(sp).add(t), t);
+  }
+  $('nUp').addEventListener('click', () => navTilt(0.3)); $('nDown').addEventListener('click', () => navTilt(-0.3));
   sync.push(() => { $('navpad').hidden = !orbitOn(); });
+
+  /* ---------- where you are: compass and the plan of the complex ---------- */
+  // north on the map: the city layer is turned with ул. Мира (CITY.rot), so true north is -z turned by that angle
+  const NR = THREE.MathUtils.degToRad(CITY ? CITY.rot : 0), NORTH = new THREE.Vector3(-Math.sin(-NR), 0, -Math.cos(-NR));
+  const camDir = new THREE.Vector3();
+  function camHeading() { camera.getWorldDirection(camDir); camDir.y = 0; if (camDir.lengthSq() < 1e-6) camDir.set(0, 0, -1); camDir.normalize(); return Math.atan2(camDir.x * NORTH.z - camDir.z * NORTH.x, camDir.x * NORTH.x + camDir.z * NORTH.z); }
+  const compassI = $('compass').firstElementChild;
+  $('compass').addEventListener('click', () => {   // turn the camera about its centre until it faces north
+    const t = controls.target.clone(), off = camera.position.clone().sub(t), h = camHeading();
+    orbitTo(off.applyAxisAngle(new THREE.Vector3(0, 1, 0), h).add(t), t);
+  });
+  const cmap = $('cmap'), SVGN = 'http://www.w3.org/2000/svg';
+  const sv = (tag, at) => { const e = document.createElementNS(SVGN, tag); Object.keys(at).forEach((k) => e.setAttribute(k, at[k])); return e; };
+  [[-200, -104, 400, -104], [-200, 0, 400, 0], [-200, 104, 400, 104], [0, -110, 0, 110]].forEach((r) => cmap.appendChild(sv('line', { x1: r[0], y1: r[1], x2: r[2], y2: r[3], class: 'road' })));
+  const cmRects = SECTIONS.map((sec) => {
+    const w = sec.alongX ? sec.len : sec.depth, d = sec.alongX ? sec.depth : sec.len;
+    const r = sv('rect', { x: sec.cx - w / 2, y: sec.cz - d / 2, width: w, height: d, rx: 1.5 }); r.addEventListener('click', (e) => { e.stopPropagation(); selectSection(sec.i); });
+    cmap.appendChild(r); return r;
+  });
+  const cmCam = sv('path', { class: 'cam' }); cmap.appendChild(cmCam);
+  cmap.appendChild(sv('text', { x: -194, y: -94 })).textContent = 'ул. Мира';
+  cmap.addEventListener('click', () => goExt('all'));
+  let whereKey = '';
+  function renderWhere() {
+    const on = S.mode === 'ext'; $('where').hidden = !on; if (!on) return;
+    const h = camHeading(); compassI.style.transform = 'rotate(' + (-h * 180 / Math.PI).toFixed(1) + 'deg)';
+    const key = S.sec + '|' + fltKey() + '|' + S.extView; if (key !== whereKey) {
+      whereKey = key;
+      cmRects.forEach((r, i) => { const sec = SECTIONS[i]; r.setAttribute('class', (i === S.sec ? 'cur' : (fltOn() ? sec.match : sec.free) ? 'free' : '') + (sec.own ? ' own' : '')); });
+    }
+    // the camera: a dot where it stands (kept inside the plan) and a wedge in the direction it looks
+    camera.getWorldDirection(camDir); camDir.y = 0; camDir.normalize();
+    const px = clamp(camera.position.x, -192, 192), pz = clamp(camera.position.z, -104, 104), a = Math.atan2(camDir.z, camDir.x), L = 46, s = 0.42;
+    cmCam.setAttribute('d', 'M' + px.toFixed(1) + ',' + pz.toFixed(1) + 'L' + (px + Math.cos(a - s) * L).toFixed(1) + ',' + (pz + Math.sin(a - s) * L).toFixed(1) + 'L' + (px + Math.cos(a + s) * L).toFixed(1) + ',' + (pz + Math.sin(a + s) * L).toFixed(1) + 'Z');
+  }
+
+  /* ---------- steps along the bottom of the stage: Город · Район · Комплекс · Дом · Этаж · Квартира ---------- */
+  const STEP = [['Город', 'city'], ['Район', 'area'], ['Комплекс', 'all', 'ЖК'], ['Дом', 'house'], ['Этаж', 'floor'], ['Квартира', 'apt', 'Кв.']];
+  const stepOf = () => (S.aptOpen ? 'apt' : /^(yard|top|back)$/.test(S.extView) ? 'apt' : S.extView);
+  STEP.forEach((s) => chip($('rSteps'), s[0], () => S.mode === 'ext' && stepOf() === s[1], () => {
+    if (s[1] === 'house') goHouse(); else if (s[1] === 'floor') goFloor(S.floor);
+    else if (s[1] === 'apt') { S.aptOpen = true; if (S.extView === 'all' || S.extView === 'area' || S.extView === 'city') S.extView = 'house'; goExt(S.extView); }
+    else { S.aptOpen = false; goExt(s[1]); }
+  }, s[2] ? { short: s[2] } : undefined));
+  sync.push(() => { $('planBtn').hidden = S.mode === 'ext'; });
   // «360°»: the building turns by itself (sales office screen); any touch of the 3D stops it
   const nAuto = $('nAuto');
   function setAuto(on) { controls.autoRotate = on; controls.autoRotateSpeed = 0.8; nAuto.setAttribute('aria-pressed', on ? 'true' : 'false'); if (on) wake(); }
@@ -2199,7 +2320,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     }
     // an apartment: plan, facts, price, walk in 3D
     const t = TYPES[S.apt], st = status(S.sec, S.floor, S.apt), own = sec.own && S.apt === 'a';
-    box.appendChild(back('← Этаж ' + S.floor, () => goFloor(S.floor)));
+    box.appendChild(S.extView === 'floor' ? back('← Этаж ' + S.floor, () => goFloor(S.floor)) : back('← Весь дом', goHouse));
     const h = el('h2', '', 'Квартира № ' + aptNum(S.sec, S.floor, S.apt)); h.appendChild(el('span', 'pill ' + st, ST[st].t)); if (!own) h.appendChild(el('span', 'devtag', '3D в разработке')); box.appendChild(h);
     box.appendChild(el('p', 'sub', 'Кв. ' + t.n + ' · этаж ' + S.floor + ' из ' + sec.floors + ' · окна ' + (t.face === 1 ? 'во двор, на юг' : 'на улицу, на север') + ' · ' + secName(sec).toLowerCase()));
     const pl = el('div', 'cplan'); pl.innerHTML = own ? planSvg({ S: 30, pad: 22, labels: true }) : genericPlan(S.apt); box.appendChild(pl);
@@ -2212,7 +2333,9 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     box.appendChild(w3);
     const bs = el('div', 'xbtns'), wv = el('button', 'chip' + (own ? '' : ' dev'), 'Вид из окна'), sc = el('button', 'chip', 'Схема');
     wv.type = sc.type = 'button'; wv.addEventListener('click', () => { if (!own) { devDlg('win'); return; } enterWindow(); refresh(true); }); sc.addEventListener('click', openPlan);
-    bs.appendChild(wv); bs.appendChild(sc); box.appendChild(bs);
+    bs.appendChild(wv); bs.appendChild(sc);
+    if (S.extView !== 'floor') { const fc = el('button', 'chip', 'Этаж ' + S.floor + ' в разрезе'); fc.type = 'button'; fc.addEventListener('click', () => { const a = S.apt; goFloor(S.floor); openApt(a); }); bs.appendChild(fc); }
+    box.appendChild(bs);
   }
   const FEAT = {
     living: ['Зона отдыха: диван, ТВ-тумба, ковёр', 'Панорамное окно у обеденной группы', 'Линейная кухня вдоль стены, 2,6 м'],
@@ -2237,6 +2360,8 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   let hintTimer = 0, hintKey = '';
   function hintText() {
     const house = S.mode === 'ext' && S.extView === 'house', h = $('hint'), key = S.mode + S.cam + (house ? 'h' : '');
+    // outside and from above the buttons on the stage are the controls: no instructions over the 3D
+    if (S.mode === 'ext' || (S.mode === 'int' && S.cam !== 'walk')) { h.hidden = true; hintKey = key; return; }
     // how to move, said for the device in hand: mouse buttons on a computer, fingers on a phone
     const mouse = canHover && !narrow();
     h.textContent = house ? 'Нажмите на квартиру на фасаде, чтобы выбрать' : narrow()
@@ -2291,7 +2416,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     $('rowSee').hidden = !(S.mode === 'int' && S.cam === 'walk');
     $('tInt').setAttribute('aria-pressed', S.mode === 'int' ? 'true' : 'false'); $('tWin').setAttribute('aria-pressed', S.mode === 'win' ? 'true' : 'false'); $('tExt').setAttribute('aria-pressed', S.mode === 'ext' ? 'true' : 'false');
     refreshMaterials(); applyVisibility(); stageColor(true);
-    $('badge').hidden = S.mode === 'int'; if (S.mode === 'win') $('badge').textContent = 'Этаж ' + S.floor + ' · ' + WIN.find((w) => w.id === S.win).n; if (S.mode === 'ext') $('badge').textContent = 'Кв-л ' + SECTIONS[S.sec].q + ' · секц. ' + SECTIONS[S.sec].n + ' · эт. ' + S.floor + ' · кв. ' + TYPES[S.apt].n;
+    $('badge').hidden = S.mode !== 'win'; if (S.mode === 'win') $('badge').textContent = 'Этаж ' + S.floor + ' · ' + WIN.find((w) => w.id === S.win).n; if (S.mode === 'ext') $('badge').textContent = 'Кв-л ' + SECTIONS[S.sec].q + ' · секц. ' + SECTIONS[S.sec].n + ' · эт. ' + S.floor + ' · кв. ' + TYPES[S.apt].n;
     $('h1').textContent = S.mode === 'ext' ? 'Квартира ' + TYPES[S.apt].n + ', ' + fmt(TYPES[S.apt].area) + ' м²' : (narrow() ? '3-комн. квартира, 72,6 м²' : 'Трёхкомнатная квартира, 72,6 м²');
     if (S.mode === 'ext') fillExtPanel();
     trackRecent(); sync.forEach((f) => f()); renderCard(); renderExtras(); renderNote(); hintText();
@@ -2545,7 +2670,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     if (tick++ % 30 === 0) stageColor(false);
     // draw only while something changes (camera, flight, walking, a click) and twice a second otherwise; nothing while off screen
     if (onScreen && (anim || walk.path || walk.turn || dirty > 0 || now - lastDraw > 500)) {
-      renderer.render(scene, camera); updateLabels(); updateGeo(); lastDraw = now; if (dirty > 0) dirty--;
+      renderer.render(scene, camera); updateLabels(); updateGeo(); renderWhere(); lastDraw = now; if (dirty > 0) dirty--;
       lastPos.copy(camera.position); lastQ.copy(camera.quaternion);
       if (loaderEl) { loaderEl.remove(); loaderEl = null; setTimeout(loadCityBlocks, 300); }   // the first frame is on screen
     }
