@@ -301,7 +301,31 @@ body.pinned:not(.full) .stack{display:none}
   .compass{width:34px;height:34px}
   body.pinned:not(.full) .navpad{display:none}
 }
+/* smooth change of mode: the stage fades out and back in */
+.veil{position:absolute;inset:0;z-index:1;background:var(--stage);opacity:0;pointer-events:none;transition:opacity .45s ease}
+.veil.on{opacity:1}
+/* view settings panel on the stage */
+.viewbtn[aria-expanded="true"]{background:var(--acc);border-color:var(--acc);color:#fff}
+.vpanel{position:absolute;right:8px;top:56px;z-index:6;width:min(320px,calc(100% - 16px));max-height:calc(100% - var(--dockh) - 70px);overflow:auto;display:flex;flex-direction:column;gap:12px;background:color-mix(in srgb,var(--surf) 97%,transparent);border-radius:16px;padding:12px 14px;box-shadow:0 8px 26px rgba(0,0,0,.2)}
+.vpanel[hidden]{display:none}
+.vp-head{display:flex;align-items:center;justify-content:space-between}
+.vp-head b{font:700 16px var(--f-display)}
+.vp-head .icobtn{width:34px;height:34px;font-size:15px}
+.vgroup{display:flex;flex-direction:column;gap:12px}
+.vgroup[hidden]{display:none}
+.vpanel .chips{flex-wrap:wrap;overflow:visible;-webkit-mask-image:none;mask-image:none}
+.vpanel .chip{min-height:38px;padding:7px 12px;font-size:13.5px}
+@media (max-width:640px){.vpanel{left:6px;right:6px;width:auto;top:52px;padding:10px 12px;gap:10px}.vgroup{gap:9px}.vpanel .chip{min-height:34px;padding:5px 11px;font-size:13px}.vp-head b{font-size:15px}}
+/* side panel sections */
+.sect{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:14px}
+.sect[hidden]{display:none}
+.sh{margin:0;font:700 13px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.other{background:var(--chip);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.other p{margin:0;font-size:14px}
+.side[data-mode="int"] .pick,.side[data-mode="win"] .pick{display:none}
 /* guided tour */
+.tour.anim .tour-t,.tour.anim p{animation:tin .6s ease both}
+@keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .tourbtn{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
 @media (min-width:641px){.badge{max-width:calc(100% - 400px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 @media (min-width:641px) and (max-width:1399px){.tourbtn .lg{display:none}}   /* the tool row would reach the location badge */
@@ -414,6 +438,22 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
 
   <div class="stage" id="stage">
     <canvas id="cv" aria-label="3D-модель квартиры"></canvas>
+    <div class="veil" id="veil" aria-hidden="true"></div>
+    <!-- view settings right on the 3D: grouped by what they change, only those of the current mode -->
+    <div class="vpanel" id="vpanel" hidden role="dialog" aria-label="Настройки вида">
+      <div class="vp-head"><b>Настройки вида</b><button type="button" class="icobtn" id="vpClose" aria-label="Закрыть">✕</button></div>
+      <div class="vgroup" data-vm="ext">
+        <div class="row"><div class="lab">Выбранный дом</div><div class="chips" id="rHouse"></div></div>
+        <div class="row"><div class="lab">Свободные квартиры</div><div class="chips" id="rLayer"></div></div>
+        <div class="row" id="rowInner"><div class="lab">Наша квартира</div><div class="chips" id="rInner"></div></div>
+        <div class="row"><div class="lab">Ракурс камеры</div><div class="chips" id="rExtView"></div></div>
+      </div>
+      <div class="vgroup" data-vm="int">
+        <div class="row"><div class="lab">Камера</div><div class="chips" id="rCam"></div></div>
+        <div class="row" id="rowSee"><div class="lab">Перегородки</div><div class="chips" id="rSee"></div></div>
+        <div class="row" id="rowStyle"><div class="lab">Стиль дизайн-проекта</div><div class="chips" id="rStyle"></div></div>
+      </div>
+    </div>
     <div class="loader" id="loader" role="status"><i></i>Загружаем 3D-квартал…</div>
     <div class="logo" aria-label="УДСД">УДСД<small>ЗАСТРОЙЩИК</small></div>
     <div id="labels"></div>
@@ -424,6 +464,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       <button type="button" class="planbtn tourbtn" id="tourBtn" aria-label="Экскурсия по «Новелле»">▶<span class="lg"> Экскурсия</span></button>
       <button type="button" class="planbtn" id="planBtn"><span class="lg">Схема квартиры</span><span class="sm">Схема</span></button>
       <div class="chips tchips" id="rTime" role="group" aria-label="Освещение" hidden></div>
+      <button type="button" class="planbtn viewbtn" id="viewBtn" aria-expanded="false" aria-controls="vpanel" title="Настройки вида">◐<span class="lg"> Вид</span></button>
       <button type="button" class="icobtn" id="timeBtn" aria-label="Включить вечер" title="День / вечер">☾</button>
       <button type="button" class="icobtn" id="fullBtn" aria-label="Во весь экран" aria-pressed="false">⤢</button>
     </div>
@@ -481,6 +522,18 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   <nav class="crumbs chips" id="crumbs" aria-label="Где вы"></nav>
   <div class="card" id="card" aria-live="polite"></div>
 
+  <!-- choosing another apartment is its own section, apart from looking at this one -->
+  <section class="sect" id="sChoose" aria-labelledby="hChoose">
+  <h3 class="sh" id="hChoose">Выбрать квартиру</h3>
+  <div class="other" id="chooseOther" hidden>
+    <p>Сейчас вы смотрите квартиру А изнутри. Другие квартиры — на доме снаружи или в подборе.</p>
+    <div class="xbtns"><button type="button" class="chip pick-show" id="oPick">Подбор квартиры</button><button type="button" class="chip" id="oHouse">Выбрать на доме</button></div>
+  </div>
+  <div class="panel" id="pExt" hidden>
+    <div hidden><div class="chips" id="rAct"></div></div>
+    <div class="row"><div class="lab">Корпус</div><select id="selSec" class="sel" aria-label="Корпус"></select></div>
+    <div class="legend"><span><i class="st" style="background:#3ddc97"></i>свободна</span><span><i class="st" style="background:#f2b04a"></i>бронь</span><span><i class="st" style="background:#6b7780"></i>продана</span><span id="dataLab">примерные данные</span></div>
+  </div>
   <!-- apartment finder: on a computer always open in the side panel, on a phone a sheet that slides up from the bottom -->
   <section class="pick" id="pick" aria-label="Подбор квартиры">
     <div class="pick-head"><b>Подбор квартиры</b><span class="pick-count" id="pickCount"></span><button type="button" class="icobtn pick-close" id="pickClose" aria-label="Закрыть подбор">✕</button></div>
@@ -491,28 +544,13 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     <div class="pick-list" id="pickList"></div>
     <div class="pick-foot"><button type="button" class="chip" id="pickReset">Сбросить</button><button type="button" class="chip pick-show" id="pickShow">Показать на 3D</button></div>
   </section>
+  </section>
 
-  <div class="panel" id="pInt">
-    <div class="row"><div class="lab">Камера</div><div class="chips" id="rCam"></div></div>
-    <div class="row" id="rowSee"><div class="lab">Перегородки</div><div class="chips" id="rSee"></div></div>
-    <div class="row" id="rowStyle"><div class="lab">Стиль дизайн-проекта</div><div class="chips" id="rStyle"></div></div>
-  </div>
-  <div class="panel" id="pExt" hidden>
-    <div class="row"><div class="lab">Подробнее</div><div class="chips" id="rAct"></div></div>
-    <div class="row"><div class="lab">Корпус</div><select id="selSec" class="sel" aria-label="Корпус"></select></div>
-    <div class="legend"><span><i class="st" style="background:#3ddc97"></i>свободна</span><span><i class="st" style="background:#f2b04a"></i>бронь</span><span><i class="st" style="background:#6b7780"></i>продана</span><span id="dataLab">примерные данные</span></div>
-    <div class="row"><div class="lab">Ракурс</div><div class="chips" id="rExtView"></div></div>
-    <!-- rarely needed: folded on phones (opened on wide screens at start) -->
-    <details class="more" id="moreExt" open>
-      <summary>Ещё настройки</summary>
-      <div class="row"><div class="lab">Подсветка корпусов</div><div class="chips" id="rLayer"></div></div>
-      <div class="row"><div class="lab">Дом</div><div class="chips" id="rHouse"></div></div>
-      <div class="row" id="rowInner"><div class="lab">Квартира</div><div class="chips" id="rInner"></div></div>
-    </details>
-  </div>
-
+  <section class="sect" id="sMine" aria-labelledby="hMine" hidden>
+  <h3 class="sh" id="hMine">Мои квартиры</h3>
   <div class="row" id="rowFav" hidden><div class="lab">Избранное</div><div class="chips" id="rFav"></div></div>
   <div class="row" id="rowRecent" hidden><div class="lab">Недавно смотрели</div><div class="chips" id="rRecent"></div></div>
+  </section>
 
   <p class="note" id="note"></p>
   </aside>
@@ -1530,7 +1568,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     controls.minDistance = 0; controls.maxDistance = 100; controls.maxPolarAngle = Math.PI;
     const to = { pos: new THREE.Vector3(...pos), tgt: new THREE.Vector3(...tgt) };
     if (instant) { camera.position.copy(to.pos); controls.target.copy(to.tgt); limits(); }
-    else anim = { t0: performance.now(), dur: document.body.classList.contains('touring') ? 1800 : 900, p0: camera.position.clone(), g0: controls.target.clone(), to: to };
+    else anim = { t0: performance.now(), dur: document.body.classList.contains('touring') ? 2800 : 1100, p0: camera.position.clone(), g0: controls.target.clone(), to: to };
   }
   function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
@@ -1674,7 +1712,8 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     sync.push(() => b.setAttribute('aria-pressed', test() ? 'true' : 'false')); return b;
   }
   const chips = {};
-  chip($('rFinish'), 'Как продаем (предчистовая)', () => S.finish === 'bare', () => { S.finish = 'bare'; refresh(); }, { short: 'Как продаем' });
+  // «Как продаем» shows the whole flat from above in pre-finish (as it is handed over), with a smooth flight from wherever the camera is
+  chip($('rFinish'), 'Как продаем (предчистовая)', () => S.finish === 'bare', () => { S.finish = 'bare'; if (S.mode === 'int' && (S.cam === 'walk' || S.view !== 'overview')) { S.cam = 'top'; S.view = 'overview'; enterInterior(false); } refresh(); }, { short: 'Как продаем' });
   chip($('rFinish'), 'Дизайн-проект', () => S.finish === 'design', () => { S.finish = 'design'; refresh(); });
   Object.keys(VIEWS).forEach((k) => chip($('rView'), VIEWS[k].label, () => S.view === k, () => { S.view = k; if (VIEWS[k].out) S.cam = 'top'; enterInterior(false); refresh(true); }));
   chip($('rCam'), 'Сверху, стены срезаны', () => S.cam === 'top', () => { S.cam = 'top'; enterInterior(false); refresh(true); }, { short: 'Сверху' });
@@ -1912,7 +1951,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   }
   const openPick = () => { document.body.classList.add('picking'); $('scrim').hidden = false; };
   const closePick = () => { document.body.classList.remove('picking'); $('scrim').hidden = true; };
-  $('mPick').addEventListener('click', openPick); $('pickClose').addEventListener('click', closePick); $('scrim').addEventListener('click', closePick);
+  $('mPick').addEventListener('click', () => (S.mode === 'ext' ? openPick() : chooseOther(true))); $('pickClose').addEventListener('click', closePick); $('scrim').addEventListener('click', closePick);
 
   // where you are: ЖК › квартал › секция › этаж › квартира (› интерьер / вид из окна); each level flies the camera there
   function renderCrumbs() {
@@ -2125,7 +2164,24 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     }
     const cur = stackEl.querySelector('[aria-pressed="true"]'); if (cur) cur.scrollIntoView({ block: 'nearest' });
   }
-  $('backHouse').addEventListener('click', () => { S.sec = towerSec.i; S.apt = 'a'; S.floor = 8; S.extView = 'floor'; S.aptOpen = true; S.inner = false; enterExt(false); refresh(true); });
+  $('backHouse').addEventListener('click', () => swap(() => { S.sec = towerSec.i; S.apt = 'a'; S.floor = 8; S.extView = 'house'; S.aptOpen = true; S.inner = false; enterExt(true); refresh(true); }));
+  // a change of mode fades the stage out and back in, so the jump from outside to inside reads as one move
+  let swapT = 0;
+  function swap(fn, ms) {
+    const v = $('veil'); clearTimeout(swapT); v.classList.add('on');
+    swapT = setTimeout(() => { fn(); wake(); requestAnimationFrame(() => requestAnimationFrame(() => v.classList.remove('on'))); }, ms || 380);
+  }
+  // view settings on the 3D
+  function setVP(on) { const p = $('vpanel'); p.hidden = !on; $('viewBtn').setAttribute('aria-expanded', on ? 'true' : 'false'); }
+  $('viewBtn').addEventListener('click', () => setVP($('vpanel').hidden));
+  $('vpClose').addEventListener('click', () => setVP(false));
+  cv.addEventListener('pointerdown', () => setVP(false), { passive: true });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setVP(false); });
+  // looking at a flat inside: choosing another one goes outside, to the building or to the finder
+  function chooseOther(pick) {
+    swap(() => { S.sec = towerSec.i; S.apt = 'a'; S.floor = 8; S.extView = 'house'; S.aptOpen = false; S.inner = false; enterExt(true); refresh(true); if (pick) { openPick(); if (!narrow()) $('pick').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
+  }
+  $('oPick').addEventListener('click', () => chooseOther(true)); $('oHouse').addEventListener('click', () => chooseOther(false));
   sync.push(() => { $('backHouse').hidden = S.mode === 'ext'; renderStack(); });
 
   computeMatches();
@@ -2158,8 +2214,8 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   }
   addEventListener('scroll', checkPin, { passive: true }); addEventListener('resize', checkPin);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.classList.contains('full') && sheetEl.hidden) setFull(false); });
-  $('tInt').addEventListener('click', () => { if (S.mode === 'ext' && !isOwn()) { devDlg('int'); return; } if (S.mode !== 'int') { enterInterior(true); refresh(true); } });
-  $('tWin').addEventListener('click', () => { if (S.mode === 'ext' && !isOwn()) { devDlg('win'); return; } if (S.mode !== 'win') { enterWindow(); refresh(true); } });
+  $('tInt').addEventListener('click', () => { if (S.mode === 'ext' && !isOwn()) { devDlg('int'); return; } if (S.mode !== 'int') swap(() => { enterInterior(true); refresh(true); }); });
+  $('tWin').addEventListener('click', () => { if (S.mode === 'ext' && !isOwn()) { devDlg('win'); return; } if (S.mode !== 'win') swap(() => { enterWindow(); refresh(true); }); });
   // 3D inside and the window view exist only for apartment A (quarter 2, section 2, floor 8): for any other flat say so and offer A
   function devDlg(mode) {
     const t = TYPES[S.apt], sec = SECTIONS[S.sec];
@@ -2171,7 +2227,8 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   /* ---------- guided tour: city → complex → finder → our building → floor → interior → pre-finish → window, day and evening ----------
      (after the stadium demo by By Omid: one continuous journey with camera flights, pause / steps / exit; touching the 3D pauses it) */
   const tourOwn = () => { S.sec = towerSec.i; S.apt = 'a'; S.floor = 8; S.inner = false; };
-  const tourInt = (view, cam, finish) => { tourOwn(); S.view = view; S.cam = cam; S.finish = finish; S.time = 'day'; placeOutside(); enterInterior(true); refresh(true); };
+  // inside to inside the camera flies; coming from outside the move happens under the fade
+  const tourInt = (view, cam, finish) => { const inInt = S.mode === 'int'; tourOwn(); S.view = view; S.cam = cam; S.finish = finish; S.time = 'day'; placeOutside(); enterInterior(!inInt); refresh(true); };
   const tourNoFilter = () => { if (fltOn()) { FLT.rooms.clear(); FLT.price = Infinity; FLT.floor = 'any'; FLT.free = true; fPrice.value = pMax; $('fFree').checked = true; computeMatches(); cellsKey = ''; } };
   const TOUR = [
     { t: 'Новый Уренгой', d: '«Новелла» — в северной части города, мкр. Уютный. Микрорайоны, реки и дороги — по OpenStreetMap.', go: () => { tourNoFilter(); tourOwn(); S.time = 'day'; goExt('city'); } },
@@ -2180,15 +2237,16 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     { t: 'Подбор', d: 'Выбраны 3-комнатные: подходящие корпуса подсвечены, на каждом — сколько подходит.', go: () => { FLT.rooms = new Set([3]); onFilter(); goExt('all'); } },
     { t: 'Ваш дом', d: 'Квартал 2, секция 2 целиком. Слева — этажи: точки показывают, сколько квартир свободно на каждом.', go: () => { tourNoFilter(); tourOwn(); S.aptOpen = false; goExt('house'); } },
     { t: 'Этаж в разрезе', d: 'Дом срезан по 8 этажу: квартиры по статусам, лифты и лестница, у нашей А видна мебель. Нажмите на квартиру — откроется карточка.', go: () => { tourOwn(); S.aptOpen = false; goExt('floor'); } },
-    { t: 'План этажа', d: 'Соседи по площадке со статусами, лифты, холл и лестница (типовое решение до планов застройщика).', go: () => tourInt('top', 'top', 'design') },
-    { t: '3D-интерьер', d: 'Вся квартира сверху, стены срезаны: дизайн-проект и площадь каждой комнаты.', go: () => tourInt('overview', 'top', 'design') },
-    { t: '«Как продаем»', d: 'Предчистовая отделка по стандарту УДСД — вид с уровня глаз из гостиной.', go: () => tourInt('living', 'walk', 'bare') },
-    { t: 'Вид из окна', d: 'Из гостиной с 8 этажа: что видно днём.', go: () => { tourOwn(); S.finish = 'design'; S.win = 'living'; S.time = 'day'; enterWindow(); refresh(true); } },
-    { t: 'Вечером', d: 'В окнах соседних домов горит свет, во дворах — фонари.', go: () => { S.time = 'eve'; refresh(); } },
-    { t: 'Выбор за вами', d: 'Сердечко — в избранное, «Оставить заявку» — менеджер перезвонит. Дальше управляйте сами.', go: () => { S.time = 'day'; tourOwn(); goExt('yard'); } }
+    { t: 'План этажа', m: 'int', d: 'Соседи по площадке со статусами, лифты, холл и лестница (типовое решение до планов застройщика).', go: () => tourInt('top', 'top', 'design') },
+    { t: '3D-интерьер', m: 'int', d: 'Вся квартира сверху, стены срезаны: дизайн-проект и площадь каждой комнаты.', go: () => tourInt('overview', 'top', 'design') },
+    { t: '«Как продаем»', m: 'int', fade: true, d: 'Та же квартира сверху в предчистовой отделке по стандарту УДСД: стяжка, стены под покраску, окна и двери, без мебели.', go: () => tourInt('overview', 'top', 'bare') },
+    { t: 'Вид из окна', m: 'win', d: 'Из гостиной с 8 этажа: что видно днём.', go: () => { tourOwn(); S.finish = 'design'; S.win = 'living'; S.time = 'day'; enterWindow(); refresh(true); } },
+    { t: 'Вечером', m: 'win', fade: true, d: 'В окнах соседних домов горит свет, во дворах — фонари.', go: () => { S.time = 'eve'; refresh(); } },
+    { t: 'Выбор за вами', m: 'ext', d: 'Сердечко — в избранное, «Оставить заявку» — менеджер перезвонит. Дальше управляйте сами.', go: () => { S.time = 'day'; tourOwn(); S.aptOpen = true; goExt('house'); } }
   ];
-  const tourEl = $('tour'), tour = { i: -1, playing: false, timer: 0, full: false };
-  const TOUR_MS = 6500;
+  TOUR.forEach((s) => { if (!s.m) s.m = 'ext'; });
+  const tourEl = $('tour'), tour = { i: -1, playing: false, timer: 0, fadeT: 0, full: false };
+  const TOUR_MS = 9000;   // a step: ~2.8 s of flight, then time to read and look
   for (let k = 0; k < TOUR.length; k++) $('tourDots').appendChild(document.createElement('i'));
   function tourRender() {
     const st = TOUR[tour.i]; $('tourT').textContent = st.t; $('tourN').textContent = (tour.i + 1) + ' из ' + TOUR.length;
@@ -2198,10 +2256,18 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     $('tourPrev').disabled = tour.i === 0;
     stageEl.style.setProperty('--dockh', '0px'); updateFov();
   }
+  // each step: a change of mode (or of finish / light) fades the stage out and in; within a mode the camera flies slowly.
+  // The text panel changes with a short fade too, and the next step waits until this one has been seen.
   function tourGo(i) {
-    clearTimeout(tour.timer); tour.i = Math.max(0, Math.min(TOUR.length - 1, i));
-    TOUR[tour.i].go(); tourRender();
-    if (tour.playing) tour.timer = setTimeout(() => { if (tour.i + 1 < TOUR.length) tourGo(tour.i + 1); else { tour.playing = false; tourRender(); } }, TOUR_MS);
+    clearTimeout(tour.timer); clearTimeout(tour.fadeT); tour.i = Math.max(0, Math.min(TOUR.length - 1, i));
+    const st = TOUR[tour.i], v = $('veil'), fade = st.fade || st.m !== S.mode;
+    const run = () => {
+      st.go(); tourRender();
+      tourEl.classList.remove('anim'); void tourEl.offsetWidth; tourEl.classList.add('anim');
+      requestAnimationFrame(() => requestAnimationFrame(() => v.classList.remove('on')));
+      if (tour.playing) tour.timer = setTimeout(() => { if (tour.i + 1 < TOUR.length) tourGo(tour.i + 1); else { tour.playing = false; tourRender(); } }, TOUR_MS);
+    };
+    if (fade) { v.classList.add('on'); tour.fadeT = setTimeout(run, 480); } else run();
   }
   function tourStart() {
     closePick(); $('lead').hidden = $('dev').hidden = true; sheetEl.hidden = true;
@@ -2224,7 +2290,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   $('devClose').addEventListener('click', () => { $('dev').hidden = true; });
   $('dev').addEventListener('click', (e) => { if (e.target.id === 'dev') $('dev').hidden = true; });
   sync.push(() => { const dev = S.mode === 'ext' && !isOwn(); ['tInt', 'tWin'].forEach((id) => { $(id).classList.toggle('dev', dev); $(id).title = dev ? 'Для этой квартиры — в разработке' : ''; }); });
-  $('tExt').addEventListener('click', () => { if (S.mode !== 'ext') { S.sec = towerSec.i; S.apt = 'a'; S.inner = false; S.extView = 'house'; S.aptOpen = false; enterExt(true); refresh(true); } });
+  $('tExt').addEventListener('click', () => { if (S.mode !== 'ext') swap(() => { S.sec = towerSec.i; S.apt = 'a'; S.inner = false; S.extView = 'house'; S.aptOpen = false; enterExt(true); refresh(true); }); });
 
   ROOMS.forEach((r) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'rl';
@@ -2408,7 +2474,10 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     if (lastMode && lastMode !== S.mode && narrow() && scrollY > 0) scrollTo({ top: 0, behavior: 'smooth' });
     lastMode = S.mode;
     wake(); renderer.shadowMap.needsUpdate = true;
-    $('pInt').hidden = S.mode !== 'int'; $('pExt').hidden = S.mode !== 'ext';
+    $('pExt').hidden = S.mode !== 'ext'; $('chooseOther').hidden = S.mode === 'ext'; $('side').dataset.mode = S.mode;
+    $('sMine').hidden = !favs.length && recents.length < 2;
+    $('vpanel').querySelectorAll('[data-vm]').forEach((g) => { g.hidden = g.dataset.vm !== S.mode; });
+    $('viewBtn').hidden = S.mode === 'win'; if (S.mode === 'win') setVP(false);
     dockEl.querySelectorAll('[data-m]').forEach((r) => { r.hidden = r.dataset.m.split(' ').indexOf(S.mode) < 0; });
     stageEl.dataset.mode = S.mode;
     stageEl.style.setProperty('--dockh', dockEl.offsetHeight + 'px'); updateFov();
@@ -2691,8 +2760,6 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   // without a link the demo opens on our apartment A in 3D: it is the only one drawn inside (the others say «в разработке»)
   if (Q.get('mode') === 'ext') { enterExt(true); refresh(true); }
   else { S.sec = towerSec.i; S.apt = 'a'; if (!(qF >= 2 && qF <= 12)) S.floor = 8; placeOutside(); if (Q.get('mode') === 'win') enterWindow(); else enterInterior(true); refresh(true); }
-  if (narrow()) $('moreExt').open = false;   // phones: rare settings folded, so the card and the main rows stay close to the 3D
-  $('moreExt').addEventListener('toggle', () => document.querySelectorAll('.chips').forEach(fades));
   if (Q.get('tour')) setTimeout(tourStart, 700);   // ?tour=1 — opens straight into the guided tour (sales office screen, the proposal page)
   requestAnimationFrame(frame);
   window.__nv = { S: S, walk: walk, startWalk: startWalk, enterWindow: enterWindow, enterInterior: enterInterior, refresh: refresh, camera: camera, describe: describe, data: DATA_OK ? 'json' : 'generated' };

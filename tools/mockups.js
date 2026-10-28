@@ -17,7 +17,7 @@ const SHOTS = [
   ['mock-facade', async (p) => { await p.click('#tExt'); await p.waitForTimeout(1500); await p.evaluate(() => [...document.querySelectorAll('#stack button')].find((b) => b.textContent.trim().startsWith('8')).click()); }],
   ['mock-city', async (p) => { await p.click('#tExt'); await p.waitForTimeout(1200); await p.evaluate(chip, ['#rExtView', 'Весь город']); }],
   ['mock-design', async (p) => { await p.click('#tInt'); }],
-  ['mock-bare', async (p) => { await p.click('#tInt'); await p.waitForTimeout(800); await p.evaluate(chip, ['#rFinish', 'Как продаем']); await p.evaluate(chip, ['#rView', 'Гостиная']); await p.evaluate(chip, ['#rCam', 'Хожу']); }],
+  ['mock-bare', async (p) => { await p.click('#tInt'); await p.waitForTimeout(800); await p.evaluate(chip, ['#rFinish', 'Как продаем']); }],
   ['mock-plan', async (p) => { await p.click('#tInt'); await p.waitForTimeout(800); await p.evaluate(chip, ['#rView', 'План сверху']); }],
   ['mock-window', async (p) => { await p.click('#tWin'); }]
 ];
