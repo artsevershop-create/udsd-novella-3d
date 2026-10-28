@@ -1741,11 +1741,11 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   chip($('rFinish'), 'Дизайн-проект', () => S.finish === 'design', () => { S.finish = 'design'; refresh(); });
   Object.keys(VIEWS).forEach((k) => chip($('rView'), VIEWS[k].label, () => S.view === k, () => { S.view = k; if (VIEWS[k].out) S.cam = 'top'; enterInterior(false); refresh(true); }));
   chip($('rCam'), 'Сверху, стены срезаны', () => S.cam === 'top', () => { S.cam = 'top'; enterInterior(false); refresh(true); }, { short: 'Сверху' });
-  chip($('rCam'), 'Хожу по квартире', () => S.cam === 'walk', () => { S.cam = 'walk'; if (VIEWS[S.view].out) S.view = 'living'; enterInterior(true); refresh(true); }, { short: 'Хожу внутри' });
+  chip($('rCam'), '3D прогулка', () => S.cam === 'walk', () => { S.cam = 'walk'; if (VIEWS[S.view].out) S.view = 'living'; enterInterior(true); refresh(true); }, { short: '3D прогулка' });
 
   // «Смотреть»: everything about how to look at the flat sits in one row on the stage (it used to hide in the «Вид» panel)
   chip($('rMode'), 'Схема сверху', () => S.cam === 'top', () => { S.cam = 'top'; enterInterior(false); refresh(true); }, { short: 'Сверху' });
-  chip($('rMode'), 'Хожу по квартире', () => S.cam === 'walk', () => { S.cam = 'walk'; if (VIEWS[S.view].out) S.view = 'living'; enterInterior(true); refresh(true); }, { short: 'Хожу внутри' });
+  chip($('rMode'), '3D прогулка', () => S.cam === 'walk', () => { S.cam = 'walk'; if (VIEWS[S.view].out) S.view = 'living'; enterInterior(true); refresh(true); }, { short: '3D прогулка' });
   const wallsLab = document.createElement('span'); wallsLab.className = 'dlab'; wallsLab.textContent = 'Стены'; $('rMode').appendChild(wallsLab);
   const wallChips = [];
   wallChips.push([chip($('rMode'), 'Срезаны', () => S.walls === 'cut', () => { S.walls = 'cut'; enterInterior(false); refresh(true); }), 'top']);
@@ -2439,7 +2439,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     const pr = el('div', 'price', st === 'sold' ? 'Продана' : money(price(S.sec, S.floor, S.apt)));
     if (st !== 'sold') pr.appendChild(el('small', '', Math.round(price(S.sec, S.floor, S.apt) / area(S.sec, S.floor, S.apt) / 1000).toLocaleString('ru-RU') + ' тыс. ₽ за м²' + (SAMPLE ? ' · пример' : '')));
     box.appendChild(pr);
-    const w3 = el('button', 'chip walk3d' + (own ? '' : ' dev'), '🚶 Прогулка в 3D'); w3.type = 'button';
+    const w3 = el('button', 'chip walk3d' + (own ? '' : ' dev'), '🚶 3D прогулка'); w3.type = 'button';
     w3.addEventListener('click', () => { if (!own) { devDlg('int'); return; } S.cam = 'walk'; S.view = 'living'; enterInterior(true); refresh(true); });
     box.appendChild(w3);
     const bs = el('div', 'xbtns'), wv = el('button', 'chip' + (own ? '' : ' dev'), 'Вид из окна'), sc = el('button', 'chip', 'Схема');
