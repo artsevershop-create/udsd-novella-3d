@@ -216,6 +216,60 @@ svg text{font-family:var(--f-body)}
 button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .stage.walk .logo{display:none}   /* walking: the mini-map takes that corner */
 .tabs button.dev:not([aria-pressed="true"]),.chip.dev{opacity:.5}   /* not drawn for the chosen flat yet: «в разработке» on tap */
+/* floor column on the stage (left): number + a dot per apartment; the chosen floor filled */
+.stack{position:absolute;left:8px;top:56px;bottom:calc(var(--dockh) + 40px);z-index:2;display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none;background:color-mix(in srgb,var(--surf) 90%,transparent);border-radius:12px;padding:5px;box-shadow:0 1px 4px rgba(0,0,0,.12);max-height:max-content}
+.stack::-webkit-scrollbar{display:none}
+.stack[hidden],body.touring .stack{display:none}
+.stack button{display:flex;align-items:center;gap:6px;border:0;background:transparent;border-radius:7px;padding:3px 6px;font:600 12px/1 var(--f-body);color:var(--fg);cursor:pointer;font-variant-numeric:tabular-nums;min-height:22px}
+.stack button span{min-width:15px;text-align:right}
+.stack button i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.stack button:hover{background:var(--chip)}
+.stack button[aria-pressed="true"]{background:var(--acc);color:#fff}
+.stack button.dim{opacity:.35}
+.backbtn{position:absolute;left:8px;top:8px;z-index:2;min-height:40px;border:1px solid var(--line);background:color-mix(in srgb,var(--surf) 94%,transparent);color:var(--acc);font:700 13px var(--f-body);padding:7px 13px;border-radius:44px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.backbtn[hidden],body.touring .backbtn{display:none}
+.navpad .nauto{font-size:12px;font-weight:700}
+@media (min-width:641px){.stage[data-mode="win"] .badge{top:56px}}   /* under «← К дому», clear of the tool row */
+body.pinned:not(.full) .stack{display:none}
+@media (max-width:640px){.side button,.side select,.side a{scroll-margin-top:calc(32svh + 70px);scroll-margin-bottom:84px}}   /* scrolled to: clear of the pinned 3D and the thumb bar */
+@media (max-width:640px){
+  .stack{top:54px;bottom:calc(var(--dockh) + 44px);left:6px;gap:0;padding:3px;border-radius:10px}
+  .stack button{min-height:17px;padding:1px 4px;gap:3px;font-size:10px;border-radius:5px}
+  .stack button span{min-width:12px}
+  .stack button i{width:5px;height:5px}
+  .stage[data-mode="ext"] .hint{display:none}   /* the step card says what to tap; the floor column needs that corner */
+  .navpad .nauto{font-size:10px}
+}
+.navpad .nauto{letter-spacing:-.04em;padding:0;font-size:11px}
+/* the step card (house → floor → apartment), as in the «Ёсуман» demo */
+.xc{grid-column:1/-1;display:flex;flex-direction:column;gap:10px;min-width:0}
+.xc .back{align-self:flex-start;border:0;background:none;color:var(--acc);font:600 13px var(--f-body);padding:2px 0;cursor:pointer}
+.xc h2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.xc .sub{margin:-6px 0 0;color:var(--mut);font-size:13.5px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tiles div{background:var(--chip);border-radius:10px;padding:7px 9px;min-width:0}
+.tiles small{display:block;color:var(--mut);font-size:11.5px}
+.tiles b{font:700 15px var(--f-display);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:420px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pill{display:inline-block;font:600 11.5px var(--f-body);border-radius:999px;padding:2px 9px}
+.pill.free{background:#dff5e8;color:#1b7a46}.pill.res{background:#fdf0d2;color:#8a5a00}.pill.sold{background:#f9e0de;color:#9b3b33}
+.flist{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.flist button{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:8px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--fg);font:500 14px var(--f-body);padding:9px 2px;cursor:pointer;text-align:left}
+.flist button[aria-current]{background:var(--chip)}
+.flist button small{color:var(--mut);font-size:13px}
+.flist .st{width:9px;height:9px}
+.legend2{display:flex;gap:12px;font-size:12px;color:var(--mut)}
+.legend2 i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.cplan{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:6px}
+.cplan svg{display:block;width:100%;height:auto;max-height:220px}
+.price{font:700 24px var(--f-display);font-variant-numeric:tabular-nums}
+.price small{display:block;font:400 12.5px var(--f-body);color:var(--mut)}
+.walk3d{min-height:48px;justify-content:center;background:var(--green)!important;border-color:var(--green)!important;color:#fff!important;font-weight:700;font-size:15px}
+.walk3d.dev{opacity:.55}
+.xbtns{display:flex;gap:8px;flex-wrap:wrap}
+.xbtns .chip{flex:1;justify-content:center}
+.gl.aptl{pointer-events:auto;cursor:pointer;font-weight:700;font-size:12px;border:2px solid #fff;padding:3px 8px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.gl.aptl.on{background:var(--acc);color:#fff}
 /* camera buttons: a column on the right, centred in the free part of the stage */
 .navpad{position:absolute;right:8px;top:calc((100% - var(--dockh)) / 2 + 24px);transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:2}
 .navpad[hidden],body.touring .navpad{display:none}
@@ -359,15 +413,20 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       <button type="button" class="icobtn nturn" id="nLeft" aria-label="Повернуть влево" title="Повернуть влево">⟲</button>
       <button type="button" class="icobtn nturn" id="nRight" aria-label="Повернуть вправо" title="Повернуть вправо">⟳</button>
       <button type="button" class="icobtn" id="nHome" aria-label="Вернуть вид" title="Вернуть вид">⌂</button>
+      <button type="button" class="icobtn nauto" id="nAuto" aria-label="Вращать дом" title="Вращать дом" aria-pressed="false">360°</button>
     </div>
+    <!-- outside: the floors of the chosen building, top to bottom, a dot per apartment in its status colour (tap = that floor, cut open) -->
+    <div class="stack" id="stack" role="group" aria-label="Этажи дома"></div>
+    <!-- inside and at the window: straight back to the building -->
+    <button type="button" class="backbtn" id="backHouse">← К дому</button>
     <div class="hint" id="hint"></div>
     <!-- the main controls of each mode sit on the stage itself, so the 3D view stays in sight while switching -->
     <div class="dock" id="dock">
       <div class="chips" id="rView" data-m="int" role="group" aria-label="Комната"></div>
       <div class="chips" id="rFinish" data-m="int" role="group" aria-label="Отделка"></div>
       <div class="chips" id="rWin" data-m="win" role="group" aria-label="Окно"></div>
-      <div class="chips" id="rApt" data-m="ext" role="group" aria-label="Квартира на этаже"></div>
-      <div class="chips" id="rFloor" data-m="win ext" role="group" aria-label="Этаж"><span class="dlab">Этаж</span></div>
+      <div class="chips" id="rApt" data-m="off" role="group" aria-label="Квартира на этаже"></div>
+      <div class="chips" id="rFloor" data-m="win" role="group" aria-label="Этаж"><span class="dlab">Этаж</span></div>
     </div>
     <!-- guided tour: one continuous journey from the city to the window, with camera flights between the steps -->
     <div class="tour" id="tour" hidden role="region" aria-label="Экскурсия">
@@ -489,7 +548,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   const fmt = (n) => String(n).replace('.', ',');
 
   /* ---------- state ---------- */
-  const S = { mode: 'int', finish: 'design', cam: 'top', see: 'glass', inner: false, house: 'glass', extView: 'yard', layer: 'free', sec: 0, apt: 'a', view: 'overview', style: 'scandi', time: 'day', floor: 8, win: 'living' };
+  const S = { mode: 'int', finish: 'design', cam: 'top', see: 'glass', inner: false, house: 'glass', extView: 'house', aptOpen: false, layer: 'free', sec: 0, apt: 'a', view: 'overview', style: 'scandi', time: 'day', floor: 8, win: 'living' };
   const Q = new URLSearchParams(location.search);   // read before anything rewrites the address (see updateUrl)
   let urlReady = false;
   // apartment finder: rooms (0 = studio), top price in roubles, floor band, free only
@@ -838,12 +897,13 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   // jagged roofline of the tall «Новелла» towers: three pitched gables along the section, in the facade colour
   const gableMats = {};
   function gables(cx, cz, len, h, hex) {
-    const m = gableMats[hex] || (gableMats[hex] = new THREE.MeshLambertMaterial({ color: hex })), w = len / 3;
+    const m = gableMats[hex] || (gableMats[hex] = new THREE.MeshLambertMaterial({ color: hex })), w = len / 3, grp = new THREE.Group();
     for (let i = 0; i < 3; i++) {
       const s = new THREE.Shape(); s.moveTo(-w / 2, 0); s.lineTo(w / 2, 0); s.lineTo(w / 2, i === 1 ? 3 : 4.2); s.lineTo(-w / 2, 0.6); s.closePath();   // asymmetric pitch, like the renders
       const geo = new THREE.ExtrudeGeometry(s, { depth: WD - 1.2, bevelEnabled: false }).translate(0, 0, -(WD - 1.2) / 2);
-      const g = new THREE.Mesh(geo, m); g.position.set(cx - len / 2 + w * (i + 0.5), h, cz); outside.add(g);
+      const g = new THREE.Mesh(geo, m); g.position.set(cx - len / 2 + w * (i + 0.5), h, cz); grp.add(g);
     }
+    outside.add(grp); return grp;   // kept on the section: the floor view hides the roof with the floors above
   }
   slab(-100, 0, 900, 440, 0.02, mGround).position.y = -0.01;
   // real districts of Novy Urengoy from OpenStreetMap (demo/city.js, tools/gen-city.js): flat ground under them, no made-up lakes or forest there
@@ -926,8 +986,8 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
           ownPart = box((x1 + x2) / 2, zc, x2 - x1, WD, fl[k], hex, 'Ваш дом, секция 2');
           secMesh = box(xc, zc, ls, WD, fl[k], hex, t); blockers.pop(); secMesh.visible = false;
         } else secMesh = box(xc, zc, ls, WD, fl[k], hex, t);
-        reg(secMesh, xc, zc, ls, WD, true, fl[k], qi, own);
-        if (fl[k] >= 11) gables(xc, zc, ls, fl[k] * 3, hex);
+        const sg = reg(secMesh, xc, zc, ls, WD, true, fl[k], qi, own); sg.hex = hex;
+        if (fl[k] >= 11) sg.gab = gables(xc, zc, ls, fl[k] * 3, hex);
         const depth = WD + 0.3, outer = zc + dir * WD / 2;
         const strip = new THREE.Mesh(new THREE.BoxGeometry(ls - 0.1, 3.2, depth), mStrip);
         strip.position.set(xc, 1.6, outer + dir * (0.6 - depth / 2)); outside.add(strip);
@@ -1177,19 +1237,64 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       selGlass.position.set(sec.cx, sec.floors * FLOOR_H / 2, sec.cz); selEdges.scale.copy(selGlass.scale); selEdges.position.copy(selGlass.position);
     }
     aptBox.position.set(ci.c.x - ci.n.x * t.D / 2, ci.y + 1.45, ci.c.z - ci.n.z * t.D / 2);
-    aptBox.visible = !(S.inner && isOwn());
+    aptBox.visible = !(S.inner && isOwn()) && S.extView !== 'floor';
     rebuildCells();
   }
   function syncSections() {
-    const ext = S.mode === 'ext', glass = S.house === 'glass';
+    const ext = S.mode === 'ext', glass = S.house === 'glass', fv = ext && S.extView === 'floor';
     SECTIONS.forEach((sec) => {
       const sel = ext && sec.i === S.sec;
-      if (sec.own) { sec.mesh.visible = ext && !(sel && glass); if (ownPart) ownPart.visible = !ext; }
-      else sec.mesh.visible = !(sel && glass);
-      sec.ov.visible = ext && (S.layer === 'free' || fltOn()) && !sel && S.extView !== 'house';   // «Весь дом»: only the chosen building speaks
+      if (sec.own) { sec.mesh.visible = ext && !(sel && (glass || fv)); if (ownPart) ownPart.visible = !ext; }
+      else sec.mesh.visible = !(sel && (glass || fv));
+      if (sec.gab) sec.gab.visible = !(sel && fv);
+      sec.ov.visible = ext && (S.layer === 'free' || fltOn()) && !sel && S.extView !== 'house' && !fv;   // «Весь дом» and a floor: only the chosen building speaks
     });
-    selGlass.visible = selEdges.visible = ext && S.house === 'glass';
-    cellG.visible = ext;
+    selGlass.visible = selEdges.visible = ext && S.house === 'glass' && !fv;
+    cellG.visible = ext && !fv;
+    rebuildFloor();
+  }
+
+  /* ---------- a floor of the chosen building (as in the Jomi Studio «Ёсуман» demo): the building is cut at that floor,
+     the floors below stay as a plain block, the apartments of the floor lie on top coloured by status and can be tapped.
+     Our section shows its real apartment A inside with the lift core and the neighbours from the interior model. ---------- */
+  const floorG = new THREE.Group(); extG.add(floorG);
+  const FL_COL = { free: '#8fd9b0', res: '#f4cf7e', sold: '#e9aaa6' }, flMats = {}, flPick = new THREE.MeshBasicMaterial({ visible: false });
+  Object.keys(FL_COL).forEach((k) => { flMats[k] = new THREE.MeshLambertMaterial({ color: FL_COL[k] }); flMats[k + '!'] = new THREE.MeshLambertMaterial({ color: FL_COL[k], emissive: '#5a3a00', emissiveIntensity: 0.35 }); });
+  const flDim = new THREE.MeshLambertMaterial({ color: '#dcdcd6' });
+  const lowerMat = new THREE.MeshLambertMaterial({ color: '#e7e2d8' }), plateMat = new THREE.MeshLambertMaterial({ color: '#f4f2ed' });
+  const flLine = new THREE.LineBasicMaterial({ color: '#7d7466' }), flLineSel = new THREE.LineBasicMaterial({ color: '#ffffff' });
+  // the floor under the cursor / the chosen floor on the facade: a light band with a bright outline
+  const band = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: '#ffe7a3', transparent: true, opacity: 0.45, depthWrite: false }));
+  band.add(new THREE.LineSegments(new THREE.EdgesGeometry(band.geometry), new THREE.LineBasicMaterial({ color: '#f2a23a' }))); band.renderOrder = 4; extG.add(band);
+  let floorKey = '', hoverFloor = 0;
+  function rebuildFloor() {
+    const sec = SECTIONS[S.sec], fv = S.mode === 'ext' && S.extView === 'floor';
+    const showBand = S.mode === 'ext' && !fv && /^(house|yard|top|back)$/.test(S.extView);
+    const bf = hoverFloor || S.floor; band.visible = showBand && bf >= 2;
+    if (band.visible) {
+      band.scale.set((sec.alongX ? sec.len : sec.depth) + 1, FLOOR_H - 0.1, (sec.alongX ? sec.depth : sec.len) + 1);
+      band.position.set(sec.cx, (bf - 1) * FLOOR_H + FLOOR_H / 2, sec.cz);
+    }
+    floorG.visible = fv;
+    const key = fv ? S.sec + ':' + S.floor + S.apt + fltKey() : ''; if (key === floorKey) return; floorKey = key;
+    while (floorG.children.length) { const c = floorG.children.pop(); if (c.geometry) c.geometry.dispose(); }
+    if (!fv) return;
+    const sx = sec.alongX ? sec.len : sec.depth, sz = sec.alongX ? sec.depth : sec.len, y0 = (S.floor - 1) * FLOOR_H;
+    const add = (geo, mat, x, y, z, ud) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); if (ud) m.userData = ud; floorG.add(m); return m; };
+    if (y0 > 0.1) {   // the floors below, as a plain block with an outline
+      const lo = add(new THREE.BoxGeometry(sx, y0, sz), lowerMat, sec.cx, y0 / 2, sec.cz);
+      lo.add(new THREE.LineSegments(new THREE.EdgesGeometry(lo.geometry), flLine));
+    }
+    if (!sec.own) add(new THREE.BoxGeometry(sx + 0.4, 0.3, sz + 0.4), plateMat, sec.cx, y0 + 0.15, sec.cz);   // the floor slab: corridor and lift core read as its light grey (our section has its own floor model)
+    LETTERS.forEach((l) => {
+      const ci = cellInfo(sec, l, S.floor), t = ci.t, st = status(sec.i, S.floor, l), sel = l === S.apt;
+      const bw = (sec.alongX ? ci.w : t.D) - 0.35, bd = (sec.alongX ? t.D : ci.w) - 0.35, cx = ci.c.x - ci.n.x * t.D / 2, cz = ci.c.z - ci.n.z * t.D / 2;
+      const ud = { l: l };
+      if (sec.own) { add(new THREE.BoxGeometry(bw, 2.6, bd), flPick, cx, y0 + 1.6, cz, ud); return; }   // our section: the interior model is drawn, this only catches taps
+      const dim = fltOn() && !fltMatch(sec.i, S.floor, l), h = sel ? 1.3 : 0.55;
+      const m = add(new THREE.BoxGeometry(bw, h, bd), dim ? flDim : flMats[st + (sel ? '!' : '')], cx, y0 + 0.3 + h / 2, cz, ud);
+      m.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), sel ? flLineSel : flLine));
+    });
   }
 
   /* ---------- neighbours on the floor of our apartment (shown in the plan view) ---------- */
@@ -1366,13 +1471,14 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     wallsTall.visible = eye; ceilings.visible = eye; outside.visible = eye || inExt;
     reliefG.visible = !(inExt && S.extView === 'city');
     wallsRender.visible = !eye;
-    root.visible = !inExt || (S.inner && isOwn());
+    const ownFloor = inExt && S.extView === 'floor' && SECTIONS[S.sec].own;   // a floor of our section: apartment A with furniture, core, neighbours
+    root.visible = !inExt || (S.inner && isOwn()) || ownFloor;
     extG.visible = inExt;
     furn.visible = S.finish === 'design' && !inWin;
     labelsEl.hidden = !(S.mode === 'int' && S.cam === 'top' && VIEWS[S.view].out); labelsEl.classList.toggle('sm', S.view === 'top');
     $('mini').hidden = !(S.mode === 'int' && S.cam === 'walk');
     stageEl.classList.toggle('walk', S.mode === 'int' && S.cam === 'walk');
-    nbG.visible = coreM.visible = S.mode === 'int' && S.cam === 'top' && S.view === 'top';
+    nbG.visible = coreM.visible = (S.mode === 'int' && S.cam === 'top' && S.view === 'top') || ownFloor;
     syncSections(); updateExtMarker();
     stageColor(true);
   }
@@ -1409,7 +1515,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     setRange(0.1, 3000);
     describe();
   }
-  const EXTV = { house: { label: 'Весь дом' }, yard: { label: 'Со стороны окон' }, top: { label: 'Сверху' }, back: { label: 'С противоположной стороны' }, all: { label: 'Все корпуса' }, area: { label: 'Окрестности' }, city: { label: 'Весь город' } };
+  const EXTV = { house: { label: 'Весь дом' }, floor: { label: 'Этаж в разрезе' }, yard: { label: 'Со стороны окон' }, top: { label: 'Сверху' }, back: { label: 'С противоположной стороны' }, all: { label: 'Все корпуса' }, area: { label: 'Окрестности' }, city: { label: 'Весь город' } };
   function extTarget() {
     const sec = SECTIONS[S.sec], ci = cellInfo(sec, S.apt, S.floor);
     return [ci.c.x - ci.n.x * 3, ci.y + 1.5, ci.c.z - ci.n.z * 3, ci.n];
@@ -1430,6 +1536,15 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       // from above at ~32°, so the opposite wing of the quarter (~50 m across the yard) does not stand between camera and facade
       const R = Math.max(85, (h + 14) * 1.7 / (2 * half), sec.len * 1.8 / (2 * half * Math.min(camera.aspect, 1.6))), el = 0.6;
       pos = [c[0] + n.x * R * Math.cos(el) + (n.z ? R * 0.12 : 0), c[1] + R * Math.sin(el), c[2] + n.z * R * Math.cos(el) + (n.x ? R * 0.12 : 0)];
+      flyTo(pos, c, instant); return;
+    }
+    // a floor: the building cut at that floor, seen from above at ~62° from the side of the chosen apartment
+    if (S.extView === 'floor') {
+      updateFov();
+      const sec = SECTIONS[S.sec], c = [sec.cx, (S.floor - 1) * FLOOR_H + 0.5, sec.cz], half = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+      const R = Math.max(26, sec.len * 1.25 / (2 * half * Math.min(camera.aspect, 1.6)), WD * 2.4 / (2 * half)), el = 1.08;
+      const k = sec.own ? -1 : 1;   // our section from the street side: the plan model and its captions then read the right way up
+      pos = [c[0] + k * n.x * R * Math.cos(el), c[1] + R * Math.sin(el), c[2] + k * n.z * R * Math.cos(el)];
       flyTo(pos, c, instant); return;
     }
     if (S.extView === 'top') pos = [tx[0] - 2, tx[1] + 95, tx[2] + 24];
@@ -1525,7 +1640,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   Object.keys(VIEWS).forEach((k) => chip($('rView'), VIEWS[k].label, () => S.view === k, () => { S.view = k; if (VIEWS[k].out) S.cam = 'top'; enterInterior(false); refresh(true); }));
   chip($('rCam'), 'Сверху, стены срезаны', () => S.cam === 'top', () => { S.cam = 'top'; enterInterior(false); refresh(true); }, { short: 'Сверху' });
   chip($('rCam'), 'Хожу по квартире', () => S.cam === 'walk', () => { S.cam = 'walk'; if (VIEWS[S.view].out) S.view = 'living'; enterInterior(true); refresh(true); }, { short: 'Хожу внутри' });
-  const EXT_SHORT = { house: 'Весь дом', yard: 'Со двора', top: 'Сверху', back: 'С улицы', all: 'Все корпуса', area: 'Окрестности', city: 'Весь город' };
+  const EXT_SHORT = { house: 'Весь дом', floor: 'Этаж', yard: 'Со двора', top: 'Сверху', back: 'С улицы', all: 'Все корпуса', area: 'Окрестности', city: 'Весь город' };
   Object.keys(EXTV).forEach((k) => chip($('rExtView'), EXTV[k].label, () => S.extView === k, () => { S.extView = k; flyExt(false); refresh(true); }, { short: EXT_SHORT[k] }));
   chip($('rHouse'), 'Прозрачный', () => S.house === 'glass', () => { S.house = 'glass'; refresh(true); });
   chip($('rHouse'), 'Сплошной', () => S.house === 'solid', () => { S.house = 'solid'; refresh(true); });
@@ -1547,12 +1662,21 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     S.apt = i === towerSec.i ? 'a' : firstFree(sec, S.floor); if (S.sec === towerSec.i && S.floor === 8) S.apt = 'a';
     S.inner = false; S.extView = 'house'; afterPick();
   }
-  function selectApt(f, l) { S.floor = f; S.apt = l; afterPick(); }
+  // path of choosing (Дом → Этаж → Квартира → Прогулка): a flat tapped on the facade opens its floor with the card
+  function selectApt(f, l) { S.floor = f; S.apt = l; S.extView = 'floor'; S.aptOpen = true; afterPick(); }
   function afterPick() { placeOutside(); flyExt(false); refresh(true); }
+  function goHouse() { S.extView = 'house'; S.aptOpen = false; S.inner = false; if (S.mode !== 'ext') enterExt(false); else { placeOutside(); flyExt(false); } refresh(true); }
+  function goFloor(f) {
+    const sec = SECTIONS[S.sec]; S.floor = clamp(f, 2, sec.floors); S.extView = 'floor'; S.aptOpen = false; S.inner = false;
+    if (status(S.sec, S.floor, S.apt) !== 'free' && !(sec.own && S.apt === 'a')) S.apt = firstFree(sec, S.floor);
+    if (S.mode !== 'ext') enterExt(false); else { placeOutside(); flyExt(false); } refresh(true);
+  }
+  function openApt(l) { S.apt = l; S.aptOpen = true; placeOutside(); refresh(true); }
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   function pickExt(e) {
     const r = cv.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
+    if (S.extView === 'floor') { const fh = ray.intersectObjects(floorG.children, false).find((h) => h.object.userData.l); if (fh) { openApt(fh.object.userData.l); return; } }
     const cells = ray.intersectObjects(cellG.children, false)[0];
     const hs = ray.intersectObjects(pickList.filter((m) => m.visible), false)[0];
     if (cells && (!hs || cells.distance < hs.distance + 1)) { selectApt(cells.object.userData.f, cells.object.userData.l); return; }
@@ -1584,7 +1708,15 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   function updateGeo() {
     const on = S.mode === 'ext'; geoEl.hidden = !on; if (!on) return;
     const w = stageEl.clientWidth, h = stageEl.clientHeight, cp = camera.position, items = [], city = S.extView === 'city', wide = city || S.extView === 'area' || S.extView === 'all';
+    if (S.extView === 'floor') {   // a floor cut open: only the apartment numbers, each a button
+      const sec = SECTIONS[S.sec];
+      LETTERS.forEach((l) => {
+        const ci = cellInfo(sec, l, S.floor); gv.set(ci.c.x - ci.n.x * ci.t.D / 2, ci.y + (sec.own ? 2.9 : 1.6), ci.c.z - ci.n.z * ci.t.D / 2).project(camera);
+        if (gv.z < 1) items.push({ g: { k: 'aptl', l: l, t: '№ ' + aptNum(sec.i, S.floor, l) }, d: -5, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h });
+      });
+    }
     GEO.forEach((g) => {
+      if (S.extView === 'floor') return;
       if (city ? !/^(dist|part|novella)$/.test(g.k) : g.k === 'part' || g.k === 'novella') return;   // the city map shows only the city's names
       if (g.k === 'dist' && !wide) return;
       if (g.k === 'sec' && ((S.layer !== 'free' && !fltOn()) || S.extView === 'house' || g.sec.i === S.sec || !(fltOn() ? g.sec.match : g.sec.free) || S.extView === 'area')) return;
@@ -1594,7 +1726,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       const d = g.k === 'part' || g.k === 'novella' ? -2 : Math.hypot(g.x - cp.x, (g.y || 0) - cp.y, g.z - cp.z);
       items.push({ g: g, d: d, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h });
     });
-    if (isOwn() && S.extView !== 'area' && !city) {   // name the apartment we built, so it is not confused with the others
+    if (isOwn() && S.extView !== 'area' && S.extView !== 'floor' && !city) {   // name the apartment we built, so it is not confused with the others
       gv.copy(aptBox.position); gv.y += 2.2; gv.project(camera);
       if (gv.z < 1) items.push({ g: { k: 'own', t: 'Наша кв. А · 3D-интерьер' }, d: -1, sx: (gv.x * 0.5 + 0.5) * w, sy: (-gv.y * 0.5 + 0.5) * h - 14 });
     }
@@ -1604,17 +1736,22 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     const placed = [];   // in the wide views a label that would cover one already placed is skipped (nearest and city names go first)
     geoDom.forEach((d, i) => {
       const it = shown[i]; if (!it) { d.style.display = 'none'; return; }
-      const g = it.g, txt = g.k === 'sec' ? (fltOn() ? g.sec.match + ' подх.' : g.sec.free + ' своб.') : g.t, cls = 'gl ' + (/^(sec|street|own|dist|part|novella)$/.test(g.k) ? g.k : '');
+      const g = it.g, txt = g.k === 'sec' ? (fltOn() ? g.sec.match + ' подх.' : g.sec.free + ' своб.') : g.t;
+      const cls = 'gl ' + (/^(sec|street|own|dist|part|novella|aptl)$/.test(g.k) ? g.k : '') + (g.k === 'aptl' && S.aptOpen && g.l === S.apt ? ' on' : '');
       d.style.display = ''; let ch = !d._w; if (d.className !== cls) { d.className = cls; ch = true; } if (d.textContent !== txt) { d.textContent = txt; ch = true; }
       if (ch) { d._w = d.offsetWidth; d._h = d.offsetHeight; }   // size is measured only when the label changes
       const bw = d._w, bh = d._h, x = it.sx - bw / 2, y = it.sy - bh / 2;
       if (wide && placed.some((p) => x < p[0] + p[2] + 2 && x + bw + 2 > p[0] && y < p[1] + p[3] + 1 && y + bh + 1 > p[1])) { d.style.display = 'none'; return; }
       placed.push([x, y, bw, bh]);
-      d.dataset.sec = g.k === 'sec' ? g.sec.i : '';
+      d.dataset.sec = g.k === 'sec' ? g.sec.i : ''; d.dataset.l = g.k === 'aptl' ? g.l : '';
+      d.style.borderColor = g.k === 'aptl' ? FL_COL[status(S.sec, S.floor, g.l)] : '';   // the number carries the status colour of its flat
       d.style.transform = 'translate(' + x.toFixed(0) + 'px,' + y.toFixed(0) + 'px)';
     });
   }
-  geoEl.addEventListener('click', (e) => { const t = e.target.closest('.sec'); if (t && t.dataset.sec !== '') selectSection(+t.dataset.sec); });
+  geoEl.addEventListener('click', (e) => {
+    const a = e.target.closest('.aptl'); if (a && a.dataset.l) { openApt(a.dataset.l); return; }
+    const t = e.target.closest('.sec'); if (t && t.dataset.sec !== '') selectSection(+t.dataset.sec);
+  });
 
   /* ---------- panel for the outside mode ---------- */
   const selSec = $('selSec');
@@ -1700,7 +1837,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   }
   function goApt(si, f, l) {
     S.sec = si; S.floor = f; S.apt = l; S.inner = false;
-    if (S.extView === 'all' || S.extView === 'area' || S.extView === 'city') S.extView = 'house';   // from afar: first the whole building, the flat lit on it
+    S.extView = 'floor'; S.aptOpen = true;   // the floor of that flat, cut open, with its card
     if (S.mode !== 'ext') { enterExt(true); refresh(true); } else afterPick();
   }
   const openPick = () => { document.body.classList.add('picking'); $('scrim').hidden = false; };
@@ -1711,7 +1848,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   function renderCrumbs() {
     const c = $('crumbs'); c.textContent = '';
     const a = curApt(), sec = SECTIONS[a.sec];
-    const items = [['ЖК «Новелла»', () => goExt('all')], ['Квартал ' + sec.q, () => goExt('top')], ['Секция ' + sec.n, () => goExt('house')], ['Этаж ' + a.floor, () => goExt('yard')], ['Кв. ' + TYPES[a.apt].n, () => goExt('yard')]];
+    const items = [['ЖК «Новелла»', () => goExt('all')], ['Квартал ' + sec.q, () => goExt('top')], ['Секция ' + sec.n, () => goExt('house')], ['Этаж ' + a.floor, () => goFloor(a.floor)], ['Кв. ' + TYPES[a.apt].n, () => { if (S.mode === 'ext') openApt(a.apt); else selectApt(a.floor, a.apt); }]];
     if (S.mode === 'int') items.push(['3D-интерьер']); if (S.mode === 'win') items.push(['Вид из окна']);
     items.forEach((it, i) => {
       if (i) { const s = document.createElement('i'); s.textContent = '›'; c.appendChild(s); }
@@ -1744,6 +1881,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     const on = isFav(curApt()), mf = $('mFav'); mf.textContent = on ? '♥' : '♡'; mf.setAttribute('aria-pressed', on ? 'true' : 'false'); mf.setAttribute('aria-label', on ? 'Убрать из избранного' : 'В избранное');
   }
   function decorateCard() {   // heart next to the title, a clear request button under the facts
+    if (S.mode === 'ext' && !(S.aptOpen || /^(yard|top|back)$/.test(S.extView))) return;   // the building and floor steps have no single flat yet
     const card = $('card'), h = card.querySelector('h2'); if (!h) return;
     const head = document.createElement('div'); head.className = 'cardhead'; h.parentNode.insertBefore(head, h); head.appendChild(h);
     const on = isFav(curApt()), fb = document.createElement('button'); fb.type = 'button'; fb.className = 'favbtn'; fb.textContent = on ? '♥' : '♡';
@@ -1838,6 +1976,36 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   $('nLeft').addEventListener('click', () => navTurn(0.6)); $('nRight').addEventListener('click', () => navTurn(-0.6));
   $('nHome').addEventListener('click', navHome);
   sync.push(() => { $('navpad').hidden = !orbitOn(); });
+  // «360°»: the building turns by itself (sales office screen); any touch of the 3D stops it
+  const nAuto = $('nAuto');
+  function setAuto(on) { controls.autoRotate = on; controls.autoRotateSpeed = 0.8; nAuto.setAttribute('aria-pressed', on ? 'true' : 'false'); if (on) wake(); }
+  nAuto.addEventListener('click', () => setAuto(!controls.autoRotate));
+  cv.addEventListener('pointerdown', () => { if (controls.autoRotate) setAuto(false); }, { passive: true });
+  sync.push(() => { if (S.mode !== 'ext' && controls.autoRotate) setAuto(false); });
+
+  // the floor column: from the top floor down, a dot per apartment; hover lights that floor on the facade, a tap cuts the building there
+  const stackEl = $('stack');
+  let stackKey = '';
+  function renderStack() {
+    const on = S.mode === 'ext' && /^(house|floor|yard|top|back)$/.test(S.extView); stackEl.hidden = !on; if (!on) return;
+    const sec = SECTIONS[S.sec], key = S.sec + ':' + S.floor + fltKey(); if (key === stackKey) return; stackKey = key;
+    stackEl.textContent = '';
+    for (let f = sec.floors; f >= 2; f--) {
+      const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', f === S.floor ? 'true' : 'false');
+      const n = document.createElement('span'); n.textContent = f; b.appendChild(n);
+      let free = 0, hit = 0;
+      LETTERS.forEach((l) => { const st = status(sec.i, f, l), i = document.createElement('i'); i.style.background = ST[st].c; b.appendChild(i); if (st === 'free') free++; if (fltOn() && fltMatch(sec.i, f, l)) hit++; });
+      if (fltOn() && !hit) b.classList.add('dim');
+      b.title = 'Этаж ' + f + ' · свободно ' + free + ' из 4';
+      b.addEventListener('click', () => goFloor(f));
+      b.addEventListener('pointerenter', () => { if (canHover) { hoverFloor = f; rebuildFloor(); wake(); } });
+      b.addEventListener('pointerleave', () => { hoverFloor = 0; rebuildFloor(); wake(); });
+      stackEl.appendChild(b);
+    }
+    const cur = stackEl.querySelector('[aria-pressed="true"]'); if (cur) cur.scrollIntoView({ block: 'nearest' });
+  }
+  $('backHouse').addEventListener('click', () => { S.sec = towerSec.i; S.apt = 'a'; S.floor = 8; S.extView = 'floor'; S.aptOpen = true; S.inner = false; enterExt(false); refresh(true); });
+  sync.push(() => { $('backHouse').hidden = S.mode === 'ext'; renderStack(); });
 
   computeMatches();
 
@@ -1889,8 +2057,8 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     { t: 'Окрестности', d: 'Рядом — микрорайоны Славянский, Олимпийский, Мирный. Ул. Мира идёт вдоль кварталов.', go: () => goExt('area') },
     { t: 'Весь комплекс', d: '5 кварталов, 5–12 этажей. Зелёным подсвечены корпуса, где есть свободные квартиры.', go: () => { tourNoFilter(); goExt('all'); } },
     { t: 'Подбор', d: 'Выбраны 3-комнатные: подходящие корпуса подсвечены, на каждом — сколько подходит.', go: () => { FLT.rooms = new Set([3]); onFilter(); goExt('all'); } },
-    { t: 'Ваш дом', d: 'Квартал 2, секция 2 целиком: дом прозрачный, квартиры по статусам, наша А на 8 этаже выделена.', go: () => { tourNoFilter(); tourOwn(); goExt('house'); } },
-    { t: 'Квартира на фасаде', d: 'Квартира А ближе: статус, цена, этаж и номер — в карточке.', go: () => { tourOwn(); goExt('yard'); } },
+    { t: 'Ваш дом', d: 'Квартал 2, секция 2 целиком. Слева — этажи: точки показывают, сколько квартир свободно на каждом.', go: () => { tourNoFilter(); tourOwn(); S.aptOpen = false; goExt('house'); } },
+    { t: 'Этаж в разрезе', d: 'Дом срезан по 8 этажу: квартиры по статусам, лифты и лестница, у нашей А видна мебель. Нажмите на квартиру — откроется карточка.', go: () => { tourOwn(); S.aptOpen = false; goExt('floor'); } },
     { t: 'План этажа', d: 'Соседи по площадке со статусами, лифты, холл и лестница (типовое решение до планов застройщика).', go: () => tourInt('top', 'top', 'design') },
     { t: '3D-интерьер', d: 'Вся квартира сверху, стены срезаны: дизайн-проект и площадь каждой комнаты.', go: () => tourInt('overview', 'top', 'design') },
     { t: '«Как продаем»', d: 'Предчистовая отделка по стандарту УДСД — вид с уровня глаз из гостиной.', go: () => tourInt('living', 'walk', 'bare') },
@@ -1935,7 +2103,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   $('devClose').addEventListener('click', () => { $('dev').hidden = true; });
   $('dev').addEventListener('click', (e) => { if (e.target.id === 'dev') $('dev').hidden = true; });
   sync.push(() => { const dev = S.mode === 'ext' && !isOwn(); ['tInt', 'tWin'].forEach((id) => { $(id).classList.toggle('dev', dev); $(id).title = dev ? 'Для этой квартиры — в разработке' : ''; }); });
-  $('tExt').addEventListener('click', () => { if (S.mode !== 'ext') { S.sec = towerSec.i; S.apt = 'a'; S.inner = false; S.extView = 'yard'; enterExt(true); refresh(true); } });
+  $('tExt').addEventListener('click', () => { if (S.mode !== 'ext') { S.sec = towerSec.i; S.apt = 'a'; S.inner = false; S.extView = 'house'; S.aptOpen = false; enterExt(true); refresh(true); } });
 
   ROOMS.forEach((r) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'rl';
@@ -1962,7 +2130,8 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
     const metaRow = (pairs) => { const m = el('div', 'meta'); pairs.forEach((p) => { const s = el('span'); s.appendChild(document.createTextNode(p[0] + ' ')); s.appendChild(el('b', '', p[1])); m.appendChild(s); }); return m; };
     const left = el('div'), right = el('div');
-    if (S.mode === 'ext') {
+    if (S.mode === 'ext') { renderExtCard(card, el); return; }
+    if (false) {
       const sec = SECTIONS[S.sec], t = TYPES[S.apt], st = status(S.sec, S.floor, S.apt);
       left.appendChild(el('h2', '', 'Кв. ' + t.n + ' · ' + t.short + ', ' + fmt(area(S.sec, S.floor, S.apt)) + ' м²'));
       left.appendChild(metaRow([['Статус', ST[st].t], ['Цена', st === 'sold' ? '—' : money(price(S.sec, S.floor, S.apt))], ['Этаж', S.floor + ' из ' + sec.floors], ['Номер', '№ ' + aptNum(S.sec, S.floor, S.apt)]]));
@@ -1995,6 +2164,55 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       if (v.card === 'all' && bare) { const ul = right.querySelector('ul'); const h = el('li', '', 'Отделка: предчистовая'); ul.insertBefore(h, ul.firstChild); }
     }
     card.appendChild(left); card.appendChild(right);
+  }
+  // outside, the card follows the path of choosing: the building (summary) → a floor (its flats) → an apartment (plan, price, walk in 3D)
+  function renderExtCard(card, el) {
+    const sec = SECTIONS[S.sec], box = el('div', 'xc'); card.appendChild(box);
+    const tile = (k, v) => { const d = el('div'); d.appendChild(el('small', '', k)); d.appendChild(el('b', '', v)); return d; };
+    const tiles = (pairs) => { const t = el('div', 'tiles'); pairs.forEach((p) => t.appendChild(tile(p[0], p[1]))); return t; };
+    const back = (txt, fn) => { const b = el('button', 'back', txt); b.type = 'button'; b.addEventListener('click', fn); return b; };
+    const aptView = S.aptOpen || /^(yard|top|back)$/.test(S.extView);
+    if (S.extView === 'floor' && !aptView) {   // a floor: its four flats with status
+      box.appendChild(back('← Все этажи', goHouse));
+      const free = LETTERS.filter((l) => status(sec.i, S.floor, l) === 'free').length, h = el('h2', '', 'Этаж ' + S.floor);
+      h.appendChild(el('span', 'pill ' + (free ? 'free' : 'sold'), free + ' из 4 свободны')); box.appendChild(h);
+      box.appendChild(el('p', 'sub', secName(sec) + ' · нажмите на квартиру на плане или в списке'));
+      const lg = el('div', 'legend2'); [['free', 'Доступна'], ['res', 'Бронь'], ['sold', 'Продана']].forEach((p) => { const s = el('span'); const i = el('i'); i.style.background = FL_COL[p[0]]; s.appendChild(i); s.appendChild(document.createTextNode(p[1])); lg.appendChild(s); }); box.appendChild(lg);
+      const list = el('div', 'flist');
+      LETTERS.forEach((l) => {
+        const t = TYPES[l], st = status(sec.i, S.floor, l), b = el('button'); b.type = 'button';
+        const dot = el('span', 'st'); dot.style.background = FL_COL[st]; b.appendChild(dot);
+        b.appendChild(el('b', '', '№ ' + aptNum(sec.i, S.floor, l))); b.appendChild(el('small', '', t.short + ' · ' + fmt(area(sec.i, S.floor, l)) + ' м²'));
+        b.appendChild(el('span', 'pill ' + st, st === 'free' ? money(price(sec.i, S.floor, l)) : ST[st].t));
+        b.addEventListener('click', () => openApt(l)); list.appendChild(b);
+      });
+      box.appendChild(list); return;
+    }
+    if (!aptView) {   // the building: a summary and how to go on
+      let mn = 1e9, mx = 0; LETTERS.forEach((l) => { mn = Math.min(mn, TYPES[l].area); mx = Math.max(mx, TYPES[l].area); });
+      box.appendChild(el('h2', '', secName(sec) + (sec.own ? ' · ваш дом' : '')));
+      box.appendChild(el('p', 'sub', sec.floors + ' этажей · ' + sec.total + ' квартир · студии и 1–3 комнаты'));
+      box.appendChild(tiles([['Свободно', String(sec.free)], ['Площадь, м²', fmt(mn) + '–' + fmt(mx)], ['Цена от', sec.minP ? money(sec.minP).replace(' ₽', '') : '—'], ['Этажей', String(sec.floors)]]));
+      box.appendChild(el('p', 'sub', canHover && !narrow() ? 'Вращайте дом мышью · нажмите на этаж слева или на квартиру на фасаде' : 'Вращайте дом пальцем · нажмите на этаж слева'));
+      const bs = el('div', 'xbtns'), fb = el('button', 'chip pick-show', 'Этаж ' + S.floor + ' в разрезе'); fb.type = 'button'; fb.addEventListener('click', () => goFloor(S.floor)); bs.appendChild(fb); box.appendChild(bs);
+      return;
+    }
+    // an apartment: plan, facts, price, walk in 3D
+    const t = TYPES[S.apt], st = status(S.sec, S.floor, S.apt), own = sec.own && S.apt === 'a';
+    box.appendChild(back('← Этаж ' + S.floor, () => goFloor(S.floor)));
+    const h = el('h2', '', 'Квартира № ' + aptNum(S.sec, S.floor, S.apt)); h.appendChild(el('span', 'pill ' + st, ST[st].t)); if (!own) h.appendChild(el('span', 'devtag', '3D в разработке')); box.appendChild(h);
+    box.appendChild(el('p', 'sub', 'Кв. ' + t.n + ' · этаж ' + S.floor + ' из ' + sec.floors + ' · окна ' + (t.face === 1 ? 'во двор, на юг' : 'на улицу, на север') + ' · ' + secName(sec).toLowerCase()));
+    const pl = el('div', 'cplan'); pl.innerHTML = own ? planSvg({ S: 30, pad: 22, labels: true }) : genericPlan(S.apt); box.appendChild(pl);
+    box.appendChild(tiles([['Комнат', t.short === 'Студия' ? 'студия' : t.short.replace('-комн.', '')], ['Площадь', fmt(area(S.sec, S.floor, S.apt)) + ' м²'], ['Потолки', '2,7 м'], ['Вид', t.face === 1 ? 'двор' : 'улица']]));
+    const pr = el('div', 'price', st === 'sold' ? 'Продана' : money(price(S.sec, S.floor, S.apt)));
+    if (st !== 'sold') pr.appendChild(el('small', '', Math.round(price(S.sec, S.floor, S.apt) / area(S.sec, S.floor, S.apt) / 1000).toLocaleString('ru-RU') + ' тыс. ₽ за м²' + (SAMPLE ? ' · пример' : '')));
+    box.appendChild(pr);
+    const w3 = el('button', 'chip walk3d' + (own ? '' : ' dev'), '🚶 Прогулка в 3D'); w3.type = 'button';
+    w3.addEventListener('click', () => { if (!own) { devDlg('int'); return; } S.cam = 'walk'; S.view = 'living'; enterInterior(true); refresh(true); });
+    box.appendChild(w3);
+    const bs = el('div', 'xbtns'), wv = el('button', 'chip' + (own ? '' : ' dev'), 'Вид из окна'), sc = el('button', 'chip', 'Схема');
+    wv.type = sc.type = 'button'; wv.addEventListener('click', () => { if (!own) { devDlg('win'); return; } enterWindow(); refresh(true); }); sc.addEventListener('click', openPlan);
+    bs.appendChild(wv); bs.appendChild(sc); box.appendChild(bs);
   }
   const FEAT = {
     living: ['Зона отдыха: диван, ТВ-тумба, ковёр', 'Панорамное окно у обеденной группы', 'Линейная кухня вдоль стены, 2,6 м'],
@@ -2059,7 +2277,11 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     else { placeOutside(); enterExt(false); }
     refresh(true);
   }
+  let lastMode = null;
   function refresh(keepMaterials) {
+    // phone: a change of mode (into the flat, to the window, back to the house) brings the full-size 3D back into view
+    if (lastMode && lastMode !== S.mode && narrow() && scrollY > 0) scrollTo({ top: 0, behavior: 'smooth' });
+    lastMode = S.mode;
     wake(); renderer.shadowMap.needsUpdate = true;
     $('pInt').hidden = S.mode !== 'int'; $('pExt').hidden = S.mode !== 'ext';
     dockEl.querySelectorAll('[data-m]').forEach((r) => { r.hidden = r.dataset.m.split(' ').indexOf(S.mode) < 0; });
@@ -2338,7 +2560,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   // the buyer's path starts outside: the demo opens on «Снаружи» at our apartment (the interior above is set up for when they go in)
   // a link may name the apartment and the mode (?mode=ext&sec=2-2&floor=8&apt=a); otherwise start at our apartment
   const qSec = SECTIONS.find((x) => x.q + '-' + x.n === Q.get('sec')), qF = +Q.get('floor'), qA = Q.get('apt');
-  S.sec = qSec ? qSec.i : towerSec.i; S.apt = TYPES[qA] ? qA : 'a'; S.inner = false; S.extView = 'yard';
+  S.sec = qSec ? qSec.i : towerSec.i; S.apt = TYPES[qA] ? qA : 'a'; S.inner = false; S.extView = qF ? 'floor' : 'house'; S.aptOpen = !!qF;
   if (qF >= 2 && qF <= SECTIONS[S.sec].floors) S.floor = qF;
   urlReady = true;
   // without a link the demo opens on our apartment A in 3D: it is the only one drawn inside (the others say «в разработке»)

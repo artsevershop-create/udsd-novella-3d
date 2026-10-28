@@ -14,7 +14,7 @@ const chip = ([sel, text]) => [...document.querySelectorAll(sel + ' .chip')].fin
 const SHOTS = [
   // in the order of the demo's tabs: Снаружи, 3D-интерьер, Вид из окна (the demo opens on our apartment in 3D)
   ['mock-free', async (p) => { await p.click('#tExt'); await p.waitForTimeout(1200); await p.evaluate(chip, ['#rExtView', 'Все корпуса']); }],
-  ['mock-facade', async (p) => { await p.click('#tExt'); await p.waitForTimeout(1200); await p.evaluate(chip, ['#rExtView', 'Весь дом']); }],
+  ['mock-facade', async (p) => { await p.click('#tExt'); await p.waitForTimeout(1500); await p.evaluate(() => [...document.querySelectorAll('#stack button')].find((b) => b.textContent.trim().startsWith('8')).click()); }],
   ['mock-city', async (p) => { await p.click('#tExt'); await p.waitForTimeout(1200); await p.evaluate(chip, ['#rExtView', 'Весь город']); }],
   ['mock-design', async (p) => { await p.click('#tInt'); }],
   ['mock-bare', async (p) => { await p.click('#tInt'); await p.waitForTimeout(800); await p.evaluate(chip, ['#rFinish', 'Как продаем']); await p.evaluate(chip, ['#rView', 'Гостиная']); await p.evaluate(chip, ['#rCam', 'Хожу']); }],
