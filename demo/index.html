@@ -216,6 +216,15 @@ svg text{font-family:var(--f-body)}
 button,select,summary,a,.chip,.rl{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .stage.walk .logo{display:none}   /* walking: the mini-map takes that corner */
 .tabs button.dev:not([aria-pressed="true"]),.chip.dev{opacity:.5}   /* not drawn for the chosen flat yet: «в разработке» on tap */
+/* camera buttons: a column on the right, centred in the free part of the stage */
+.navpad{position:absolute;right:8px;top:calc((100% - var(--dockh)) / 2 + 24px);transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:2}
+.navpad[hidden],body.touring .navpad{display:none}
+.navpad .icobtn{font-size:20px}
+@media (max-width:640px){
+  .navpad .nturn{display:none}   /* a finger turns the scene itself; zoom and «back» stay */
+  .navpad .icobtn{width:38px;height:38px}
+  body.pinned:not(.full) .navpad{display:none}
+}
 /* guided tour */
 .tourbtn{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
 @media (min-width:641px){.badge{max-width:calc(100% - 400px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
@@ -343,6 +352,14 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       <button type="button" class="icobtn" id="fullBtn" aria-label="Во весь экран" aria-pressed="false">⤢</button>
     </div>
     <div class="mini" id="mini" hidden></div>
+    <!-- camera buttons on the right edge: for those who do not drag or pinch -->
+    <div class="navpad" id="navpad" role="group" aria-label="Камера">
+      <button type="button" class="icobtn" id="nZoomIn" aria-label="Приблизить" title="Приблизить">+</button>
+      <button type="button" class="icobtn" id="nZoomOut" aria-label="Отдалить" title="Отдалить">−</button>
+      <button type="button" class="icobtn nturn" id="nLeft" aria-label="Повернуть влево" title="Повернуть влево">⟲</button>
+      <button type="button" class="icobtn nturn" id="nRight" aria-label="Повернуть вправо" title="Повернуть вправо">⟳</button>
+      <button type="button" class="icobtn" id="nHome" aria-label="Вернуть вид" title="Вернуть вид">⌂</button>
+    </div>
     <div class="hint" id="hint"></div>
     <!-- the main controls of each mode sit on the stage itself, so the 3D view stays in sight while switching -->
     <div class="dock" id="dock">
@@ -513,6 +530,8 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 6000);
   const controls = new THREE.OrbitControls(camera, cv);
   controls.enableDamping = true; controls.dampingFactor = 0.08;
+  // calmer controls: slower turning (a finger turns the scene too easily), panning along the ground like a map
+  controls.rotateSpeed = matchMedia('(pointer: coarse)').matches ? 0.5 : 0.7; controls.panSpeed = 0.9; controls.screenSpacePanning = false;
   // drawing on demand (see frame()): wake() asks for a couple of frames; shadows are recomputed only when the scene changes,
   // not on every camera move; nothing is drawn while the stage is off screen (the demo inside the proposal page, scrolled away)
   let dirty = 2, onScreen = true;
@@ -1779,6 +1798,47 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     cv.addEventListener('pointermove', (e) => { tipXY = e.buttons ? null : [e.clientX, e.clientY]; if (!tipPending) { tipPending = true; requestAnimationFrame(showTip); } });
     cv.addEventListener('pointerleave', () => { tipXY = null; tipEl.hidden = true; cv.style.cursor = ''; });
   }
+
+  /* ---------- easier camera: zoom to the cursor, buttons for zoom / turn / back to the view, the camera kept over the scene ---------- */
+  const orbitOn = () => controls.enabled && (S.mode === 'ext' || (S.mode === 'int' && S.cam !== 'walk'));
+  const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), gp = new THREE.Vector3();
+  function groundAt(x, y) {   // the point on the ground under a screen position (or the orbit centre when the ray misses it)
+    const r = cv.getBoundingClientRect(); ndc.set(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, camera);
+    return ray.ray.intersectPlane(ground, gp) && gp.distanceTo(camera.position) < camera.far ? gp.clone() : controls.target.clone();
+  }
+  function zoomAbout(P, k) {   // scale the camera and the orbit centre about P: what is under the cursor stays under it
+    const d = camera.position.distanceTo(controls.target), nd = clamp(d * k, controls.minDistance, controls.maxDistance), f = nd / d;
+    camera.position.sub(P).multiplyScalar(f).add(P); controls.target.sub(P).multiplyScalar(f).add(P); controls.update(); wake();
+  }
+  // computer: the wheel (and a touchpad pinch) zooms towards the cursor, like a map; the window view keeps its own wheel (angle of view)
+  cv.addEventListener('wheel', (e) => {
+    if (!orbitOn() || anim) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    zoomAbout(groundAt(e.clientX, e.clientY), Math.exp(clamp(e.deltaY, -120, 120) * (e.ctrlKey ? 0.01 : 0.0022)));
+  }, { capture: true, passive: false });
+  // computer: double click flies closer to that spot
+  cv.addEventListener('dblclick', (e) => {
+    if (!orbitOn()) return; const P = groundAt(e.clientX, e.clientY), off = camera.position.clone().sub(controls.target).multiplyScalar(0.55);
+    flyTo(P.clone().add(off).toArray(), P.toArray(), false);
+  });
+  // keep the orbit centre over the scene: dragging can no longer lose the buildings off into the tundra
+  function keepOver() {
+    if (anim || !orbitOn()) return;
+    const t = controls.target, c = S.mode === 'int' ? [11, 8, 30] : S.extView === 'city' ? [1000, 3000, 9000] : S.extView === 'area' ? [300, 300, 3500] : [0, 0, 650];
+    const nx = clamp(t.x, c[0] - c[2], c[0] + c[2]), nz = clamp(t.z, c[1] - c[2], c[1] + c[2]), ny = clamp(t.y, 0, S.mode === 'int' ? 3 : 60);
+    if (nx !== t.x || ny !== t.y || nz !== t.z) { const d = new THREE.Vector3(nx - t.x, ny - t.y, nz - t.z); t.add(d); camera.position.add(d); }
+  }
+  controls.addEventListener('change', keepOver);
+  // on-screen buttons (both devices): zoom in / out, turn left / right, back to the view of this mode
+  const orbitTo = (pos, tgt) => flyTo(pos.toArray(), tgt.toArray(), false);
+  function navZoom(k) { const t = controls.target.clone(), d = camera.position.distanceTo(t), nd = clamp(d * k, controls.minDistance, controls.maxDistance); orbitTo(camera.position.clone().sub(t).multiplyScalar(nd / d).add(t), t); }
+  function navTurn(a) { const t = controls.target.clone(); orbitTo(camera.position.clone().sub(t).applyAxisAngle(new THREE.Vector3(0, 1, 0), a).add(t), t); }
+  function navHome() { if (S.mode === 'ext') flyExt(false); else { const c = camFor(S.view); flyTo(c.pos, c.tgt, false); } }
+  $('nZoomIn').addEventListener('click', () => navZoom(0.66)); $('nZoomOut').addEventListener('click', () => navZoom(1.5));
+  $('nLeft').addEventListener('click', () => navTurn(0.6)); $('nRight').addEventListener('click', () => navTurn(-0.6));
+  $('nHome').addEventListener('click', navHome);
+  sync.push(() => { $('navpad').hidden = !orbitOn(); });
+
   computeMatches();
 
   chip($('rTime'), 'День', () => S.time === 'day', () => { S.time = 'day'; refresh(); });
@@ -1948,7 +2008,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   function renderNote() {
     const n = $('note'); n.textContent = '';
     if (S.mode === 'ext') {
-      n.textContent = (SAMPLE ? 'Статусы и цены в этом режиме — примерные данные для демонстрации, не реальные продажи.' : 'Статусы и цены — из выгрузки отдела продаж' + (DATA.updated ? ' на ' + String(DATA.updated).split('-').reverse().join('.') : '') + ', наличие уточняйте в офисе продаж.') + ' Положение домов схематично. Из названий улиц взято только «ул. Мира» (адрес комплекса), остальные условны. Микрорайоны, части города, реки и главные дороги — контуры по OpenStreetMap (© участники OpenStreetMap), без зданий; карта повёрнута примерно на 19°, чтобы ул. Мира шла вдоль кварталов, как в модели. Тундра, озёра и рельеф за кварталом — схематичная местность, а не топосъёмка.';
+      n.textContent = (SAMPLE ? 'Статусы и цены в этом режиме — примерные данные для демонстрации, не реальные продажи.' : 'Статусы и цены — из выгрузки отдела продаж' + (DATA.updated ? ' на ' + String(DATA.updated).split('-').reverse().join('.') : '') + ', наличие уточняйте в офисе продаж.') + ' Положение домов схематично. Из названий улиц взято только «ул. Мира» (адрес комплекса), остальные условны. Микрорайоны, части города, реки, главные дороги и дома города — по OpenStreetMap (© участники OpenStreetMap); дома показаны простыми блоками по контуру и этажности, без архитектуры; карта повёрнута примерно на 19°, чтобы ул. Мира шла вдоль кварталов, как в модели. Тундра, озёра и рельеф за кварталом — схематичная местность, а не топосъёмка.';
     } else if (S.mode === 'win') {
       n.textContent = 'Вид собран по схеме застройки «Новеллы»: пять кварталов, лицей и детский сад. Положение соседних зданий схематично. Дальше пределов модели рельеф и застройка не изучены, там показана ровная земля. Это не фотография.';
     } else if (S.finish === 'bare') {
@@ -1959,10 +2019,12 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
   let hintTimer = 0, hintKey = '';
   function hintText() {
     const house = S.mode === 'ext' && S.extView === 'house', h = $('hint'), key = S.mode + S.cam + (house ? 'h' : '');
+    // how to move, said for the device in hand: mouse buttons on a computer, fingers on a phone
+    const mouse = canHover && !narrow();
     h.textContent = house ? 'Нажмите на квартиру на фасаде, чтобы выбрать' : narrow()
-      ? (S.mode === 'win' ? 'Потяните — осмотреться, щипок — угол обзора' : S.mode === 'int' && S.cam === 'walk' ? 'Нажмите на пол — пройти, потяните — осмотреться' : 'Крутите пальцем, щипок — масштаб')
-      : (S.mode === 'ext' ? 'Крутите пальцем или мышью, щипок меняет масштаб' : S.mode === 'win' ? 'Потяните, чтобы осмотреться, колесо или щипок меняют угол обзора'
-        : (S.cam === 'walk' ? 'Нажмите на пол, чтобы пройти. Потяните, чтобы осмотреться' : 'Крутите пальцем или мышью, щипок меняет масштаб'));
+      ? (S.mode === 'win' ? 'Потяните — осмотреться, щипок — угол обзора' : S.mode === 'int' && S.cam === 'walk' ? 'Нажмите на пол — пройти, потяните — осмотреться' : 'Один палец — повернуть, два — сдвинуть и приблизить')
+      : (S.mode === 'win' ? 'Потяните, чтобы осмотреться; колесо меняет угол обзора' : S.mode === 'int' && S.cam === 'walk' ? 'Нажмите на пол, чтобы пройти. Потяните, чтобы осмотреться'
+        : mouse ? 'Левая кнопка — повернуть, правая — сдвинуть, колесо — приблизить к курсору, двойной щелчок — подлететь' : 'Один палец — повернуть, два — сдвинуть и приблизить');
     if (key === hintKey) return; hintKey = key;   // shown again only when the way of moving changes
     h.hidden = false; clearTimeout(hintTimer);
     if (narrow()) hintTimer = setTimeout(() => { h.hidden = true; }, 4000);   // on a phone the hint gives the 3D back after 4 s
@@ -2224,6 +2286,27 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
       b.style.transform = 'translate(' + ((tmp.x * 0.5 + 0.5) * w - b._w / 2).toFixed(1) + 'px,' + ((-tmp.y * 0.5 + 0.5) * h - b._h / 2).toFixed(1) + 'px)';
     });
   }
+  // the city's own buildings as plain blocks (OpenStreetMap outline + height, no architecture): only to show the districts are built up.
+  // One mesh for ~4000 buildings; loaded after the first frame, so the start is not slower.
+  function buildCityBlocks(data) {
+    const pos = [];
+    data.b.forEach((r) => {
+      const h = r[0], p = []; for (let i = 1; i < r.length; i += 2) p.push(new THREE.Vector2(r[i], r[i + 1]));
+      for (let i = 0; i < p.length; i++) {
+        const a = p[i], b = p[(i + 1) % p.length];
+        pos.push(a.x, 0, a.y, b.x, 0, b.y, b.x, h, b.y, a.x, 0, a.y, b.x, h, b.y, a.x, h, a.y);
+      }
+      THREE.ShapeUtils.triangulateShape(p, []).forEach((t) => t.forEach((k) => pos.push(p[k].x, h, p[k].y)));
+    });
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals();
+    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: '#d5d9da', side: THREE.DoubleSide }));
+    m.userData.cityBlocks = true; outside.add(m); wake();
+  }
+  let blocksAsked = false;
+  function loadCityBlocks() {
+    if (blocksAsked) return; blocksAsked = true;
+    fetch('buildings.json').then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && Array.isArray(d.b)) buildCityBlocks(d); }).catch(() => { /* the city is shown without blocks */ });
+  }
   let tick = 0, lastT = 0, loaderEl = $('loader'), lastDraw = 0;
   function frame(now) {
     const dt = Math.min(0.1, (now - (lastT || now)) / 1000); lastT = now;
@@ -2242,7 +2325,7 @@ body.touring #dock,body.touring .hint,body.touring .badge,body.touring #tourBtn,
     if (onScreen && (anim || walk.path || walk.turn || dirty > 0 || now - lastDraw > 500)) {
       renderer.render(scene, camera); updateLabels(); updateGeo(); lastDraw = now; if (dirty > 0) dirty--;
       lastPos.copy(camera.position); lastQ.copy(camera.quaternion);
-      if (loaderEl) { loaderEl.remove(); loaderEl = null; }   // the first frame is on screen
+      if (loaderEl) { loaderEl.remove(); loaderEl = null; setTimeout(loadCityBlocks, 300); }   // the first frame is on screen
     }
     requestAnimationFrame(frame);
   }
