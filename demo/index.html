@@ -1712,10 +1712,13 @@ body.siderail .fullnote{left:12px;right:auto;bottom:8px;width:236px;text-align:c
   const PK_N = 127, PK = [], STOR = [], FL_COL_PK = { free: '#8fd9b0', res: '#f4cf7e', sold: '#e9aaa6' };
   for (let i = 0; i < PK_N; i++) { const r = hash('pk' + i), st = r < 0.48 ? 'sold' : r < 0.58 ? 'res' : 'free'; PK.push({ n: i + 1, st: st, under: i < 96, price: Math.round((i < 96 ? 1.45e6 : 0.65e6) * (0.95 + hash('pp' + i) * 0.12) / 1e4) * 1e4 }); }
   for (let i = 0; i < 40; i++) { const r = hash('st' + i), a = Math.round((3.1 + hash('sa' + i) * 5) * 10) / 10; STOR.push({ n: i + 1, a: a, st: r < 0.45 ? 'sold' : r < 0.55 ? 'res' : 'free', price: Math.round(a * 92000 / 1e3) * 1e3 }); }
-  const pkG = new THREE.Group(); pkG.visible = false; extG.add(pkG);
+  // the underground level under the yard of quarter 2: drawn one storey below ground and without the depth test, so the scheme
+  // shows through the lawn like an x-ray — the playground, paths and benches stay where they are
+  const pkG = new THREE.Group(); pkG.visible = false; pkG.position.y = -3.6; extG.add(pkG);
   const PK_W = 2.25, PK_D = 5.3, PK_ROWS = [-20.2, -14.9, 3.5, 8.8], PK_PER = 32;   // two double rows with an aisle each
-  const pkBase = new THREE.Mesh(new THREE.BoxGeometry(74, 0.25, 50), new THREE.MeshLambertMaterial({ color: '#5d6267' })); pkBase.position.set(0, 0.42, -52); pkG.add(pkBase);
-  const pkInst = new THREE.InstancedMesh(new THREE.BoxGeometry(PK_W - 0.35, 0.12, PK_D - 0.4), new THREE.MeshLambertMaterial({ color: '#ffffff' }), PK_N);
+  const pkBase = new THREE.Mesh(new THREE.BoxGeometry(74, 0.25, 50), new THREE.MeshLambertMaterial({ color: '#3f454a', transparent: true, opacity: 0.58, depthTest: false })); pkBase.position.set(0, 0.42, -52); pkBase.renderOrder = 20; pkG.add(pkBase);
+  { const e = new THREE.LineSegments(new THREE.EdgesGeometry(pkBase.geometry), new THREE.LineBasicMaterial({ color: '#dfe4e8', depthTest: false })); e.position.copy(pkBase.position); e.renderOrder = 21; pkG.add(e); }
+  const pkInst = new THREE.InstancedMesh(new THREE.BoxGeometry(PK_W - 0.35, 0.12, PK_D - 0.4), new THREE.MeshLambertMaterial({ color: '#ffffff', transparent: true, opacity: 0.96, depthTest: false }), PK_N); pkInst.renderOrder = 22;   // transparent too: drawn in the same pass, after the slab
   const pkPos = [];
   { const dm = new THREE.Object3D(), col = new THREE.Color();
     for (let i = 0; i < PK_N; i++) {
@@ -1725,7 +1728,7 @@ body.siderail .fullnote{left:12px;right:auto;bottom:8px;width:236px;text-align:c
     pkInst.instanceMatrix.needsUpdate = true; if (pkInst.instanceColor) pkInst.instanceColor.needsUpdate = true;
   }
   pkG.add(pkInst);
-  const pkSel = new THREE.Mesh(new THREE.BoxGeometry(PK_W - 0.1, 0.5, PK_D - 0.1), new THREE.MeshBasicMaterial({ color: '#007db6', transparent: true, opacity: 0.55, depthWrite: false })); pkSel.visible = false; pkG.add(pkSel);
+  const pkSel = new THREE.Mesh(new THREE.BoxGeometry(PK_W - 0.1, 0.5, PK_D - 0.1), new THREE.MeshBasicMaterial({ color: '#007db6', transparent: true, opacity: 0.55, depthWrite: false, depthTest: false })); pkSel.visible = false; pkSel.renderOrder = 23; pkG.add(pkSel);
   function showPk(i) { S.pk = i; pkSel.visible = i >= 0; if (i >= 0) pkSel.position.set(pkPos[i][0], 0.75, pkPos[i][1]); wake(); }
   const cellG = new THREE.Group(); extG.add(cellG);
   const cellMats = {}; Object.keys(ST).forEach((k) => { cellMats[k] = new THREE.MeshBasicMaterial({ color: ST[k].c, transparent: true, opacity: k === 'sold' ? 0.3 : 0.55, depthWrite: false, side: THREE.DoubleSide }); });
@@ -2980,7 +2983,7 @@ body.siderail .fullnote{left:12px;right:auto;bottom:8px;width:236px;text-align:c
         : [['Кладовая', '№ ' + x.n], ['Площадь', fmt(x.a) + ' м²'], ['Статус', ST[x.st].t], ['Цена', x.st === 'sold' ? '—' : money(x.price).replace(' ₽', '')]]));
       if (x.st !== 'sold') { const lb = el('button', 'chip walk3d', 'Оставить заявку'); lb.type = 'button'; lb.addEventListener('click', () => { $('leadWhat').textContent = (car ? 'Машино-место № ' : 'Кладовая № ') + x.n + (car ? '' : ', ' + fmt(x.a) + ' м²') + ' · ' + ST[x.st].t.toLowerCase() + ' · ' + money(x.price); $('lead').hidden = false; }); box.appendChild(lb); }
     } else box.appendChild(el('p', 'sub', car ? 'Нажмите на место на схеме во дворе или в сетке' : 'Кладовые на цокольном этаже, вход с улицы'));
-    box.appendChild(el('p', 'fp-note', 'Пример: статусы, цены и схема условные' + (car ? ' · 127 мест в первом этапе' : ' · 3,1–8,1 м²')));
+    box.appendChild(el('p', 'fp-note', 'Подземный паркинг под двором квартала 2, схема просвечивает сквозь двор · пример: статусы, цены и расположение условные' + (car ? ' · 127 мест в первом этапе' : ' · 3,1–8,1 м²')));
   }
   // outside, the card follows the path of choosing: the building (summary) → a floor (its flats) → an apartment (plan, price, walk in 3D)
   function renderExtCard(card, el) {
