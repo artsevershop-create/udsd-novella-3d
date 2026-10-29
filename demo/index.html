@@ -823,7 +823,7 @@ body.siderail .fullnote{left:12px;right:auto;bottom:8px;width:236px;text-align:c
   const fmt = (n) => String(n).replace('.', ',');
 
   /* ---------- state ---------- */
-  const S = { mode: 'int', finish: 'design', cam: 'top', see: 'glass', walls: 'cut', inner: false, house: 'glass', extView: 'house', aptOpen: false, pk: -1, pkTab: 'car', stor: -1, layer: 'free', sec: 0, apt: 'a', view: 'overview', style: 'scandi', time: 'day', floor: 8, win: 'living' };
+  const S = { mode: 'int', finish: 'design', cam: 'top', see: 'glass', walls: 'cut', inner: false, house: 'solid', extView: 'house', aptOpen: false, pk: -1, pkTab: 'car', stor: -1, layer: 'free', sec: 0, apt: 'a', view: 'overview', style: 'scandi', time: 'day', floor: 8, win: 'living' };
   const Q = new URLSearchParams(location.search);   // read before anything rewrites the address (see updateUrl)
   let urlReady = false;
   // apartment finder: rooms (0 = studio), top price in roubles, floor band, free only
@@ -1737,7 +1737,7 @@ body.siderail .fullnote{left:12px;right:auto;bottom:8px;width:236px;text-align:c
   }
   function showPk(i) { S.pk = i; pkSel.visible = i >= 0; if (i >= 0) pkSel.position.set(pkPos[i][0], 0.6, pkPos[i][1]); wake(); }
   const cellG = new THREE.Group(); extG.add(cellG);
-  const cellMats = {}; Object.keys(ST).forEach((k) => { cellMats[k] = new THREE.MeshBasicMaterial({ color: ST[k].c, transparent: true, opacity: k === 'sold' ? 0.3 : 0.55, depthWrite: false, side: THREE.DoubleSide }); });
+  const cellMats = {}; Object.keys(ST).forEach((k) => { cellMats[k] = new THREE.MeshBasicMaterial({ color: ST[k].c, transparent: true, opacity: k === 'sold' ? 0.26 : 0.5, depthWrite: false }); });
   const aptMat = new THREE.MeshLambertMaterial({ color: '#f2a23a', emissive: '#7a4300' });
   const aptBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), aptMat);
   const aptEdges = new THREE.LineSegments(new THREE.EdgesGeometry(aptBox.geometry), new THREE.LineBasicMaterial({ color: '#ffffff' }));
@@ -1751,14 +1751,16 @@ body.siderail .fullnote{left:12px;right:auto;bottom:8px;width:236px;text-align:c
   const cellDim = new THREE.MeshBasicMaterial({ color: '#c9d2d6', transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide });
   let cellsKey = '', markKey = '';
   function rebuildCells() {
-    const sec = SECTIONS[S.sec], key = S.sec + ':' + S.floor + S.apt + fltKey(); if (key === cellsKey) return; cellsKey = key;
+    const sec = SECTIONS[S.sec], solid = S.house === 'solid', key = S.sec + ':' + S.floor + S.apt + S.house + fltKey(); if (key === cellsKey) return; cellsKey = key;
     while (cellG.children.length) { const c = cellG.children.pop(); c.geometry.dispose(); }
     for (let f = 2; f <= sec.floors; f++) LETTERS.forEach((l) => {
       if (f === S.floor && l === S.apt) return;
       // with the finder on, apartments that match keep their status colour and the rest fade to a light grey
       const ci = cellInfo(sec, l, f), mat = fltOn() && !fltMatch(sec.i, f, l) ? cellDim : cellMats[status(sec.i, f, l)];
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(ci.w - 0.5, 2.7), mat);
-      m.position.set(ci.c.x + ci.n.x * 0.1, ci.y + 1.5, ci.c.z + ci.n.z * 0.1);
+      // solid house: a tinted glass block the full width and height of the flat, deep enough to wrap its sills and loggia;
+      // transparent house: a flat panel on the facade plane
+      const m = new THREE.Mesh(solid ? new THREE.BoxGeometry(ci.w - 0.2, 2.96, 1.5) : new THREE.PlaneGeometry(ci.w - 0.5, 2.7), mat);
+      m.position.set(ci.c.x + ci.n.x * (solid ? 0.77 : 0.1), ci.y + 1.5, ci.c.z + ci.n.z * (solid ? 0.77 : 0.1));
       m.rotation.y = ci.n.z === 1 ? 0 : (ci.n.z === -1 ? Math.PI : (ci.n.x === 1 ? Math.PI / 2 : -Math.PI / 2));
       m.userData = { f: f, l: l }; m.renderOrder = 3; cellG.add(m);
     });
@@ -1789,7 +1791,7 @@ body.siderail .fullnote{left:12px;right:auto;bottom:8px;width:236px;text-align:c
       sec.ov.visible = ext && (S.layer === 'free' || fltOn()) && !sel && S.extView !== 'house' && !fv;   // «Весь дом» and a floor: only the chosen building speaks
     });
     selGlass.visible = selEdges.visible = ext && S.house === 'glass' && !fv;
-    selHalo.visible = ext && !fv && S.extView !== 'city' && S.extView !== 'parking';
+    selHalo.visible = ext && (S.extView === 'all' || S.extView === 'area' || (glass && !fv && S.extView !== 'city' && S.extView !== 'parking'));   // close up the solid house speaks for itself; from afar a shell marks it
     pkG.visible = ext && S.extView === 'parking';
     haloMat.opacity = S.extView === 'all' || S.extView === 'area' ? 0.32 : 0.14;   // from afar the chosen house must stand out more
     cellG.visible = ext && !fv && S.extView !== 'parking';
@@ -2252,7 +2254,7 @@ body.siderail .fullnote{left:12px;right:auto;bottom:8px;width:236px;text-align:c
   chip($('rHouse'), 'Прозрачный', () => S.house === 'glass', () => { S.house = 'glass'; refresh(true); });
   chip($('rHouse'), 'Сплошной', () => S.house === 'solid', () => { S.house = 'solid'; refresh(true); });
   chip($('rInner'), 'Выделена цветом', () => !S.inner, () => { S.inner = false; refresh(true); });
-  chip($('rInner'), 'Показать внутри', () => S.inner, () => { S.inner = true; refresh(true); });
+  chip($('rInner'), 'Показать внутри', () => S.inner, () => { S.inner = true; S.house = 'glass'; refresh(true); });   // the inside is seen only through a transparent house
   chip($('rSee'), 'Прозрачные', () => S.see === 'glass', () => { S.see = 'glass'; refresh(true); });
   chip($('rSee'), 'Сплошные', () => S.see === 'solid', () => { S.see = 'solid'; refresh(true); });
   Object.keys(STYLES).forEach((k) => chip($('rStyle'), STYLES[k].name, () => S.style === k, () => { S.style = k; refresh(); }, { dots: STYLES[k].dots }));
