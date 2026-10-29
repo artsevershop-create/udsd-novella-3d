@@ -512,6 +512,26 @@ body.full .mbar{display:flex;z-index:45}
   body.full .backbtn{top:52px}
   body.full .badge{display:none}
 }
+/* full screen edge to edge: the 3D fills the whole window, the mode tabs float over it; --tt moves the top tools below the tabs */
+body.full .pin{padding:0;gap:0;height:auto;top:0;grid-column:auto;grid-row:auto}
+body.full .stage{border:0;border-radius:0;--tt:58px}
+body.full .tabs{position:absolute;z-index:8;top:max(8px,env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 16px));background:color-mix(in srgb,var(--chip) 86%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 2px 12px rgba(10,30,45,.18)}
+body.full .stage .tbar,body.full .where,body.full .backbtn{top:calc(max(8px,env(safe-area-inset-top,0px)) + var(--tt))}
+body.full .stack{top:calc(110px + var(--tt))}
+body.full .vpanel{top:calc(56px + var(--tt))}
+body.full .fullnote{display:block;position:absolute;z-index:7;right:12px;bottom:max(3px,env(safe-area-inset-bottom,0px));margin:0;padding:0;font-size:10px;line-height:1.2;color:var(--mut);opacity:.75;pointer-events:none;background:none}
+@media (min-width:1280px){   /* wide screen: the tabs fit between the city map (left) and the tools (right) on one line */
+  body.full .stage{--tt:0px}
+  body.full .tabs{width:min(520px,calc(100% - 760px))}
+}
+@media (max-width:640px){
+  body.full .pin{padding:0 0 calc(80px + env(safe-area-inset-bottom,0px))}
+  body.full .stage{--tt:56px}
+  body.full .stack{top:calc(54px + var(--tt))}
+  body.full .backbtn{top:calc(52px + var(--tt))}
+  body.full .stage .tbar{top:calc(max(6px,env(safe-area-inset-top,0px)) + var(--tt))}
+  body.full .fullnote{bottom:calc(67px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;font-size:9.5px}
+}
 /* rows of chips wider than the screen fade out at the side they continue to */
 .chips.more-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent)}
 .chips.more-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 28px),transparent)}
@@ -3102,7 +3122,8 @@ body.full .mbar{display:flex;z-index:45}
   // without a link the demo opens on our apartment A in 3D: it is the only one drawn inside (the others say «в разработке»)
   if (Q.get('mode') === 'ext') { enterExt(true); refresh(true); }
   else { S.sec = towerSec.i; S.apt = 'a'; if (!(qF >= 2 && qF <= 12)) S.floor = 8; placeOutside(); if (Q.get('mode') === 'win') enterWindow(); else enterInterior(true); refresh(true); }
-  if (window.top === window && !Q.has('classic') && !Q.get('tour')) requestAnimationFrame(() => requestAnimationFrame(() => setFull(true)));
+  // the 3D opens on the whole screen at once (also inside the proposal page and for the tour); ?classic=1 — the page with panels
+  if (!Q.has('classic')) setFull(true);
   if (Q.get('tour')) setTimeout(tourStart, 700);   // ?tour=1 — opens straight into the guided tour (sales office screen, the proposal page)
   requestAnimationFrame(frame);
   window.__nv = { S: S, walk: walk, startWalk: startWalk, enterWindow: enterWindow, enterInterior: enterInterior, refresh: refresh, camera: camera, describe: describe, data: DATA_OK ? 'json' : 'generated' };
