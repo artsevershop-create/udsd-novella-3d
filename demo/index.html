@@ -2510,8 +2510,10 @@ body.siderail .fullnote{left:12px;right:auto;bottom:8px;width:236px;text-align:c
     if (!/^(yard|top|back)$/.test(S.extView)) S.extView = 'house'; S.aptOpen = true;   // the whole house with that flat lit, and its card
     if (S.mode !== 'ext') { enterExt(true); refresh(true); } else afterPick();
   }
-  const openPick = () => { document.body.classList.add('picking'); $('scrim').hidden = false; };
-  const closePick = () => { document.body.classList.remove('picking'); $('scrim').hidden = true; };
+  // phone, full screen: the finder lives inside the hidden side panel, so for the bottom sheet it is moved out to <body> and put back on close
+  const pickEl = $('pick'), pickHome = document.createComment('pick');
+  const openPick = () => { if (narrow() && pickEl.parentNode !== document.body) { pickEl.parentNode.insertBefore(pickHome, pickEl); document.body.appendChild(pickEl); } document.body.classList.add('picking'); $('scrim').hidden = false; };
+  const closePick = () => { document.body.classList.remove('picking'); $('scrim').hidden = true; if (pickHome.parentNode) pickHome.parentNode.replaceChild(pickEl, pickHome); };
   $('mPick').addEventListener('click', () => (S.mode === 'ext' ? openPick() : chooseOther(true))); $('pickClose').addEventListener('click', closePick); $('scrim').addEventListener('click', closePick);
 
   // where you are: ЖК › квартал › секция › этаж › квартира (› интерьер / вид из окна); each level flies the camera there
