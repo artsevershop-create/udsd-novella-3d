@@ -329,10 +329,10 @@ body.pinned:not(.full) .stack{display:none}
 .gl.qnum{font:700 13px var(--f-display);min-width:24px;text-align:center;border-radius:999px;background:color-mix(in srgb,var(--surf) 88%,transparent)}
 .gl.poi{width:26px;height:26px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:2px solid currentColor;pointer-events:auto;cursor:help;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .gl.poi .ic{margin:0;width:14px;height:14px}
-.p-school{color:#2d6bd6}.p-kids{color:#e07a1f}.p-med{color:#d23c3c}.p-shop{color:#7a4fc4}.p-sport{color:#2f9a4c}
-.dock .poichip[aria-pressed="true"]{background:currentColor}
+.p-school{color:#2d6bd6;--pk:#2d6bd6}.p-kids{color:#e07a1f;--pk:#e07a1f}.p-med{color:#d23c3c;--pk:#d23c3c}.p-shop{color:#7a4fc4;--pk:#7a4fc4}.p-sport{color:#2f9a4c;--pk:#2f9a4c}
+.dock .poichip[aria-pressed="true"],body.siderail .rail .dock .poichip[aria-pressed="true"]{background:var(--pk);border-color:var(--pk);color:#fff}
 .dock .poichip[aria-pressed="true"] .ic{stroke:#fff}
-.dock .poichip[aria-pressed="true"] span,.dock .poichip[aria-pressed="true"]{color:inherit}
+.dock .poichip[aria-pressed="true"] span{color:#fff}
 .gl.sec{min-width:24px;text-align:center}
 /* floor plan in the card */
 .fplan svg{max-height:none}
@@ -525,13 +525,50 @@ body.full .fullnote{display:block;position:absolute;z-index:7;right:12px;bottom:
   body.full .tabs{width:min(520px,calc(100% - 760px))}
 }
 @media (max-width:640px){
-  body.full .pin{padding:0 0 calc(80px + env(safe-area-inset-bottom,0px))}
-  body.full .stage{--tt:56px}
+  body.full .pin{padding:0 0 calc(66px + env(safe-area-inset-bottom,0px))}
+  body.full .stage{--tt:48px}
   body.full .stack{top:calc(54px + var(--tt))}
   body.full .backbtn{top:calc(52px + var(--tt))}
   body.full .stage .tbar{top:calc(max(6px,env(safe-area-inset-top,0px)) + var(--tt))}
-  body.full .fullnote{bottom:calc(67px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;font-size:9.5px}
+  body.full .fullnote{bottom:calc(53px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;font-size:9.5px}
+  /* phone: the tools stand in a slim translucent column on the right, the top of the 3D stays free */
+  body.full .stage .tbar{flex-direction:column;right:6px;gap:6px;padding:5px;border-radius:26px;background:color-mix(in srgb,var(--surf) 45%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+  body.full .stage .tbar .icobtn,body.full .stage .tbar .planbtn{width:40px;height:40px;min-height:40px;padding:0;justify-content:center}
+  body.full .vpanel{right:60px;width:min(320px,calc(100% - 72px))}
+  body.full .tabs button{padding:7px 4px;font-size:14px}
+  body.full .tabs .ic{width:17px;height:17px}
+  body.full .mbar{padding-top:6px;padding-bottom:max(6px,env(safe-area-inset-bottom,0px))}
+  body.full .mbar .chip{min-height:40px}
+  body.full .mini{right:auto;left:8px}   /* the tool column is on the right */
+  body.full .tabs{background:color-mix(in srgb,var(--chip) 72%,transparent)}
 }
+/* computer, full screen: translucent side menu (tabs, steps / rooms / windows, view rows) */
+.rail,.railopen{display:none}
+body.siderail .rail{display:flex;flex-direction:column;gap:12px;position:absolute;z-index:8;left:12px;top:12px;bottom:12px;width:236px;padding:10px 10px 12px;border-radius:20px;background:color-mix(in srgb,var(--surf) 66%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border:1px solid color-mix(in srgb,#fff 55%,transparent);box-shadow:0 8px 28px rgba(10,30,45,.16);overflow-y:auto;scrollbar-width:thin;touch-action:auto}
+body.siderail.railmin .rail,body.touring .rail,body.touring .railopen{display:none}
+body.siderail.railmin .railopen{display:inline-flex;position:absolute;z-index:8;left:12px;top:12px;width:44px;height:44px;background:color-mix(in srgb,var(--surf) 72%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 4px 14px rgba(10,30,45,.16)}
+.rail-h{display:flex;align-items:center;justify-content:space-between;padding-left:6px;font:600 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.rail-h .icobtn{width:32px;height:32px;min-height:32px;background:transparent;box-shadow:none;border:0}
+body.siderail .rail .tabs{position:static;transform:none;width:auto;display:flex;flex-direction:column;gap:2px;padding:0 0 10px;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;border-bottom:1px solid color-mix(in srgb,var(--mut) 22%,transparent)}
+body.siderail .rail .tabs button{justify-content:flex-start;padding:10px 12px;border-radius:12px;font-size:14.5px}
+body.siderail .rail .tabs button:not([aria-pressed="true"]):hover{background:color-mix(in srgb,var(--acc) 10%,transparent)}
+body.siderail .rail .dock{position:static;padding:0;background:none;gap:10px;pointer-events:auto}
+body.siderail .rail .dock .chips,body.siderail .rail .dockrow{flex-wrap:wrap;overflow:visible;-webkit-mask-image:none;mask-image:none}
+body.siderail .rail .dock .chip{min-height:36px;padding:6px 11px;font-size:13px;box-shadow:none;border:1px solid color-mix(in srgb,var(--mut) 18%,transparent)}
+body.siderail .rail .dock .chip[aria-pressed="true"]{border-color:var(--acc)}
+body.siderail .rail #rSteps{flex-direction:column;align-items:stretch;gap:2px}
+body.siderail .rail #rSteps .chip{justify-content:flex-start;width:100%;min-height:40px;border:0;background:transparent;border-radius:12px;padding:8px 12px;font-size:14px}
+body.siderail .rail #rSteps .chip:not([aria-pressed="true"]):not([disabled]):hover{background:color-mix(in srgb,var(--acc) 10%,transparent)}
+body.siderail .rail #rSteps .chip[aria-pressed="true"]{background:var(--acc)}
+body.siderail .rail .dlab{flex-basis:100%;margin:2px 0 -2px 2px}
+body.siderail .stage{--tt:0px;--rw:260px}
+body.siderail.railmin .stage{--rw:56px}
+body.siderail .where,body.siderail .backbtn,body.siderail .stack{left:calc(var(--rw) + 8px)}
+body.siderail .badge,body.siderail .hint{left:calc(var(--rw) + 10px)}
+body.touring.siderail .where,body.touring.siderail .backbtn{left:8px}
+body.siderail .rail #rSteps,body.siderail .rail #rView,body.siderail .rail #rWin{order:-5}
+body.siderail .rail{bottom:32px}
+body.siderail .fullnote{left:12px;right:auto;bottom:8px;width:236px;text-align:center;padding:3px 6px;border-radius:8px;background:color-mix(in srgb,var(--surf) 70%,transparent);opacity:.9}
 /* rows of chips wider than the screen fade out at the side they continue to */
 .chips.more-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent)}
 .chips.more-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 28px),transparent)}
@@ -553,6 +590,7 @@ body.full .fullnote{display:block;position:absolute;z-index:7;right:12px;bottom:
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
     <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
     <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
     <symbol id="i-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
@@ -599,6 +637,9 @@ body.full .fullnote{display:block;position:absolute;z-index:7;right:12px;bottom:
 
   <div class="stage" id="stage">
     <canvas id="cv" aria-label="3D-модель квартиры"></canvas>
+    <!-- computer, full screen: a translucent side menu with the mode tabs and the dock rows (moved in by placeRail) -->
+    <nav class="rail" id="rail" aria-label="Меню"><div class="rail-h"><span>Меню</span><button type="button" class="icobtn" id="railMin" aria-label="Свернуть меню" title="Свернуть меню"><svg class="ic"><use href="#i-back"/></svg></button></div></nav>
+    <button type="button" class="icobtn railopen" id="railOpen" aria-label="Открыть меню" title="Меню"><svg class="ic"><use href="#i-menu"/></svg></button>
     <div class="veil" id="veil" aria-hidden="true"></div>
     <!-- view settings right on the 3D: grouped by what they change, only those of the current mode -->
     <div class="vpanel" id="vpanel" hidden role="dialog" aria-label="Настройки вида">
@@ -2069,7 +2110,7 @@ body.full .fullnote{display:block;position:absolute;z-index:7;right:12px;bottom:
     // what is out there in the distance: districts, parts of the city, rivers — named with the distance from the complex
     // out of the frame, the label sits at the edge of the stage with an arrow towards it, like a navigator (one per direction)
     if (/^(house|yard|top|back|all|floor)$/.test(S.extView)) {
-      const dh = dockEl.offsetHeight, nl = narrow(), x0 = nl ? 120 : 140, x1 = w - (nl ? 120 : 150), y0 = 58, y1 = h - dh - 16, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, dirs = [];
+      const dh = dockH(), nl = narrow(), x0 = (nl ? 120 : 140) + railW(), x1 = w - (nl ? 120 : 150), y0 = 58, y1 = h - dh - 16, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, dirs = [];
       const ARW = ['→', '↘', '↓', '↙', '←', '↖', '↑', '↗'];
       let nIn = 0;
       FAR.forEach((g) => {
@@ -2124,7 +2165,7 @@ body.full .fullnote{display:block;position:absolute;z-index:7;right:12px;bottom:
       if (ch) { d._w = d.offsetWidth; d._h = d.offsetHeight; }   // size is measured only when the label changes
       const bw = d._w, bh = d._h;
       let x = it.sx - bw / 2, y = it.sy - bh / 2;
-      if (g.k === 'far') { x = clamp(x, narrow() ? 118 : 136, w - bw - (narrow() ? 118 : 146)); y = clamp(y, 52, h - bh - dockEl.offsetHeight - 6); }   // clear of the floor column and the camera pad   // edge labels stay whole inside the stage
+      if (g.k === 'far') { x = clamp(x, (narrow() ? 118 : 136) + railW(), w - bw - (narrow() ? 118 : 146)); y = clamp(y, 52, h - bh - dockH() - 6); }   // clear of the floor column and the camera pad   // edge labels stay whole inside the stage
       else if (x < 2 || x + bw > w - 2) { d.style.display = 'none'; return; }   // a name cut by the stage edge is dropped
       if (placed.some((p) => x < p[0] + p[2] + 2 && x + bw + 2 > p[0] && y < p[1] + p[3] + 1 && y + bh + 1 > p[1])) { d.style.display = 'none'; return; }
       placed.push([x, y, bw, bh]);
@@ -2493,10 +2534,24 @@ body.full .fullnote{display:block;position:absolute;z-index:7;right:12px;bottom:
     stageEl.style.setProperty('--dockh', (out ? 0 : dockEl.offsetHeight) + 'px'); resize(); updateFov(); wake();
   }
   phoneMQ.addEventListener('change', placeDock); placeDock();
+  // computer in full screen: tabs and dock rows go into the side menu; it folds to one ☰ button (remembered per browser)
+  const railEl = $('rail'), tabsEl = document.querySelector('.tabs'), railMQ = matchMedia('(min-width:1024px)');
+  let railMin = false; try { railMin = localStorage.getItem('nv-railmin') === '1'; } catch (e) {}
+  function dockH() { return dockEl.classList.contains('out') || document.body.classList.contains('siderail') ? 0 : dockEl.offsetHeight; }
+  function railW() { const b = document.body.classList; return b.contains('siderail') && !b.contains('railmin') && !b.contains('touring') ? railEl.offsetWidth + 12 : 0; }
+  function placeRail() {
+    const on = document.body.classList.contains('full') && railMQ.matches;
+    document.body.classList.toggle('siderail', on); document.body.classList.toggle('railmin', on && railMin);
+    if (on && tabsEl.parentNode !== railEl) railEl.append(tabsEl, dockEl);
+    else if (!on && tabsEl.parentNode === railEl) { $('pin').prepend(tabsEl); stageEl.appendChild(dockEl); }
+  }
+  function setRailMin(v) { railMin = v; try { localStorage.setItem('nv-railmin', v ? '1' : '0'); } catch (e) {} placeRail(); resize(); }
+  $('railMin').addEventListener('click', () => setRailMin(true)); $('railOpen').addEventListener('click', () => setRailMin(false));
+  railMQ.addEventListener('change', () => { placeRail(); resize(); });
   // full screen: tabs + stage over the whole page (on a phone the 3D gets the entire screen)
   const fullBtn = $('fullBtn');
   function setFull(on) {
-    document.body.classList.toggle('full', on); placeDock(); fullBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    document.body.classList.toggle('full', on); placeDock(); placeRail(); fullBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
     fullBtn.innerHTML = '<svg class="ic"><use href="#i-' + (on ? 'close' : 'expand') + '"/></svg>'; fullBtn.setAttribute('aria-label', on ? 'Выйти из полноэкранного режима' : 'Во весь экран');
     resize(); refresh(true);
     // the stage changed its size: frame the current view again
@@ -2841,7 +2896,7 @@ body.full .fullnote{display:block;position:absolute;z-index:7;right:12px;bottom:
     $('viewBtn').hidden = S.mode === 'win' && !document.body.classList.contains('full'); setVP(false);
     dockEl.querySelectorAll('[data-m]').forEach((r) => { r.hidden = r.dataset.m.split(' ').indexOf(S.mode) < 0; });
     stageEl.dataset.mode = S.mode;
-    stageEl.style.setProperty('--dockh', (dockEl.classList.contains('out') ? 0 : dockEl.offsetHeight) + 'px'); updateFov();
+    stageEl.style.setProperty('--dockh', dockH() + 'px'); updateFov();
     $('rowStyle').hidden = S.mode !== 'int' || S.finish !== 'design';
     $('rowSee').hidden = !(S.mode === 'int' && S.cam === 'walk');
     wallChips.forEach((w) => { w[0].hidden = w[1] !== (S.cam === 'walk' ? 'walk' : 'top'); });
@@ -3037,16 +3092,17 @@ body.full .fullnote{display:block;position:absolute;z-index:7;right:12px;bottom:
   }
   function updateFov() {
     const w = stageEl.clientWidth, h = stageEl.clientHeight; if (!w || !h) return;
-    const tourEl = $('tour'), asp = w / h, d = tourEl && !tourEl.hidden ? tourEl.offsetHeight + 16 : (dockEl.classList.contains('out') ? 0 : dockEl.offsetHeight);   // the tour panel covers the bottom like the dock
+    const tourEl = $('tour'), asp = w / h, d = tourEl && !tourEl.hidden ? tourEl.offsetHeight + 16 : dockH(), r = tourEl && !tourEl.hidden ? 0 : railW();   // the tour panel covers the bottom like the dock
     camera.fov = S.mode === 'ext' ? (asp < 0.9 ? 50 : 38) : S.mode === 'win' ? (asp < 0.9 ? 78 : 62) : (S.cam === 'walk' ? (asp < 0.9 ? 72 : 62) : (asp < 0.9 ? 60 : 42));
     // the dock covers the bottom d px: render the top part of a taller virtual frame, so what the camera aims at sits mid-way in the free area
-    camera.aspect = w / (h + d);
-    if (d) camera.setViewOffset(w, h + d, 0, d, w, h); else camera.clearViewOffset();
+    // the side menu covers the left r px the same way: a wider virtual frame moves the aim point into the free part on the right
+    camera.aspect = (w + r) / (h + d);
+    if (d || r) camera.setViewOffset(w + r, h + d, 0, d, w, h); else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   }
   function resize() {
     const w = stageEl.clientWidth, h = stageEl.clientHeight; if (!w || !h) return;
-    stageEl.style.setProperty('--dockh', (dockEl.classList.contains('out') ? 0 : dockEl.offsetHeight) + 'px');
+    stageEl.style.setProperty('--dockh', dockH() + 'px');
     // phones keep up to 2x (small screens), computers 1.5x: a full-screen canvas at 2x is 4x the pixels for little visible gain
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 2 : 1.5)); renderer.setSize(w, h, false); updateFov(); wake();
   }
